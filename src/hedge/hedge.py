@@ -5,8 +5,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-# from instruments.instrument import Instrument
-# from instruments.stock import Stock
+from instruments.instrument import Instrument
+from instruments.stock import Stock
 import time
 
 
@@ -29,7 +29,7 @@ def get_stock(ticker):
 
     # driver.close()
 
-    # return Stock(ticker, price, ticker)
+    return Stock(ticker, price.text)
 
 def get_option(ticker):
     #init driver and go to yahoofinance
@@ -63,6 +63,8 @@ def get_option(ticker):
         print(fields[3].text)
 
 
-    # return Stock(ticker, 5, ticker)
+    return Stock(ticker, 5)
 
-get_option("AAPL")
+get_stock("AAPL")
+
+

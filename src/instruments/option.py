@@ -1,4 +1,4 @@
-from .Instrument import Instrument
+from instruments.instrument import Instrument
 
 
 class Option(Instrument):
