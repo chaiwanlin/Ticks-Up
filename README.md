@@ -25,4 +25,4 @@ python manage.py runserver
 ````
 Now open a browser and go to http://localhost:8000/dashboard/.
 
-###Have fun exploring!
+**Have fun exploring!**
