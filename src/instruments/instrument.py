@@ -1,7 +1,6 @@
 class Instrument:
-    def __init__(self, ticker, price, underlying):
+    def __init__(self, ticker, underlying):
         self.ticker = ticker
-        self.price = price
         self.underlying = underlying
 
 # consider spliting into cash/derivative instruments
