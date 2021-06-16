@@ -1,4 +1,4 @@
-from utility.search import  bin_search_closest
+from utility.search import bin_search_closest
 from instruments.instrument import Instrument
 from instruments.stock import Stock
 from instruments.constants import YAHOO_OPTION
