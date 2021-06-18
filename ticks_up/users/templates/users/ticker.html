@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Ticker</h2>
+
+<h3>Debit Spread</h3></p>
+{% for key, val in debit_spread.items %}
+<body>{{ key }}: {{ val }}</body></p>
+{% endfor %}
+
+<h3>Credit Spread</h3></p>
+{% for key, val in credit_spread.items %}
+<body>{{ key }}: {{ val }}</body></p>
+{% endfor %}
+
+<a href="{% url 'home' %}">Back to home</a>
+{% endblock %}
