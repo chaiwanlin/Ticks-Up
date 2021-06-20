@@ -6,7 +6,7 @@ import json
 
 class Stock(Instrument):
 
-    def __init__(self, ticker):
+    def init(self, ticker):
 
         url = f"{YAHOO_STOCK}{ticker}?modules=price%2CsummaryDetail"
         response = urllib.request.urlopen(url)
@@ -14,7 +14,7 @@ class Stock(Instrument):
         result = data["quoteSummary"]["result"][0]
         self.price = result["price"]["regularMarketPrice"]
 
-        super().__init__(ticker, self)
+        super().init(ticker, self)
 
     def get_price(self):
         return float(self.price["fmt"])

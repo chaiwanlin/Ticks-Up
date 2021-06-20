@@ -6,7 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludePattern pattern="yee" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.9 (TicksUp)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.9 (ticks-up-venv)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
