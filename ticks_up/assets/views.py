@@ -1,8 +1,17 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from .forms import AddPortfolioForm, AddStockPositionForm, AddOptionPositionForm
 from .models import Portfolio, StockPosition, OptionPosition
+
+
+def user_check(user, portfolio_id):
+    try:
+        Portfolio.objects.get(user=user, id=portfolio_id)
+        return True
+    except ObjectDoesNotExist:
+        return False
 
 @login_required
 def assets(request):
@@ -27,6 +36,8 @@ def add_portfolio(request):
 
 @login_required
 def view_portfolio(request, portfolio_id):
+    if not user_check(request.user, portfolio_id):
+        return redirect(reverse('assets'))
     portfolio = Portfolio.objects.get(id=portfolio_id)
     stock_positions = StockPosition.objects.filter(portfolio=portfolio)
     option_positions = OptionPosition.objects.filter(portfolio=portfolio)
@@ -38,6 +49,8 @@ def view_portfolio(request, portfolio_id):
 
 @login_required
 def add_stock_position(request, portfolio_id):
+    if not user_check(request.user, portfolio_id):
+        return redirect(reverse('assets'))
     if request.method == 'POST':
         form = AddStockPositionForm(request.POST)
         if form.is_valid():
@@ -55,6 +68,8 @@ def add_stock_position(request, portfolio_id):
 
 @login_required
 def add_option_position(request, portfolio_id):
+    if not user_check(request.user, portfolio_id):
+        return redirect(reverse('assets'))
     if request.method == 'POST':
         form = AddOptionPositionForm(request.POST)
         if form.is_valid():
