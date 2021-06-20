@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.core.exceptions import ObjectDoesNotExist
 from .forms import AddPortfolioForm, AddStockPositionForm, AddOptionPositionForm
 from .models import Portfolio, StockPosition, OptionPosition
 
@@ -10,14 +9,13 @@ def user_check(user, portfolio_id):
     try:
         Portfolio.objects.get(user=user, id=portfolio_id)
         return True
-    except ObjectDoesNotExist:
+    except Portfolio.DoesNotExist:
         return False
 
 @login_required
 def assets(request):
     user = request.user
-    portfolio_list = Portfolio.objects.filter(user=user)
-    return render(request, "assets.html", {'portfolio_list': portfolio_list})
+    return render(request, "assets.html", {'user': user})
 
 @login_required
 def add_portfolio(request):
@@ -38,13 +36,9 @@ def add_portfolio(request):
 def view_portfolio(request, portfolio_id):
     if not user_check(request.user, portfolio_id):
         return redirect(reverse('assets'))
-    portfolio = Portfolio.objects.get(id=portfolio_id)
-    stock_positions = StockPosition.objects.filter(portfolio=portfolio)
-    option_positions = OptionPosition.objects.filter(portfolio=portfolio)
+    portfolio = Portfolio.objects.get(pk=portfolio_id)
     return render(request, "view_portfolio.html", {
         'portfolio': portfolio,
-        'stock_positions': stock_positions,
-        'option_positions': option_positions
     })
 
 @login_required

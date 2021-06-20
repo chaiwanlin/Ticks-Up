@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 
 
 # User ---|one-to-many|---> Portfolio
@@ -45,7 +44,7 @@ class StockPosition(PositionInfo):
             stock.total_cost += self.total_cost
             stock.total_shares += self.total_shares
             super(StockPosition, stock).save()
-        except ObjectDoesNotExist:
+        except StockPosition.DoesNotExist:
             super().save(*args, **kwargs)
 
 
@@ -72,11 +71,11 @@ class OptionPosition(PositionInfo):
     def __str__(self):
         return "[OPTION] {ticker} {strike_price}{call_or_put} {expiration_date} {buy_or_sell}" \
                " | Total Cost: {total_cost} | Total Contracts: {total_contracts}".format(
-                ticker=self.ticker,
-                strike_price=self.strike_price,
-                call_or_put=self.call_or_put,
-                expiration_date=self.expiration_date,
-                buy_or_sell=self.buy_or_sell,
-                total_cost=self.total_cost,
-                total_contracts=self.total_contracts,
+            ticker=self.ticker,
+            strike_price=self.strike_price,
+            call_or_put=self.call_or_put,
+            expiration_date=self.expiration_date,
+            buy_or_sell=self.buy_or_sell,
+            total_cost=self.total_cost,
+            total_contracts=self.total_contracts,
         )

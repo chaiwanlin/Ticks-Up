@@ -2,7 +2,7 @@
 
 {% block content %}
 <h3>Your portfolio(s):</h3></p>
-{% for portfolio in portfolio_list %}
+{% for portfolio in user.portfolio_set.all %}
 <a href="{% url 'view_portfolio' portfolio.id %}">{{ portfolio.name }}</a>
 {% endfor %}
 

@@ -4,12 +4,12 @@
 <h2>{{ portfolio.name }}</h2>
 
 <h3>Your stock position(s):</h3></p>
-{% for pos in stock_positions %}
+{% for pos in portfolio.stockposition_set.all %}
 <body>{{ pos }}</body></p>
 {% endfor %}
 
 <h3>Your option position(s):</h3></p>
-{% for pos in option_positions %}
+{% for pos in portfolio.optionposition_set.all %}
 <body>{{ pos }}</body></p>
 {% endfor %}
 
