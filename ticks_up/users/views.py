@@ -17,6 +17,7 @@ def home(request):
 
     return render(request, "users/home.html", {'form': form})
 
+
 def register(request):
     if request.method == "GET":
         return render(
@@ -30,7 +31,11 @@ def register(request):
             login(request, user)
             return redirect(reverse('home'))
 
+
 def ticker(request, ticker, target_price):
     spreads = get_options(ticker, float(target_price))
-    return render(request, "users/ticker.html",
-                  {'debit_spread': spreads['debit_spread'], 'credit_spread': spreads['credit_spread']})
+    return render(request, "users/ticker.html", {
+        'ticker': ticker.upper(),
+        'debit_spread': spreads['debit_spread'],
+        'credit_spread': spreads['credit_spread']
+    })
