@@ -34,6 +34,9 @@ class AddOptionPositionForm(forms.ModelForm):
     class Meta:
         model = OptionPosition
         exclude = ('portfolio',)
+        labels = {
+            'expiration_date': 'Expiration date (YYYY-MM-DD)'
+        }
 
     def clean_ticker(self):
         ticker = self.cleaned_data['ticker']
