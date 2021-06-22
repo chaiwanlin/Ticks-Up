@@ -44,13 +44,13 @@ def view_portfolio(request, portfolio_id):
 
 @login_required
 def add_stock_position(request, portfolio_id):
+    portfolio = Portfolio.objects.get(id=portfolio_id)
     if not user_check(request.user, portfolio_id):
         return redirect(reverse('assets'))
     if request.method == 'POST':
         form = AddStockPositionForm(request.POST)
         if form.is_valid():
             stock_position = form.save(commit=False)
-            portfolio = Portfolio.objects.get(id=portfolio_id)
             stock_position.portfolio = portfolio
             stock_position.save()
             return redirect(reverse('view_portfolio', args=[portfolio_id]))
@@ -58,18 +58,18 @@ def add_stock_position(request, portfolio_id):
     else:
         form = AddStockPositionForm()
 
-    return render(request, "assets/add_stock_position.html", {'form': form, 'portfolio_id': portfolio_id})
+    return render(request, "assets/add_stock_position.html", {'form': form, 'portfolio': portfolio})
 
 
 @login_required
 def add_option_position(request, portfolio_id):
+    portfolio = Portfolio.objects.get(id=portfolio_id)
     if not user_check(request.user, portfolio_id):
         return redirect(reverse('assets'))
     if request.method == 'POST':
         form = AddOptionPositionForm(request.POST)
         if form.is_valid():
             option_position = form.save(commit=False)
-            portfolio = Portfolio.objects.get(id=portfolio_id)
             option_position.portfolio = portfolio
             option_position.save()
             return redirect(reverse('view_portfolio', args=[portfolio_id]))
@@ -77,4 +77,4 @@ def add_option_position(request, portfolio_id):
     else:
         form = AddOptionPositionForm()
 
-    return render(request, "assets/add_option_position.html", {'form': form, 'portfolio_id': portfolio_id})
+    return render(request, "assets/add_option_position.html", {'form': form, 'portfolio': portfolio})

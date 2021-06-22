@@ -1,15 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3>Your portfolio(s):</h3></p>
-{% for portfolio in user.portfolio_set.all %}
-<a href="{% url 'view_portfolio' portfolio.id %}">{{ portfolio.name }}</a>
-{% endfor %}
 
-<div>
+<div class="container-fluid">
+    <h2>Your portfolio(s):</h2>
+
+    <div class="list-group">
+        {% for portfolio in user.portfolio_set.all %}
+        <a href="{% url 'view_portfolio' portfolio.id %}" class="list-group-item list-group-item-action">{{ portfolio.name }}</a>
+        {% endfor %}
+    </div></p>
+
     <a href="{% url 'add_portfolio' %}">Add Portfolio</a>
-    <a href="{% url 'home' %}">Home</a>
-    <a href="{% url 'logout' %}">Logout</a>
-    <a href="{% url 'password_change' %}">Change password</a>
 </div>
+
 {% endblock %}

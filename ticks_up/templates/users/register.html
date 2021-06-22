@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Register</h2>
 
-<form method="post">
+<div class="container-fluid">
+    <h2>Sign up</h2>
+
+    <form method="post">
     {% csrf_token %}
-    {{form}}
+    {{ form.as_p }}
     <input type="submit" value="Register">
-</form>
+    </form></p>
 
-<a href="{% url 'login' %}">Back to login</a>
+    <body>Have an account?</body>
+    <a href="{% url 'login' %}">Login</a>
+</div>
+
 {% endblock %}

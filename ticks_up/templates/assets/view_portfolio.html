@@ -1,24 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>{{ portfolio.name }}</h2>
 
-<h3>Your stock position(s):</h3></p>
-{% for pos in portfolio.stockposition_set.all %}
-<body>{{ pos }}</body></p>
-{% endfor %}
+<div class="container-fluid">
+    <h2>{{ portfolio.name }}</h2>
 
-<h3>Your option position(s):</h3></p>
-{% for pos in portfolio.optionposition_set.all %}
-<body>{{ pos }}</body></p>
-{% endfor %}
+    <h3>Stocks</h3>
+    {% for pos in portfolio.stockposition_set.all %}
+    <body>{{ pos }}</body></p>
+    {% endfor %}
+    </p>
 
-<div>
-    <a href="{% url 'assets' %}">Assets</a>
+    <h3>Options</h3>
+    {% for pos in portfolio.optionposition_set.all %}
+    <body>{{ pos }}</body></p>
+    {% endfor %}
+    </p>
+
     <a href="{% url 'add_stock_position' portfolio.id %}">Add Stock Position</a>
     <a href="{% url 'add_option_position' portfolio.id %}">Add Option Position</a>
-    <a href="{% url 'home' %}">Home</a>
-    <a href="{% url 'logout' %}">Logout</a>
-    <a href="{% url 'password_change' %}">Change password</a>
 </div>
+
 {% endblock %}
