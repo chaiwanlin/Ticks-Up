@@ -1,5 +1,5 @@
-from .constants import YAHOO_STOCK
-from .instrument import Instrument
+from instruments.constants import YAHOO_STOCK
+from instruments.instrument import Instrument
 import urllib.request
 import urllib.response
 import json
@@ -7,7 +7,6 @@ import json
 class Stock(Instrument):
 
     def __init__(self, ticker):
-
         url = f"{YAHOO_STOCK}{ticker}?modules=price%2CsummaryDetail"
         response = urllib.request.urlopen(url)
         data = json.loads(response.read())
