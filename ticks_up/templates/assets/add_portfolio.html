@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <h2>Add a new portfolio:</h2>
+
+    <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+    </form></p>
+
+    <a href="{% url 'assets' %}">Back to assets</a>
+</div>
+
+{% endblock %}

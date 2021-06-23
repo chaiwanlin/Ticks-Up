@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
+    'assets',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +57,7 @@ ROOT_URLCONF = 'ticks_up.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'users/templates')],
+        'DIRS': [os.path.join(BASE_DIR, './templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,11 +77,16 @@ WSGI_APPLICATION = 'ticks_up.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "chaiwanlin",
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "",
     }
 }
+
 
 
 # Password validation
@@ -121,13 +127,17 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, './static'),
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = "dashboard"
-LOGOUT_REDIRECT_URL = "dashboard"
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
 
 EMAIL_HOST = "smtp.mailgun.org"
 EMAIL_PORT = 587

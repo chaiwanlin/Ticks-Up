@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <h2>{{ portfolio.name }}</h2>
+
+    <h3>Stocks</h3>
+    {% for pos in portfolio.stockposition_set.all %}
+    <body>{{ pos }}</body></p>
+    {% endfor %}
+    </p>
+
+    <h3>Options</h3>
+    {% for pos in portfolio.optionposition_set.all %}
+    <body>{{ pos }}</body></p>
+    {% endfor %}
+    </p>
+
+    <a href="{% url 'add_stock_position' portfolio.id %}">Add Stock Position</a>
+    <a href="{% url 'add_option_position' portfolio.id %}">Add Option Position</a>
+</div>
+
+{% endblock %}
