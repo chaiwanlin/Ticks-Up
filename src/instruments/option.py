@@ -89,7 +89,13 @@ class Call(Option):
     def get_nearest_day(self, day):
         next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
         return Call(self.ticker, next_date.year, next_date.month, next_date.day)
-    
+
+    def get_open_interest_count(self):
+        sum = 0
+        for strike in self.data:
+            sum += strike["openInterest"]
+        return sum    
+
     def implied_price_range(self):
         result = bin_search_closest(self.underlying.get_price(), self.strikes)
         itm = self.strikes[result[0]]
@@ -203,7 +209,8 @@ class CallOption:
         
     def get_iv(self):
         return self.implied_volatility
- 
+
+
 
 class Put(Option):
     today = datetime.datetime.now(datetime.timezone.utc)
@@ -244,22 +251,32 @@ class Put(Option):
         otm_iv = otm.get_iv()
         otm_vol = otm.get_interest()
         return (itm, otm)
-    
+
+    def get_open_interest_count(self):
+        sum = 0
+        for strike in self.data:
+            sum += strike["openInterest"]
+        return sum
+
     def get_hedge_stike(self, risked_amount, entry_point, break_point):
-        break_point_difference = entry_point - break_point
-        break_amount = entry_point
+        break_point_difference = break_point - entry_point 
+        break_diff = entry_point
 
         for strike in self.data:
-            max_loss = entry_point - strike["strike"] + strike["lastPrice"]
-            break_point_loss = break_point_difference + strike["lastPrice"]
-            if break_point_loss < break_amount and strike["strike"] <= entry_point and max_loss < risked_amount:
-                break_amount = break_point_loss
-                strike_price2 = strike["strike"]
+            strike_price = strike["strike"]
+            strike_premium = strike["lastPrice"]
+            max_loss = entry_point - strike_price + strike_premium 
             if max_loss < risked_amount and strike["strike"] <= entry_point:
+                break_point_net = strike_premium - break_point_difference
                 risked_amount = max_loss
-                strike_price = strike["strike"]
+                strike_price_ideal = strike_price
+
+                if break_point_net < break_diff:
+                    break_diff = break_point_net
+                    strike_price2 = strike_price
+                    
             
-        return (risked_amount, strike_price, break_amount, strike_price2)
+        return (risked_amount, strike_price_ideal, break_diff, strike_price2)
 
         # ideally do a graph for best strike price to buy from current price to break point in a graph or wtv
 
@@ -328,6 +345,44 @@ class Put(Option):
         else:
             return(ideal_strike, ideal_premium, ideal_diff, min_strike, min_premium, min_diff)
 
+    def get_strike_for_breakeven_collar(self, entry_price, breakeven_point, short_call_strike, short_call_premium, risk = math.inf, threshold = 1):
+        ideal_diff_breakeven = -math.inf
+        ideal_strike_breakeven = breakeven_point
+        ideal_premium_breakeven = breakeven_point
+
+        min_threshold= -threshold
+        min_diff_breakeven = None
+        min_strike_breakeven = breakeven_point
+        min_premium_breakeven = breakeven_point
+        min_max_loss = math.inf
+
+
+        for strike in self.data:
+            strike_price = strike["strike"]
+            strike_premium = strike["lastPrice"]
+            max_loss = entry_price - strike_price + strike_premium - short_call_premium
+            if strike_price < short_call_strike:
+                if strike_price < breakeven_point:
+                    sum = breakeven_point - entry_price + short_call_premium - strike_premium 
+                    if max_loss < risk:
+                        if sum > ideal_diff_breakeven:
+                            ideal_diff_breakeven = sum
+                            ideal_strike_breakeven = strike_price
+                            ideal_premium_breakeven = strike_premium 
+                        
+                        if min_threshold <= sum <= threshold and max_loss < min_max_loss: 
+                            min_diff_breakeven = sum
+                            min_strike_breakeven = strike_price
+                            min_premium_breakeven = strike_premium
+                            min_max_loss = max_loss
+
+        if not min_diff_breakeven:
+            threshold += 1
+            return self.get_strike_for_breakeven_collar(entry_price, breakeven_point, short_call_strike, short_call_premium, risk, threshold)
+        else:
+            return(ideal_strike_breakeven, ideal_premium_breakeven, ideal_diff_breakeven, min_strike_breakeven, min_premium_breakeven, min_diff_breakeven)
+        
+
 class PutOption:
     def __init__(self, ticker, underlying, data):
         self.ticker = ticker
@@ -364,5 +419,5 @@ class PutOption:
         return self.implied_volatility
 
 
-print(Call("aapl", month = 8, day = 20).get_strike_for_breakeven_credit(120, 110, 24.2, 40))
-print(Put("aapl", month = 8, day = 20).get_strike_for_breakeven_credit(140, 160, 27.25, 10))
+# print(Call("aapl", month = 8, day = 20).get_strike_for_breakeven_credit(120, 110, 24.2, 40))
+# print(Put("aapl", month = 8, day = 20).get_strike_for_breakeven_credit(140, 160, 27.25, 10))
