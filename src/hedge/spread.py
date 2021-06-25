@@ -46,5 +46,16 @@ def bear_debit_spread(ticker, days, upper_bound, target_price, risk):
 
     return result
 
+def collar(ticker, days, entry_price, lower_bound, target_price, risk):
+    calls = Call(ticker).get_nearest_day(days)
+    strikes = calls.get_strikes()
+    closest_price = strikes[bin_search_closest(target_price, strikes)[0]]
 
-print(bull_credit_spread("aapl", 58, 140, 160, 20))
+    long_call = calls.get_option_for_strike(closest_price).get_price()
+
+    return Put(ticker).get_nearest_day(days).get_strike_for_breakeven_collar(entry_price, lower_bound, closest_price, long_call, risk)
+
+
+
+# print(bull_credit_spread("aapl", 58, 140, 160, 20))
+print(collar("aapl", 30, 120, 130, 150, 20))
