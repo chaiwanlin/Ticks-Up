@@ -5,13 +5,25 @@
 <div class="container-fluid">
     <h2>${{ ticker }}</h2>
 
-    <div class="container-fluid">
-        <div class="card">
-            <div class="card-body">
-                Data coming soon!
-            </div>
-        </div>
-    </div>
+<!--    <div class="container-fluid">-->
+<!--        <div class="card">-->
+<!--            <div class="card-body">-->
+<!--                Data coming soon!-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+    <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+    </form></p>
+
+    <body>For days = {{ days }},</body></p>
+    {% for type, data in ticker_data.items %}
+    <body>{{ type }}: {{ data }}</body></p>
+    {% endfor %}
+
+    <a href="{% url 'vertical_spreads' ticker %}">Get vertical spreads</a></p>
 
     <a href="{% url 'home' %}">Back</a>
 </div>
