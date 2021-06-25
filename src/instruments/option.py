@@ -56,10 +56,6 @@ class Option(Instrument):
 
     def get_strikes(self):
         return self.strikes
-
-    def get_implied_iv(self):
-        call = Call(self.ticker).get_implied_iv()
-        put = Put(self.ticker).get_implied_iv()
     
     def get_data(self):
         return self.data
@@ -96,18 +92,20 @@ class Call(Option):
             sum += strike["openInterest"]
         return sum    
 
-    def implied_price_range(self):
+    def aggregated_iv(self):
         result = bin_search_closest(self.underlying.get_price(), self.strikes)
         itm = self.strikes[result[0]]
         otm = self.strikes[result[1]]
-        itm = self.get_option_for_strike(itm).get_iv()
-        otm = self.get_option_for_strike(otm).get_iv()
+        itm = self.get_option_for_strike(itm)
+        otm = self.get_option_for_strike(otm)
 
         itm_iv = itm.get_iv()
         itm_vol = itm.get_interest()
         otm_iv = otm.get_iv()
         otm_vol = otm.get_interest()
-        return (itm, otm)
+        total = itm_vol + otm_vol
+        agg_iv = itm_vol/total * itm_iv + otm_vol/total * otm_iv
+        return (agg_iv, total)
 
     def get_strike_for_breakeven_debit(self, breakeven_point, risk = math.inf, offset = 0, threshold = 1):
         max_premium = risk - offset
@@ -239,7 +237,7 @@ class Put(Option):
         print(next_date)
         return Put(self.ticker, next_date.year, next_date.month, next_date.day)
     
-    def implied_price_range(self):
+    def aggregated_iv(self):
         result = bin_search_closest(self.underlying.get_price(), self.strikes)
         itm = self.strikes[result[1]]
         otm = self.strikes[result[0]]
@@ -250,7 +248,10 @@ class Put(Option):
         itm_vol = itm.get_interest()
         otm_iv = otm.get_iv()
         otm_vol = otm.get_interest()
-        return (itm, otm)
+        total = itm_vol + otm_vol
+        agg_iv = itm_vol/total * itm_iv + otm_vol/total * otm_iv
+
+        return (agg_iv, total)
 
     def get_open_interest_count(self):
         sum = 0
