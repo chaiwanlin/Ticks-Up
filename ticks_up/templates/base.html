@@ -15,89 +15,49 @@
 </head>
 
 <body>
-<!--    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">-->
-<!--        <div class="container-fluid">-->
-<!--            <a class="navbar-brand" href="{% url 'home' %}">Ticks Up</a>-->
-<!--        </div>-->
-<!--    </nav>-->
     <header class="p-3 bg-dark text-white">
-<!--        <div class="container">-->
-<!--            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">-->
-<!--                <a href="{% url 'home' %}" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">-->
-<!--                    {% load static %}-->
-<!--                    <img src="{% static 'ticks-up-logo.png' %}" alt="Ticks Up" class="img-fluid" style="width:206px; height: 33px">-->
-<!--                </a>-->
-<!--                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">-->
-<!--                    <li>-->
-<!--                        <a href="{% url 'home' %}" class="nav-link px-2 text-white">Home</a>-->
-<!--                    </li>-->
-<!--                    {% if user.is_authenticated %}-->
-<!--                    <li>-->
-<!--                        <a href="{% url 'assets' %}" class="nav-link px-2 text-white">Assets</a>-->
-<!--                    </li>-->
-<!--                    {% endif %}-->
-<!--                </ul>-->
-<!--                <div class="text-end">-->
-<!--                    {% if user.is_authenticated %}-->
-<!--                    <div class="nav-item dropdown text-end">-->
-<!--                        <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                            Account-->
-<!--                        </a>-->
-<!--                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">-->
-<!--                            <li><a class="dropdown-item" href="{% url 'password_change' %}">Change password</a></li>-->
-<!--                            <li><hr class="dropdown-divider"></li>-->
-<!--                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>-->
-<!--                        </ul>-->
-<!--                    </div>-->
-<!--                    {% else %}-->
-<!--                    <a href="{% url 'login' %}" type="button" class="btn btn-outline-light me-2">Login</a>-->
-<!--                    <a href="{% url 'register' %}" type="button" class="btn btn-warning">Sign-up</a>-->
-<!--                    {% endif %}-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <div class="container-fluid">
-                    <a href="{% url 'home' %}" class="d-flex align-items-center mb-2 mb-lg-0 me-4 text-white text-decoration-none">
-                        {% load static %}
-                        <img src="{% static 'ticks-up-logo.png' %}" alt="Ticks Up" class="d-inline-block align-text-top" style="width:206px; height: 33px">
-                    </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
-                            </li>
-                            {% if user.is_authenticated %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'assets' %}">Assets</a>
-                            </li>
-                            {% endif %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Account
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    {% if user.is_authenticated %}
-                                    <li><a class="dropdown-item" href="{% url 'password_change' %}">Change password</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                                    {% else %}
-                                    <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'register' %}">Sign up</a></li>
-                                    {% endif %}
-                                </ul>
-                            </li>
-                        </ul>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a href="{% url 'home' %}" class="d-flex align-items-center mb-2 mb-lg-0 me-4 text-white text-decoration-none">
+                    {% load static %}
+                    <img src="{% static 'ticks-up-logo.png' %}" alt="Ticks Up" class="d-inline-block align-text-top" style="width:206px; height: 33px">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
+                        </li>
+                        {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'assets' %}">Assets</a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Account
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                {% if user.is_authenticated %}
+                                <li><a class="dropdown-item" href="{% url 'password_change' %}">Change password</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                                {% else %}
+                                <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
+                                <li><a class="dropdown-item" href="{% url 'register' %}">Sign up</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                    </ul>
 <!--                        <form class="d-flex">-->
 <!--                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">-->
 <!--                        <button class="btn btn-outline-success" type="submit">Search</button>-->
 <!--                        </form>-->
-                    </div>
                 </div>
-            </nav>
+            </div>
+        </nav>
     </header>
 
     {% block content %}

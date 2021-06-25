@@ -13,21 +13,33 @@ class Portfolio(models.Model):
         return self.name
 
 
-# Abstract class to store common info between Stock and Option models
-class PositionInfo(models.Model):
-    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE)
-    ticker = models.CharField(max_length=10)    # need to make custom field for ticker?
-    # date_created = models.DateTimeField()  # required? useful to sort
+# # Abstract class to store common info between Stock and Option models
+# class PositionInfo(models.Model):
+#     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE)
+#     ticker = models.CharField(max_length=10)    # need to make custom field for ticker?
+#     # date_created = models.DateTimeField()  # required? useful to sort
+#
+#     class Meta:
+#         abstract = True
+#         # ordering = ?
+#         # managed = ?
 
-    class Meta:
-        abstract = True
-        # ordering = ?
-        # managed = ?
+# Portfolio ---|one-to-many|---> Ticker
+# To store tickers under a specified portfolio
+class Ticker(models.Model):
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE)
+    name = models.CharField(max_length=7)
+
+    def __str__(self):
+        return self.name
 
 
 # Portfolio ---|one-to-many|---> StockPosition
+# Ticker ---|one-to-one|---> StockPosition
 # To store stock position(s) under a specified portfolio
-class StockPosition(PositionInfo):
+class StockPosition(models.Model):
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE)
+    ticker = models.OneToOneField(Ticker, on_delete=models.CASCADE)
     total_cost = models.DecimalField(max_digits=19, decimal_places=4)
     total_shares = models.DecimalField(max_digits=19, decimal_places=4)
 
@@ -49,8 +61,12 @@ class StockPosition(PositionInfo):
 
 
 # Portfolio ---|one-to-many|---> OptionPosition
+# Ticker ---|one-to-many|---> OptionPosition
 # To store option position(s) under a specified portfolio
-class OptionPosition(PositionInfo):
+class OptionPosition(models.Model):
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE)
+    ticker = models.ForeignKey(Ticker, on_delete=models.CASCADE)
+
     CALL_OR_PUT = [
         ('CALL', 'Call'),
         ('PUT', 'Put'),

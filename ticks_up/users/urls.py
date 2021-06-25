@@ -1,9 +1,7 @@
 from django.urls import path, include
-from .views import home, register, ticker
+from . import views
 
 urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
-    path('', home, name='home'),
-    path('register/', register, name='register'),
-    path('<ticker>-<target_price>/', ticker, name='ticker'),
+    path('register/', views.register, name='register'),
 ]

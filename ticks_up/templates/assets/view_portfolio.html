@@ -5,17 +5,16 @@
 <div class="container-fluid">
     <h2>{{ portfolio.name }}</h2>
 
-    <h3>Stocks</h3>
-    {% for pos in portfolio.stockposition_set.all %}
-    <body>{{ pos }}</body></p>
-    {% endfor %}
-    </p>
+    {% for ticker, pos in positions.items %}
+    <a href="{% url 'ticker' ticker %}">{{ ticker }}</a></p>
+        {% for stock_pos in pos.0 %}
+        <body>{{ stock_pos }}</body></p>
+        {% endfor %}
 
-    <h3>Options</h3>
-    {% for pos in portfolio.optionposition_set.all %}
-    <body>{{ pos }}</body></p>
+        {% for option_pos in pos.1 %}
+        <body>{{ option_pos }}</body></p>
+        {% endfor %}
     {% endfor %}
-    </p>
 
     <a href="{% url 'add_stock_position' portfolio.id %}">Add Stock Position</a>
     <a href="{% url 'add_option_position' portfolio.id %}">Add Option Position</a>

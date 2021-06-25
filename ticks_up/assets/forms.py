@@ -1,13 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Portfolio, StockPosition, OptionPosition
-# from .src.instruments import instrument, stock, option
+from .models import Portfolio, Ticker, StockPosition, OptionPosition
+# from .src-old-hedge1.instruments import instrument, stock, option
 from wallstreet import Stock, Call, Put
-
-
-class SpreadsForm(forms.Form):
-    ticker = forms.CharField(label='Ticker', max_length=10)
-    target_price = forms.IntegerField(label='Target Price')
 
 
 class AddPortfolioForm(forms.ModelForm):
@@ -16,13 +11,13 @@ class AddPortfolioForm(forms.ModelForm):
         exclude = ('user',)
 
 
-class AddStockPositionForm(forms.ModelForm):
+class TickerForm(forms.ModelForm):
     class Meta:
-        model = StockPosition
+        model = Ticker
         exclude = ('portfolio',)
 
     def clean_ticker(self):
-        ticker = self.cleaned_data['ticker']
+        ticker = self.cleaned_data['name']
         try:
             test = Stock(ticker)
             return ticker.upper()
@@ -30,42 +25,18 @@ class AddStockPositionForm(forms.ModelForm):
             raise ValidationError("Invalid ticker!")
 
 
+class AddStockPositionForm(forms.ModelForm):
+    class Meta:
+        model = StockPosition
+        exclude = ('portfolio', 'ticker')
+
+
 class AddOptionPositionForm(forms.ModelForm):
     class Meta:
         model = OptionPosition
-        exclude = ('portfolio',)
+        exclude = ('portfolio', 'ticker')
         labels = {
             'expiration_date': 'Expiration date (YYYY-MM-DD)'
         }
 
-    def clean_ticker(self):
-        ticker = self.cleaned_data['ticker']
-        try:
-            test = Stock(ticker)
-            return ticker.upper()
-        except:  # fill in error
-            raise ValidationError("Invalid ticker!")
-
-        # ticker = self.cleaned_data['ticker']
-        # call_or_put = self.cleaned_data['call_or_put']
-        # buy_or_sell = self.cleaned_data['buy_or_sell']
-        # expiration_date = self.cleaned_data['expiration_date']
-        # strike_price = self.cleaned_data['strike_price']
-        # try:
-        #     if call_or_put == "CALL":
-        #         test = Call(
-        #             ticker.upper(),
-        #             d=expiration_date.day,
-        #             m=expiration_date.month,
-        #             y=expiration_date.year,
-        #             strike=strike_price)
-        #     else:
-        #         test = Put(
-        #             ticker.upper(),
-        #             d=expiration_date.day,
-        #             m=expiration_date.month,
-        #             y=expiration_date.year,
-        #             strike=strike_price)
-        #     return ticker.upper()
-        # except:  # fill in error
-        #     raise ValidationError("Invalid ticker!")
+    # clean option data for validation
