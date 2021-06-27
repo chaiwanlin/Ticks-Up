@@ -267,7 +267,6 @@ class CallOption:
         return self.implied_volatility
 
 
-
 class Put(Option):
     today = datetime.datetime.now(datetime.timezone.utc)
     
