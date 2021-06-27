@@ -103,74 +103,132 @@ class Call(Option):
         itm_vol = itm.get_interest()
         otm_iv = otm.get_iv()
         otm_vol = otm.get_interest()
+
         total = itm_vol + otm_vol
         agg_iv = itm_vol/total * itm_iv + otm_vol/total * otm_iv
+        
         return (agg_iv, total)
 
-    def get_strike_for_breakeven_debit(self, breakeven_point, risk = math.inf, offset = 0, threshold = 1):
-        max_premium = risk - offset
-        ideal_diff = 0
-        ideal_strike = breakeven_point
-        ideal_premium = breakeven_point
+    def get_strike_for_breakeven_debit(self, breakeven_point, short_call_strike, short_call_premium,  risk = math.inf, threshold = 1):
+        max_premium = risk - short_call_premium
+
+        max_gain_net_value = -math.inf
+        max_gain_strike = breakeven_point
+        max_gain_premium = breakeven_point
 
         min_threshold = -threshold
-        min_diff = None
-        min_strike = breakeven_point
-        min_premium = breakeven_point
+
+        min_cost_net_value = None
+        min_cost_strike = breakeven_point
+        min_cost_premium = breakeven_point
+
         for strike in self.data:
             strike_price = strike["strike"]
             strike_premium = strike["lastPrice"]
+
             if strike_price < breakeven_point:
-                sum = breakeven_point -strike_price + offset - strike_premium 
+                net_value = breakeven_point - strike_price + short_call_premium - strike_premium
+
                 if strike_premium  < max_premium:
-                    if sum > ideal_diff:
-                        ideal_strike = strike_price
-                        ideal_diff = sum
-                        ideal_premium = strike_premium 
+                    if net_value > max_gain_net_value:
+                        max_gain_net_value = net_value
+                        max_gain_strike = strike_price
+                        max_gain_premium = strike_premium 
                     
-                    if min_threshold <= sum <= threshold and strike_premium < min_premium: 
-                        min_diff = sum
-                        min_strike = strike_price
-                        min_premium = strike_premium 
+                    if min_threshold <= net_value <= threshold and strike_premium < min_cost_premium: 
+                        min_cost_net_value = net_value
+                        min_cost_strike = strike_price
+                        min_cost_premium = strike_premium 
 
-        if not min_diff:
+        if not min_cost_net_value:
             threshold += 1
-            return self.get_strike_for_breakeven_debit(breakeven_point, risk, offset, threshold)
+            return self.get_strike_for_breakeven_debit(breakeven_point, short_call_strike, short_call_premium, risk,  threshold)
         else:
-            return(ideal_strike, ideal_premium, ideal_diff, min_strike, min_premium, min_diff)
+            max_gain_loss = short_call_premium - max_gain_premium
+            max_gain_profit = short_call_strike - max_gain_strike - max_gain_loss
+            max_gain_breakeven = max_gain_loss + max_gain_strike
 
-    def get_strike_for_breakeven_credit(self, breakeven_point, short_call_strike, offset, risk = math.inf, threshold = 1):
-        diff = offset - (breakeven_point - short_call_strike)
-        ideal_diff = -math.inf
-        ideal_strike = breakeven_point
-        ideal_premium = breakeven_point
+            min_cost_loss = short_call_premium - min_cost_premium 
+            min_cost_profit = short_call_strike - min_cost_strike - min_cost_loss
+            min_cost_breakeven = min_cost_loss + min_cost_strike
 
-        min_threshold = -threshold
-        min_diff = None
-        min_strike = breakeven_point
-        min_premium = breakeven_point
+            return { 
+                "max_gain" : {
+                    "strike price" : max_gain_strike, 
+                    "strike_premium" : max_gain_premium,
+                    "net_value_at_breakeven" : max_gain_net_value,
+                    "max_profit" : max_gain_profit,
+                    "breakeven" : max_gain_breakeven,
+                    "max_loss" : max_gain_loss
+                },
+                "min_cost": {
+                    "strike price" : min_cost_strike, 
+                    "strike_premium" : min_cost_premium,
+                    "net_value_at_breakeven" : min_cost_net_value,
+                    "max_profit" : min_cost_profit,
+                    "breakeven" : min_cost_breakeven,
+                    "max_loss" : min_cost_loss
+                }
+            }
+
+    def get_strike_for_breakeven_credit(self, breakeven_point, short_call_strike, short_call_premium, risk = math.inf):
+        net_breakeven_value = short_call_premium - (breakeven_point - short_call_strike)
+
+        max_gain_net_value = -math.inf
+        max_gain_strike = breakeven_point
+        max_gain_premium = breakeven_point
+
+        min_risk_net_value = None
+        min_risk_strike = breakeven_point
+        min_risk_premium = breakeven_point
+        min_risk_max_loss = breakeven_point
+
         for strike in self.data:
             strike_price = strike["strike"]
             strike_premium = strike["lastPrice"]
-            if strike_price > breakeven_point:
-                sum = diff - strike_premium
-                max_loss = strike_price - short_call_strike - offset + strike_premium
-                if max_loss < risk:
-                    if sum > ideal_diff:
-                        ideal_strike = strike_price
-                        ideal_diff = sum
-                        ideal_premium = strike_premium 
-                    
-                    if min_threshold <= sum <= threshold and strike_premium < min_premium: 
-                        min_diff = sum
-                        min_strike = strike_price
-                        min_premium = strike_premium 
 
-        if not min_diff:
-            threshold += 1
-            return self.get_strike_for_breakeven_credit(breakeven_point, short_call_strike, offset, risk, threshold)
-        else:
-            return(ideal_strike, ideal_premium, ideal_diff, min_strike, min_premium, min_diff)
+            if strike_price > breakeven_point:
+                net_value = net_breakeven_value - strike_premium
+                max_loss = strike_price - short_call_strike - short_call_premium + strike_premium
+
+                if max_loss < risk:
+                    if strike_premium < max_gain_premium:
+                        max_gain_net_value = net_value
+                        max_gain_strike = strike_price
+                        max_gain_premium = strike_premium 
+                    
+                    if max_loss < min_risk_max_loss: 
+                        min_risk_net_value = net_value
+                        min_risk_strike = strike_price
+                        min_risk_premium = strike_premium 
+                        min_risk_max_loss = max_loss
+
+        
+        max_gain_profit = short_call_premium - max_gain_premium
+        max_gain_loss = max_gain_strike - short_call_strike - max_gain_profit
+        max_gain_breakeven = short_call_strike + max_gain_profit
+
+        min_risk_profit = short_call_premium - min_risk_premium
+        min_risk_loss = min_risk_strike - short_call_strike - min_risk_profit
+        min_risk_breakeven = short_call_strike + min_risk_profit
+        return { 
+            "max_gain" : {
+                "strike price" : max_gain_strike, 
+                "strike_premium" : max_gain_premium,
+                "net_value_at_breakeven" : max_gain_net_value,
+                "max_profit" : max_gain_profit,
+                "breakeven" : max_gain_breakeven,
+                "max_loss" : max_gain_loss
+            },
+            "min_cost": {
+                "strike price" : min_risk_strike, 
+                "strike_premium" : min_risk_premium,
+                "net_value_at_breakeven" : min_risk_net_value,
+                "max_profit" : min_risk_profit,
+                "breakeven" : min_risk_breakeven,
+                "max_loss" : min_risk_loss
+            }
+        }
 
 
 class CallOption:
@@ -259,130 +317,231 @@ class Put(Option):
             sum += strike["openInterest"]
         return sum
 
-    def get_hedge_stike(self, risked_amount, entry_point, break_point):
-        break_point_difference = break_point - entry_point 
-        break_diff = entry_point
+    def get_hedge_stike(self, risk, entry_point):
+       
+        min_cost_strike_price = entry_point
+        min_cost_strike_premium = entry_point
+        min_cost_risk = entry_point
+
+        min_loss_strike_price = entry_point
+        min_loss_strike_premium = entry_point
+        min_loss_risk = entry_point
 
         for strike in self.data:
             strike_price = strike["strike"]
             strike_premium = strike["lastPrice"]
             max_loss = entry_point - strike_price + strike_premium 
-            if max_loss < risked_amount and strike["strike"] <= entry_point:
-                break_point_net = strike_premium - break_point_difference
-                risked_amount = max_loss
-                strike_price_ideal = strike_price
 
-                if break_point_net < break_diff:
-                    break_diff = break_point_net
-                    strike_price2 = strike_price
+            if max_loss < risk and strike["strike"] <= entry_point:
+                if strike_premium < min_cost_strike_premium:
+                    min_cost_risk = max_loss
+                    min_cost_strike_price = strike_price
+                    min_cost_strike_premium = strike_premium
+
+                if max_loss < min_loss_risk:
+                    min_loss_risk = max_loss
+                    min_loss_strike_price = strike_price
+                    min_loss_strike_premium = strike_premium
                     
             
-        return (risked_amount, strike_price_ideal, break_diff, strike_price2)
-
+        return { 
+            "min_cost" : {
+                "strike price" : min_cost_strike_price, 
+                "strike_premium" : min_cost_strike_premium,
+                "risk" : min_cost_risk
+            },
+            "min_loss": {
+                "strike price" : min_loss_strike_price, 
+                "strike_premium" : min_loss_strike_premium,
+                "risk" : min_loss_risk
+            }
+        }
         # ideally do a graph for best strike price to buy from current price to break point in a graph or wtv
 
-    def get_strike_for_breakeven_debit(self, breakeven_point, risk = math.inf, offset = 0, threshold = 1):
-        max_premium = risk - offset
-        ideal_diff = 0
-        ideal_strike = breakeven_point
-        ideal_premium = breakeven_point
+    def get_strike_for_breakeven_debit(self, breakeven_point, short_put_strike, short_put_premium, risk = math.inf, threshold = 1):
+        max_premium = risk - short_put_premium
+
+        max_gain_net_value = -math.inf
+        max_gain_strike = breakeven_point
+        max_gain_premium = breakeven_point
 
         min_threshold = -threshold
-        min_diff = None
-        min_strike = breakeven_point
-        min_premium = breakeven_point
+
+        min_cost_net_value = None
+        min_cost_strike = breakeven_point
+        min_cost_premium = breakeven_point
+
         for strike in self.data:
             strike_price = strike["strike"]
             strike_premium = strike["lastPrice"]
+
             if strike_price > breakeven_point:
-                sum = strike_price - breakeven_point  + offset - strike_premium 
+                net_value = strike_price - breakeven_point + short_put_premium - strike_premium 
+                print(net_value)
+
                 if strike_premium  < max_premium:
-                    if sum > ideal_diff:
-                        ideal_strike = strike_price
-                        ideal_diff = sum
-                        ideal_premium = strike_premium 
+                    if net_value > max_gain_net_value:
+                        max_gain_net_value = net_value
+                        max_gain_strike = strike_price
+                        max_gain_premium = strike_premium 
                     
-                    if min_threshold <= sum <= threshold and strike_premium < min_premium: 
-                        min_diff = sum
-                        min_strike = strike_price
-                        min_premium = strike_premium 
+                    if min_threshold <= net_value <= threshold and strike_premium < min_cost_premium: 
+                        min_cost_net_value = net_value
+                        min_cost_strike = strike_price
+                        min_cost_premium = strike_premium 
 
-        if not min_diff:
+
+        if not min_cost_net_value:
             threshold += 1
-            return self.get_strike_for_breakeven_debit(breakeven_point, risk, offset, threshold)
+            return self.get_strike_for_breakeven_debit(breakeven_point, short_put_strike, short_put_premium, risk, threshold)
         else:
-            return(ideal_strike, ideal_premium, ideal_diff, min_strike, min_premium, min_diff)
+            max_gain_loss = short_put_premium - max_gain_premium 
+            max_gain_profit = max_gain_strike - short_put_strike - max_gain_loss
+            max_gain_breakeven = max_gain_strike - max_gain_loss
 
-    def get_strike_for_breakeven_credit(self, breakeven_point, short_put_strike, offset, risk = math.inf, threshold = 1):
-        diff = offset - (short_put_strike - breakeven_point)
-        ideal_diff = -math.inf
-        ideal_strike = breakeven_point
-        ideal_premium = breakeven_point
+            min_cost_loss = short_put_premium - min_cost_premium
+            min_cost_profit = min_cost_strike - short_put_strike - min_cost_loss
+            min_cost_breakeven = min_cost_strike - min_cost_loss 
 
-        min_threshold = -threshold
-        min_diff = None
-        min_strike = breakeven_point
-        min_premium = breakeven_point
+            return { 
+                "max_gain" : {
+                    "strike price" : max_gain_strike, 
+                    "strike_premium" : max_gain_premium,
+                    "net_value_at_breakeven" : max_gain_net_value,
+                    "max_profit" : max_gain_profit,
+                    "breakeven" : max_gain_breakeven,
+                    "max_loss" : max_gain_loss
+                },
+                "min_cost": {
+                    "strike price" : min_cost_strike, 
+                    "strike_premium" : min_cost_premium,
+                    "net_value_at_breakeven" : min_cost_net_value,
+                    "max_profit" : min_cost_profit,
+                    "breakeven" : min_cost_breakeven,
+                    "max_loss" : min_cost_loss
+                }
+            }
+
+    def get_strike_for_breakeven_credit(self, breakeven_point, short_put_strike, short_put_premium, risk = math.inf, threshold = 1):
+        net_breakeven_value = short_put_premium - (short_put_strike - breakeven_point)
+
+        max_gain_net_value = -math.inf
+        max_gain_strike = breakeven_point
+        max_gain_premium = breakeven_point
+
+        min_risk_net_value = None
+        min_risk_strike = breakeven_point
+        min_risk_premium = breakeven_point
+        min_risk_max_loss = breakeven_point
+
         for strike in self.data:
             strike_price = strike["strike"]
             strike_premium = strike["lastPrice"]
-            max_loss = short_put_strike - strike_price + strike_premium - offset
-            if strike_price < breakeven_point:
-                sum = diff - strike_premium
-                if max_loss  < risk:
-                    if sum > ideal_diff:
-                        ideal_strike = strike_price
-                        ideal_diff = sum
-                        ideal_premium = strike_premium 
-                    
-                    if min_threshold <= sum <= threshold and strike_premium < min_premium: 
-                        min_diff = sum
-                        min_strike = strike_price
-                        min_premium = strike_premium 
 
-        if not min_diff:
-            threshold += 1
-            return self.get_strike_for_breakeven_credit(breakeven_point, short_put_strike, offset, risk, threshold)
-        else:
-            return(ideal_strike, ideal_premium, ideal_diff, min_strike, min_premium, min_diff)
+            if strike_price < breakeven_point:
+                net_value = net_breakeven_value - strike_premium
+                max_loss = short_put_strike - strike_price + strike_premium - short_put_premium
+
+                if max_loss  < risk:
+                    if strike_premium < max_gain_premium:
+                        max_gain_net_value = net_value
+                        max_gain_strike = strike_price                        
+                        max_gain_premium = strike_premium 
+                    
+                    if max_loss < min_risk_max_loss: 
+                        min_risk_net_value = net_value
+                        min_risk_strike = strike_price
+                        min_risk_premium = strike_premium 
+                        min_risk_max_loss = max_loss
+
+        max_gain_profit = short_put_premium - max_gain_premium
+        max_gain_loss = short_put_strike - max_gain_strike - max_gain_profit
+        max_gain_breakeven = short_put_strike - max_gain_profit
+
+        min_risk_profit = short_put_premium - min_risk_premium
+        min_risk_loss = short_put_strike - max_gain_strike - min_risk_profit
+        min_risk_breakeven = short_put_strike - min_risk_profit
+        return { 
+            "max_gain" : {
+                "strike price" : max_gain_strike, 
+                "strike_premium" : max_gain_premium,
+                "net_value_at_breakeven" : max_gain_net_value,
+                "max_profit" : max_gain_profit,
+                "breakeven" : max_gain_breakeven,
+                "max_loss" : max_gain_loss
+            },
+            "min_cost": {
+                "strike price" : min_risk_strike, 
+                "strike_premium" : min_risk_premium,
+                "net_value_at_breakeven" : min_risk_net_value,
+                "max_profit" : min_risk_profit,
+                "breakeven" : min_risk_breakeven,
+                "max_loss" : min_risk_loss
+            }
+        }
 
     def get_strike_for_breakeven_collar(self, entry_price, breakeven_point, short_call_strike, short_call_premium, risk = math.inf, threshold = 1):
-        ideal_diff_breakeven = -math.inf
-        ideal_strike_breakeven = breakeven_point
-        ideal_premium_breakeven = breakeven_point
+        breakeven_net_value = breakeven_point - entry_price + short_call_premium
 
-        min_threshold= -threshold
-        min_diff_breakeven = None
-        min_strike_breakeven = breakeven_point
-        min_premium_breakeven = breakeven_point
-        min_max_loss = math.inf
+        max_gain_net_value = -math.inf
+        max_gain_strike = breakeven_point
+        max_gain_premium = breakeven_point
 
+        min_risk_net_value = None
+        min_risk_strike = breakeven_point
+        min_risk_premium = breakeven_point
+        min_risk_max_loss = math.inf
 
         for strike in self.data:
             strike_price = strike["strike"]
             strike_premium = strike["lastPrice"]
-            max_loss = entry_price - strike_price + strike_premium - short_call_premium
+
             if strike_price < short_call_strike:
                 if strike_price < breakeven_point:
-                    sum = breakeven_point - entry_price + short_call_premium - strike_premium 
-                    if max_loss < risk:
-                        if sum > ideal_diff_breakeven:
-                            ideal_diff_breakeven = sum
-                            ideal_strike_breakeven = strike_price
-                            ideal_premium_breakeven = strike_premium 
-                        
-                        if min_threshold <= sum <= threshold and max_loss < min_max_loss: 
-                            min_diff_breakeven = sum
-                            min_strike_breakeven = strike_price
-                            min_premium_breakeven = strike_premium
-                            min_max_loss = max_loss
+                    max_loss = entry_price - strike_price + strike_premium - short_call_premium
+                    net_value = breakeven_net_value - strike_premium 
 
-        if not min_diff_breakeven:
-            threshold += 1
-            return self.get_strike_for_breakeven_collar(entry_price, breakeven_point, short_call_strike, short_call_premium, risk, threshold)
-        else:
-            return(ideal_strike_breakeven, ideal_premium_breakeven, ideal_diff_breakeven, min_strike_breakeven, min_premium_breakeven, min_diff_breakeven)
-        
+                    if max_loss < risk:
+                        if net_value > max_gain_net_value:
+                            max_gain_net_value = net_value
+                            max_gain_strike = strike_price
+                            max_gain_premium = strike_premium 
+                        
+                        if max_loss < min_risk_max_loss: 
+                            min_risk_net_value = net_value
+                            min_risk_strike = strike_price
+                            min_risk_premium = strike_premium
+                            min_risk_max_loss = max_loss
+
+        max_gain_cost = short_call_premium - max_gain_premium
+        max_gain_loss = entry_price - max_gain_strike + max_gain_cost
+        max_gain_profit = max_gain_strike - entry_price - max_gain_cost
+        max_gain_breakeven = entry_price + max_gain_cost
+
+        min_risk_cost = short_call_premium - min_risk_premium
+        min_risk_loss = entry_price - max_gain_strike + min_risk_cost
+        min_risk_profit = min_risk_strike - entry_price - max_gain_cost
+        min_risk_breakeven = entry_price + min_risk_cost
+        return { 
+            "max_gain" : {
+                "strike price" : max_gain_strike, 
+                "strike_premium" : max_gain_premium,
+                "net_value_at_breakeven" : max_gain_net_value,
+                "cost" : max_gain_cost,
+                "max_profit" : max_gain_profit,
+                "breakeven" : max_gain_breakeven,
+                "max_loss" : max_gain_loss
+            },
+            "min_cost": {
+                "strike price" : min_risk_strike, 
+                "strike_premium" : min_risk_premium,
+                "net_value_at_breakeven" : min_risk_net_value,
+                "cost" : min_risk_cost,
+                "max_profit" : min_risk_profit,
+                "breakeven" : min_risk_breakeven,
+                "max_loss" : min_risk_loss
+            }
+        }
 
 class PutOption:
     def __init__(self, ticker, underlying, data):
