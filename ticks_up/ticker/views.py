@@ -57,7 +57,7 @@ def vertical_spreads(request, ticker):
 
     spreads = {
         'debit_spread': None,
-        'credit_spread':None
+        'credit_spread': None,
     }
 
     if request.method == 'POST':

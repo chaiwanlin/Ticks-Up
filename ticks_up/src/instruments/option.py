@@ -259,7 +259,7 @@ class Put(Option):
             sum += strike["openInterest"]
         return sum
 
-    def get_hedge_stike(self, risked_amount, entry_point, break_point):
+    def get_hedge_strike(self, risked_amount, entry_point, break_point):
         break_point_difference = break_point - entry_point 
         break_diff = entry_point
 

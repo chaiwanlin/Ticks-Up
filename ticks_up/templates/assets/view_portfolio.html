@@ -7,9 +7,9 @@
 
     {% for ticker, pos in positions.items %}
     <a href="{% url 'ticker' ticker %}">{{ ticker }}</a></p>
-        {% for stock_pos in pos.0 %}
-        <body>{{ stock_pos }}</body></p>
-        {% endfor %}
+        <body>{{ pos.0 }}</body>
+        <a href="{% url 'hedge_stock_position' portfolio_id=portfolio.id ticker_name=ticker %}">Hedge this stock position</a></p>
+
 
         {% for option_pos in pos.1 %}
         <body>{{ option_pos }}</body></p>

@@ -39,7 +39,7 @@ def range_to_date(IV, stock_price, days = None):
 def hedge_stock(ticker, entry, risk, break_point, days, capped = True, target_price = None):
     risk_amount = (1.0 - risk) * entry
     break_amount = (1.0 - break_point) * entry + entry
-    result = Put(ticker).get_nearest_day(days).get_hedge_stike(risk_amount, entry, break_amount)
+    result = Put(ticker).get_nearest_day(days).get_hedge_strike(risk_amount, entry, break_amount)
 
     if not capped:
         return [result, collar(ticker, days, entry, break_amount, target_price, risk_amount)]

@@ -1,8 +1,11 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from .forms import AddPortfolioForm, TickerForm, AddStockPositionForm, AddOptionPositionForm
+from django.http import Http404
+from .forms import AddPortfolioForm, TickerForm, AddStockPositionForm, AddOptionPositionForm, HedgeStockForm
 from .models import Portfolio, Ticker, StockPosition, OptionPosition
+from src.instruments.stock import Stock
+from src.hedge.hedge_main import hedge_stock
 
 
 def user_check(user, portfolio_id):
@@ -119,4 +122,42 @@ def add_option_position(request, portfolio_id):
         'tform': tform,
         'oform': oform,
         'portfolio': portfolio
+    })
+
+
+@login_required
+def hedge_stock_position(request, portfolio_id, ticker_name):
+    portfolio = Portfolio.objects.get(id=portfolio_id)
+    ticker = portfolio.ticker_set.get(name=ticker_name)
+    if not user_check(request.user, portfolio_id):
+        return redirect(reverse('view_portfolio', args=[portfolio_id]))
+
+    try:
+        stock = Stock(ticker)
+    except LookupError:
+        raise Http404("Ticker does not exist")
+
+    if request.method == 'POST':
+        form = HedgeStockForm(request.POST)
+        if form.is_valid():
+            stock_position = portfolio.stockposition_set.get(ticker=ticker)
+            hedge = hedge_stock(
+                ticker,
+                float(stock_position.total_cost / stock_position.total_shares),
+                form.cleaned_data['risk'],
+                form.cleaned_data['break_point'],
+                form.cleaned_data['days'],
+                form.cleaned_data['capped'],
+                form.cleaned_data['target_price'],
+            )
+
+    else:
+        form = HedgeStockForm()
+        hedge = None
+
+    return render(request, "assets/hedge_stock_position.html", {
+        'portfolio': portfolio,
+        'ticker': ticker,
+        'form': form,
+        'hedge': hedge,
     })
