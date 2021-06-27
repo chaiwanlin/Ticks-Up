@@ -25,7 +25,7 @@ def get_iv(ticker, days):
     call_iv = call[0] * (1 / (ratio + 1))
     put_iv = put[0] * (ratio / (ratio + 1))
 
-    return call_iv + put_iv
+    return range_to_date(call_iv + put_iv, days)
 
 def put_call_ratio(ticker, days):
     return Put(ticker).get_nearest_day(days).get_open_interest_count() / Call(ticker).get_nearest_day(days).get_open_interest_count()
@@ -36,15 +36,14 @@ def range_to_date(IV, stock_price, days = None):
     else:
         return stock_price * IV * math.sqrt(days.days / 365)
 
-def hedge_stock(ticker, entry, risk, break_point, days, capped = True, target_price = None):
-    risk_amount = (1.0 - risk) * entry
-    break_amount = (1.0 - break_point) * entry + entry
-    result = Put(ticker).get_nearest_day(days).get_hedge_stike(risk_amount, entry, break_amount)
+def hedge_stock(ticker, entry_price, risk, breakeven_point, days, capped = True, target_price = None):
+    result = Put(ticker).get_nearest_day(days).get_hedge_stike(risk, entry_price)
 
     if not capped:
-        return [result, collar(ticker, days, entry, break_amount, target_price, risk_amount)]
+        return [result, collar(ticker, days, entry_price, breakeven_point, target_price, risk)]
+    else:
+        return result
 
-# print(hedge_stock("aapl", 135, 0.2, 0.1, 30, False, 150))
-print(get_iv("aapl", 30))
-
+print(hedge_stock("aapl", 135, 10, 140, 30))
+# print(get_iv("aapl", 30))
 # print(range_to_date(datetime.date(2021, 6,20), 0.2, 100))
