@@ -36,7 +36,7 @@ def range_to_date(IV, stock_price, days = None):
     else:
         return stock_price * IV * math.sqrt(days.days / 365)
 
-def hedge_stock(ticker, entry_price, risk, breakeven_point, days, capped = True, target_price = None):
+def hedge_stock(ticker, entry_price, breakeven_point, risk, days, capped = True, target_price = None):
     result = Put(ticker).get_nearest_day(days).get_hedge_stike(risk, entry_price)
 
     if not capped:
