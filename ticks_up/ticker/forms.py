@@ -1,10 +1,6 @@
 from django import forms
 
 
-class TickerForm(forms.Form):
-    ticker = forms.CharField(label='Ticker', max_length=7)
-
-
 class DaysForm(forms.Form):
     days = forms.IntegerField(min_value=0)
 

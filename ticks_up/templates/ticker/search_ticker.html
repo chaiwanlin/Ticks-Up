@@ -5,16 +5,10 @@
 <div class="container-fluid">
     <h2>${{ ticker }}</h2>
 
-<!--    <div class="container-fluid">-->
-<!--        <div class="card">-->
-<!--            <div class="card-body">-->
-<!--                Data coming soon!-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-    <form method="post">
+    <form method="get">
     {% csrf_token %}
     {{ form.as_p }}
+    <input type="hidden" name="ticker" value="{{ ticker }}" />
     <input type="submit" value="Submit">
     </form></p>
 

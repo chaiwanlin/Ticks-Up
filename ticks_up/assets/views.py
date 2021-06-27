@@ -4,8 +4,8 @@ from django.urls import reverse
 from django.http import Http404
 from .forms import AddPortfolioForm, TickerForm, AddStockPositionForm, AddOptionPositionForm, HedgeStockForm
 from .models import Portfolio, Ticker, StockPosition, OptionPosition
-from src.instruments.stock import Stock
-from src.hedge.hedge_main import hedge_stock
+from instruments.stock import Stock
+from hedge.hedge_main import hedge_stock
 
 
 def user_check(user, portfolio_id):

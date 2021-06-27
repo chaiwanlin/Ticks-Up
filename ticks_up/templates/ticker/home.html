@@ -5,11 +5,11 @@
 <div class="container-fluid">
     <h3>Welcome, {{ user.username|default:'Guest' }}!</h3>
 
-    <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit">
-    </form>
+<!--    <form method="post">-->
+<!--    {% csrf_token %}-->
+<!--    {{ form.as_p }}-->
+<!--    <input type="submit" value="Submit">-->
+<!--    </form>-->
 </div>
 
 {% endblock %}

@@ -6,7 +6,7 @@
     <h2>{{ portfolio.name }}</h2>
 
     {% for ticker, pos in positions.items %}
-    <a href="{% url 'ticker' ticker %}">{{ ticker }}</a></p>
+    <a href="{% url 'search_ticker' %}?ticker={{ ticker }}">{{ ticker }}</a></p>
         <body>{{ pos.0 }}</body>
         <a href="{% url 'hedge_stock_position' portfolio_id=portfolio.id ticker_name=ticker %}">Hedge this stock position</a></p>
 
