@@ -1,3 +1,7 @@
+import plotly.io as pio
+pio.templates.default = "none"
+import plotly.express as px
+import chart_studio.plotly as py
 import numpy as np
 import math
 import matplotlib.figure
@@ -76,12 +80,23 @@ def p_and_l(lower_bound, upper_bound, delta, profit, loss, capped_profit, capped
                     max_range = upper_bound
                     x = [lower_bound, upper_bound]
                     y = [profit, loss]
+    
+    fig = px.line(x=x, y=y, labels={'x':'price', 'y':'value'})
+    fig.update_layout(
+        showlegend=False,
+        title_text="hehexd",
+        height=500,
+        width=800,
+    )
+    pio.write_html(fig, file='hello_world.html', auto_open=True)
+    # url = py.plot(fig, filename='graph', auto_open=True)
+    # print(url)
+    fig.show()
 
-
-    plt.hlines(y = 0 ,xmin = min_range, xmax = max_range)
-    plt.plot(x,y)
-    plt.savefig("graph.jpeg")
-    plt.show()
+    # plt.hlines(y = 0 ,xmin = min_range, xmax = max_range)
+    # plt.plot(x,y)
+    # plt.savefig("graph.jpeg")
+    # plt.show()
 
     return None
 
