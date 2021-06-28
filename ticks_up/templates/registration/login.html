@@ -1,4 +1,5 @@
 {% load crispy_forms_tags %}
+{% load widget_tweaks %}
 
 <!doctype html>
 <html lang="en">
@@ -78,17 +79,18 @@
   <body class="text-center">
 
 <main class="form-signin">
-  <form>
+  <form method="post">
+    {% csrf_token %}
     {% load static %}
     <img class="mb-4" src="{% static 'ticks-up-logo-dark.png' %}" alt="" width="279" height="71">
     <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
 
     <div class="form-floating">
-      <input type="{{ form.username.widget }}" class="form-control" id="floatingInput" placeholder="Username">
+      {% render_field form.username class="form-control" placeholder=form.username.label id="floatingInput" %}
       <label for="floatingInput">Username</label>
     </div>
     <div class="form-floating">
-      <input type="{{ form.password.widget }}" class="form-control" id="floatingPassword" placeholder="Password">
+      {% render_field form.password class="form-control" placeholder=form.password.label id="floatingInput" %}
       <label for="floatingPassword">Password</label>
     </div>
 
