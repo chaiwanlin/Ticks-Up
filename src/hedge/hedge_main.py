@@ -28,7 +28,13 @@ def get_iv(ticker, days):
     return range_to_date(call_iv + put_iv, days)
 
 def put_call_ratio(ticker, days):
-    return Put(ticker).get_nearest_day(days).get_open_interest_count() / Call(ticker).get_nearest_day(days).get_open_interest_count()
+    try:
+        return Put(ticker).get_nearest_day(days).get_open_interest_count() / Call(ticker).get_nearest_day(days).get_open_interest_count()
+    except ZeroDivisionError:
+        return "data not availible"
+
+
+
 
 def range_to_date(IV, stock_price, days = None):
     if not days:
@@ -47,3 +53,4 @@ def hedge_stock(ticker, entry_price, breakeven_point, risk, days, capped = True,
 print(hedge_stock("aapl", 135, 10, 140, 30))
 # print(get_iv("aapl", 30))
 # print(range_to_date(datetime.date(2021, 6,20), 0.2, 100))
+
