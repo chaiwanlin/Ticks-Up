@@ -26,6 +26,7 @@ python manage.py runserver
 Now open a browser and go to http://localhost:8000/dashboard/.
 
 **Note**
+````
 Our spreads assume the users use appropriate values and use a risk parameter that makes the position possible.
 For bull spreads : use a lower bound and target price higher than the current price
 For bear spreads : use a upper bound and target price lower than the current price
