@@ -20,11 +20,11 @@
                 <th></th>
             </tr>
         </thead>
-        {% for ticker, pos in positions.items %}
+        {% for symbol, pos in positions.items %}
         <tbody>
             <tr class="table-secondary">
                 <th scope="row">
-                    <a href="{% url 'search_ticker' %}?ticker={{ ticker }}" class="link-dark">{{ ticker }}</a>
+                    <a href="{% url 'search_ticker' %}?ticker={{ symbol }}" class="link-dark">{{ symbol }}</a>
                 </th>
                 {% if pos.0 %}
                 <td>Shares</td>
@@ -41,11 +41,11 @@
                       <div class="modal-dialog">
                         <div class="modal-content">
                           <div class="modal-header">
-                            <h5 class="modal-title" id="hedgeStockLabel">Hedge your stocks in {{ ticker }}</h5>
+                            <h5 class="modal-title" id="hedgeStockLabel">Hedge your stocks in {{ symbol }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
                           <div class="modal-body">
-                            <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
+                            <form method="post" action="{% url 'hedge_stock_position' portfolio.id symbol %}">
                                 {% csrf_token %}
                                 <div class="mb-3">
                                     {{ hedge_stock_form|crispy }}

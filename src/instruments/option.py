@@ -531,12 +531,12 @@ class Put(Option):
 
         max_gain_cost = short_call_premium - max_gain_premium
         max_gain_loss = entry_price - max_gain_strike + max_gain_cost
-        max_gain_profit = max_gain_strike - entry_price - max_gain_cost
+        max_gain_profit = short_call_strike - entry_price - max_gain_cost
         max_gain_breakeven = entry_price + max_gain_cost
 
         min_risk_cost = short_call_premium - min_risk_premium
         min_risk_loss = entry_price - max_gain_strike + min_risk_cost
-        min_risk_profit = min_risk_strike - entry_price - max_gain_cost
+        min_risk_profit = short_call_strike - entry_price - max_gain_cost
         min_risk_breakeven = entry_price + min_risk_cost
         return {
             "short_call" : {

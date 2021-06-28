@@ -6,6 +6,8 @@ from .forms import AddPortfolioForm, TickerForm, AddStockPositionForm, AddOption
 from .models import Portfolio, Ticker, StockPosition, OptionPosition
 from instruments.stock import Stock
 from hedge.hedge_main import hedge_stock
+from hedge.spread_graphs import hedge_stock as hedge_stock_graph
+from hedge.spread_graphs import bull_spread, bear_spread
 
 
 def user_check(user, portfolio_id):
@@ -148,14 +150,46 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         form = HedgeStockForm(request.POST)
         if form.is_valid():
             stock_position = portfolio.stockposition_set.get(ticker=ticker)
+            average_cost = float(stock_position.total_cost / stock_position.total_shares)
             hedge = hedge_stock(
-                ticker,
-                float(stock_position.total_cost / stock_position.total_shares),
+                ticker_name,
+                average_cost,
                 form.cleaned_data['risk'],
                 form.cleaned_data['break_point'],
                 form.cleaned_data['days'],
                 form.cleaned_data['capped'],
                 form.cleaned_data['target_price'],
+            )
+
+            bull_spread(
+                ticker_name + "-hedge-max-gain-collar",
+                hedge[1]['max_gain']['strike_price'],
+                hedge[1]['short_call']['strike_strike'],
+                hedge[1]['max_gain']['max_profit'],
+                hedge[1]['max_gain']['max_loss'],
+            )
+            bull_spread(
+                ticker_name + "-hedge-min-loss-collar",
+                hedge[1]['min_loss']['strike_price'],
+                hedge[1]['short_call']['strike_strike'],
+                hedge[1]['min_loss']['max_profit'],
+                hedge[1]['min_loss']['max_loss'],
+            )
+
+            hedge_stock_graph(
+                ticker_name + "-hedge-min-cost",
+                hedge[0]['min_cost']['strike_price'],
+                (average_cost * 1.5),
+                (average_cost * 1.5) - average_cost - hedge[0]['min_cost']['strike_premium'],
+                hedge[0]['min_cost']['risk'],
+            )
+
+            hedge_stock_graph(
+                ticker_name + "-hedge-min-loss",
+                hedge[0]['min_loss']['strike_price'],
+                (average_cost * 1.5),
+                (average_cost * 1.5) - average_cost - hedge[0]['min_loss']['strike_premium'],
+                hedge[0]['min_loss']['risk'],
             )
 
     else:
@@ -164,7 +198,7 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
 
     return render(request, "assets/hedge_stock_position.html", {
         'portfolio': portfolio,
-        'ticker': ticker,
+        'ticker': ticker_name,
         'form': form,
         'hedge': hedge,
     })

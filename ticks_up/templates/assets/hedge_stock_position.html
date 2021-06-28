@@ -3,17 +3,148 @@
 {% block content %}
 
 <div class="container-fluid">
-    <h2>Your recommended ${{ ticker }} hedge position</h2>
+    <h1 class="display-6 my-4">Hedge position for {{ ticker }}</h1>
+    <hr class="mb-4">
 
-    <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit">
-    </form></p>
+    <div class="container-fluid">
+        <h2>Collar</h2>
+        <table class="table table-striped w-25">
+            <tbody>
+                <tr>
+                    <th>Short call strike price</th>
+                    <td>{{ hedge.1.short_call.strike_strike }}</td>
+                </tr>
+                <tr>
+                    <th>Short call premium</th>
+                    <td>{{ hedge.1.short_call.strike_premium }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="col">
+                <h3>Maximum Profit</h3>
+                {% with 'graphs/'|add:ticker|add:'-hedge-max-gain-collar.jpeg' as image_static %}
+                    {% load static %}
+                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
+                {% endwith %}
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th>Strike price</th>
+                            <td>{{ hedge.1.max_gain.strike_price }}</td>
+                        </tr>
+                        <tr>
+                            <th>Premium</th>
+                            <td>{{ hedge.1.max_gain.strike_premium }}</td>
+                        </tr>
+                        <tr>
+                            <th>Net value at breakeven</th>
+                            <td>{{ hedge.1.max_gain.net_value_at_breakeven }}</td>
+                        </tr>
+                        <tr>
+                            <th>Maximum profit</th>
+                            <td>{{ hedge.1.max_gain.strike_premium }}</td>
+                        </tr>
+                        <tr>
+                            <th>Breakeven</th>
+                            <td>{{ hedge.1.max_gain.breakeven }}</td>
+                        </tr>
+                        <tr>
+                            <th>Maximum loss</th>
+                            <td>{{ hedge.1.max_gain.max_loss }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col">
+                <h3>Minimum Loss</h3>
+                {% with 'graphs/'|add:ticker|add:'-hedge-min-loss-collar.jpeg' as image_static %}
+                    {% load static %}
+                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
+                {% endwith %}
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th>Strike price</th>
+                            <td>{{ hedge.1.min_loss.strike_price }}</td>
+                        </tr>
+                        <tr>
+                            <th>Premium</th>
+                            <td>{{ hedge.1.min_loss.strike_premium }}</td>
+                        </tr>
+                        <tr>
+                            <th>Net value at breakeven</th>
+                            <td>{{ hedge.1.min_loss.net_value_at_breakeven }}</td>
+                        </tr>
+                        <tr>
+                            <th>Maximum profit</th>
+                            <td>{{ hedge.1.min_loss.strike_premium }}</td>
+                        </tr>
+                        <tr>
+                            <th>Breakeven</th>
+                            <td>{{ hedge.1.min_loss.breakeven }}</td>
+                        </tr>
+                        <tr>
+                            <th>Maximum loss</th>
+                            <td>{{ hedge.1.min_loss.max_loss }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-    <body>{{ hedge }}</body>
+        <hr class="my-4">
 
-    <a href="{% url 'view_portfolio' portfolio.id %}">Back</a>
+        <h2>Protective Put</h2>
+        <div class="row">
+            <div class="col">
+                <h3>Minimum Cost</h3>
+                {% with 'graphs/'|add:ticker|add:'-hedge-min-cost.jpeg' as image_static %}
+                    {% load static %}
+                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
+                {% endwith %}
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th>Strike price</th>
+                            <td>{{ hedge.0.min_cost.strike_price }}</td>
+                        </tr>
+                        <tr>
+                            <th>Premium</th>
+                            <td>{{ hedge.0.min_cost.strike_premium }}</td>
+                        </tr>
+                        <tr>
+                            <th>Risk</th>
+                            <td>{{ hedge.0.min_cost.risk }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col">
+                <h3>Minimum Loss</h3>
+                {% with 'graphs/'|add:ticker|add:'-hedge-min-loss.jpeg' as image_static %}
+                    {% load static %}
+                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
+                {% endwith %}
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th>Strike price</th>
+                            <td>{{ hedge.0.min_loss.strike_price }}</td>
+                        </tr>
+                        <tr>
+                            <th>Premium</th>
+                            <td>{{ hedge.0.min_loss.strike_premium }}</td>
+                        </tr>
+                        <tr>
+                            <th>Risk</th>
+                            <td>{{ hedge.0.min_loss.risk }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

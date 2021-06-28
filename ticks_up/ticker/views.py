@@ -19,9 +19,11 @@ def search_ticker(request):
         except LookupError:
             raise Http404("Ticker does not exist")
 
-        days = int(request.GET.get('days'))
+        days = request.GET.get('days')
         if not days:
             days = 30
+        else:
+            days = int(days)
 
         ticker_data = {}
         # ticker_data['Historical Volatility'] = historical_volatility(ticker)
@@ -49,8 +51,8 @@ def vertical_spreads(request, ticker):
         raise Http404("Ticker does not exist")
 
     spreads = {
-        'Debit Spread': None,
-        'Credit Spread': None,
+        'debit_spread': None,
+        'credit_spread': None,
     }
 
     if request.method == 'POST':
@@ -61,19 +63,42 @@ def vertical_spreads(request, ticker):
             target_price = form.cleaned_data['target_price']
             risk = form.cleaned_data['risk']
             if target_price > stock.get_price():
-                spreads['Debit Spread'] = spread.bull_debit_spread(ticker, days, lower_bound, target_price, risk)
-                spreads['Credit Spread'] = spread.bull_credit_spread(ticker, days, lower_bound, target_price, risk)
+                spreads['debit_spread'] = spread.bull_debit_spread(ticker, days, lower_bound, target_price, risk)
+                spreads['credit_spread'] = spread.bull_credit_spread(ticker, days, lower_bound, target_price, risk)
                 bull_spread(
                     ticker + "-debit-spread-max-gain",
-                    spreads['Debit Spread']['max_gain']['strike_price'],
-                    spreads['Debit Spread']['short_call']['strike_strike'],
-                    spreads['Debit Spread']['max_gain']['max_profit'],
-                    spreads['Debit Spread']['max_gain']['max_loss'],
+                    spreads['debit_spread']['max_gain']['strike_price'],
+                    spreads['debit_spread']['short_call']['strike_strike'],
+                    spreads['debit_spread']['max_gain']['max_profit'],
+                    spreads['debit_spread']['max_gain']['max_loss'],
+                )
+                bull_spread(
+                    ticker + "-debit-spread-min-cost",
+                    spreads['debit_spread']['min_cost']['strike_price'],
+                    spreads['debit_spread']['short_call']['strike_strike'],
+                    spreads['debit_spread']['min_cost']['max_profit'],
+                    spreads['debit_spread']['min_cost']['max_loss'],
                 )
 
+                bull_spread(
+                    ticker + "-credit-spread-max-gain",
+                    spreads['credit_spread']['max_gain']['strike_price'],
+                    spreads['credit_spread']['short_put']['strike_strike'],
+                    spreads['credit_spread']['max_gain']['max_profit'],
+                    spreads['credit_spread']['max_gain']['max_loss'],
+                )
+                bull_spread(
+                    ticker + "-credit-spread-min-loss",
+                    spreads['credit_spread']['min_loss']['strike_price'],
+                    spreads['credit_spread']['short_put']['strike_strike'],
+                    spreads['credit_spread']['min_loss']['max_profit'],
+                    spreads['credit_spread']['min_loss']['max_loss'],
+                )
+
+
             else:
-                spreads['Debit Spread'] = spread.bear_debit_spread(ticker, days, lower_bound, target_price, risk)
-                spreads['Credit Spread'] = spread.bear_credit_spread(ticker, days, lower_bound, target_price, risk)
+                spreads['debit_spread'] = spread.bear_debit_spread(ticker, days, lower_bound, target_price, risk)
+                spreads['credit_spread'] = spread.bear_credit_spread(ticker, days, lower_bound, target_price, risk)
 
 
     else:
