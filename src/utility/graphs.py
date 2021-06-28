@@ -79,8 +79,8 @@ def p_and_l(name, lower_bound, upper_bound, delta, profit, loss, capped_profit, 
         height=500,
         width=800,
     )
-    fig.write_image(f"ticks_up/static/{name}.jpeg")
-    html = pio.write_html(fig, file=f'ticks_up/static/{name}.html', full_html = full_html, auto_open=True)
+    fig.write_image(f"ticks_up/static/graphs/{name}.jpeg")
+    pio.write_html(fig, file=f'ticks_up/static/graphs/{name}.html', full_html = full_html, auto_open = False)
     # url = py.plot(fig, filename='graph', auto_open=True)
     # print(url)
     fig.show()
@@ -96,7 +96,6 @@ def p_and_l(name, lower_bound, upper_bound, delta, profit, loss, capped_profit, 
     # plt.plot(x, y)
     # plt.savefig("graph.jpeg")
     # plt.show()
-
     return None
 
 p_and_l("yeet", 5, 15, 1, 30, 20, False, True)

@@ -28,13 +28,7 @@ def get_iv(ticker, days):
     return range_to_date(call_iv + put_iv, days)
 
 def put_call_ratio(ticker, days):
-    try:
-        return Put(ticker).get_nearest_day(days).get_open_interest_count() / Call(ticker).get_nearest_day(days).get_open_interest_count()
-    except ZeroDivisionError:
-        return "data not availible"
-
-
-
+    return Put(ticker).get_nearest_day(days).get_open_interest_count() / Call(ticker).get_nearest_day(days).get_open_interest_count()
 
 def range_to_date(IV, stock_price, days = None):
     if not days:
