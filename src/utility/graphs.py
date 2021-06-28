@@ -83,7 +83,7 @@ def p_and_l(name, lower_bound, upper_bound, delta, profit, loss, capped_profit, 
     pio.write_html(fig, file=f'ticks_up/static/graphs/{name}.html', full_html = full_html, auto_open = False)
     # url = py.plot(fig, filename='graph', auto_open=True)
     # print(url)
-    fig.show()
+    # fig.show()
 
     # ax1 = plt.subplot(1,1,1)
 
