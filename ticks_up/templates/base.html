@@ -20,7 +20,7 @@
 <body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-            <div class="container-fluid">
+            <div class="container-fluid align-middle">
             <a href="{% url 'home' %}" class="d-flex align-items-center mb-2 mb-lg-0 me-4 text-white text-decoration-none">
                 {% load static %}
                 <img src="{% static 'ticks-up-logo.png' %}" alt="Ticks Up" class="d-inline-block align-text-top" style="width:206px; height: 33px">
@@ -56,16 +56,20 @@
                 </li>
             </ul>
             <form class="d-flex" method="get" action="{% url 'search_ticker' %}">
-                <input class="form-control me-2" type="search" placeholder="Search ticker" aria-label="Search"
-                       name="ticker">
-                <button class="btn btn-outline-success" type="submit">Search</button>
+                <div class="input-group input-group-lg my-2">
+                    <input class="form-control" type="search" placeholder="Search symbol" aria-label="Search"
+                           name="ticker" aria-describedby="search-button">
+                    <button class="btn btn-outline-success btn-lg" type="submit" id="search-button">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
             </form>
             </div>
             </div>
         </nav>
     </header>
 
-    <main class="flex-shrink-0">
+    <main>
     {% block content %}
     {% endblock %}
     </main>

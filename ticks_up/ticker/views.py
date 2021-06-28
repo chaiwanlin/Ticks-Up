@@ -4,6 +4,7 @@ from .forms import VerticalSpreadsForm
 from instruments.stock import Stock
 from hedge.hedge_main import historical_volatility, volatility_skew, get_iv, put_call_ratio, range_to_date, hedge_stock
 from hedge import spread
+from hedge.spread_graphs import bull_spread, bear_spread
 
 
 def home(request):
@@ -18,21 +19,23 @@ def search_ticker(request):
         except LookupError:
             raise Http404("Ticker does not exist")
 
-        days = request.GET.get('days')
+        days = int(request.GET.get('days'))
         if not days:
             days = 30
 
         ticker_data = {}
-        ticker_data['Historical Volatility'] = historical_volatility(ticker)
-        ticker_data['Volatility Skew'] = volatility_skew(ticker)
+        # ticker_data['Historical Volatility'] = historical_volatility(ticker)
+        # ticker_data['Volatility Skew'] = volatility_skew(ticker)
+        ticker_data['Historical Volatility'] = "We're working on it..."
+        ticker_data['Volatility Skew'] = "We're working on it..."
         ticker_data['Implied Volatility'] = get_iv(ticker, days)
         ticker_data['Put-Call Ratio'] = put_call_ratio(ticker, days)
-        # ticker_data['range_to_date'] = range_to_date(ticker, days)
 
         return render(request, "ticker/search_ticker.html", {
             'ticker': ticker,
             'days': days,
             'ticker_data': ticker_data,
+            'vertical_spreads_form': VerticalSpreadsForm,
         })
 
     else:
@@ -46,8 +49,8 @@ def vertical_spreads(request, ticker):
         raise Http404("Ticker does not exist")
 
     spreads = {
-        'debit_spread': None,
-        'credit_spread': None,
+        'Debit Spread': None,
+        'Credit Spread': None,
     }
 
     if request.method == 'POST':
@@ -58,11 +61,20 @@ def vertical_spreads(request, ticker):
             target_price = form.cleaned_data['target_price']
             risk = form.cleaned_data['risk']
             if target_price > stock.get_price():
-                spreads['debit_spread'] = spread.bull_debit_spread(ticker, days, lower_bound, target_price, risk)
-                spreads['credit_spread'] = spread.bull_credit_spread(ticker, days, lower_bound, target_price, risk)
+                spreads['Debit Spread'] = spread.bull_debit_spread(ticker, days, lower_bound, target_price, risk)
+                spreads['Credit Spread'] = spread.bull_credit_spread(ticker, days, lower_bound, target_price, risk)
+                bull_spread(
+                    ticker + "-debit-spread-max-gain",
+                    spreads['Debit Spread']['max_gain']['strike_price'],
+                    spreads['Debit Spread']['short_call']['strike_strike'],
+                    spreads['Debit Spread']['max_gain']['max_profit'],
+                    spreads['Debit Spread']['max_gain']['max_loss'],
+                )
+
             else:
-                spreads['debit_spread'] = spread.bear_debit_spread(ticker, days, lower_bound, target_price, risk)
-                spreads['credit_spread'] = spread.bear_credit_spread(ticker, days, lower_bound, target_price, risk)
+                spreads['Debit Spread'] = spread.bear_debit_spread(ticker, days, lower_bound, target_price, risk)
+                spreads['Credit Spread'] = spread.bear_credit_spread(ticker, days, lower_bound, target_price, risk)
+
 
     else:
         form = VerticalSpreadsForm()

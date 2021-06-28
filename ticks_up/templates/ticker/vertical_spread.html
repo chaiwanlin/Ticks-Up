@@ -3,16 +3,17 @@
 {% block content %}
 
 <div class="container-fluid">
-    <h2>Vertical spreads for ${{ ticker }}</h2>
-
-    <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit">
-    </form></p>
+    <h1 class="display-6 my-4">Vertical spreads for {{ ticker }}</h1>
+    <hr class="mb-4">
 
     {% for type, spread in spreads.items %}
     <body>{{ type }}: {{ spread }}</body></p>
+    {% endfor %}
+
+    {% for type, spread in spreads.items %}
+    <h3>{{ type }}</h3>
+    
+
     {% endfor %}
 </div>
 

@@ -2,14 +2,24 @@
 
 {% block content %}
 
-<div class="container-fluid">
-    <h3>Welcome, {{ user.username|default:'Guest' }}!</h3>
-
-<!--    <form method="post">-->
-<!--    {% csrf_token %}-->
-<!--    {{ form.as_p }}-->
-<!--    <input type="submit" value="Submit">-->
-<!--    </form>-->
+<div class="container-fluid d-flex w-100 h-100 p-5 mx-auto flex-column">
+    <div class="d-flex justify-content-center align-items-center">
+        <h1 class="display-1 mt-5 pt-5">
+            <strong class="text-black">Never go</strong>
+            <strong class="text-danger">tits up</strong>.
+        </h1>
+    </div>
+    <div class="d-flex justify-content-center">
+        <form class="w-50" method="get" action="{% url 'search_ticker' %}">
+            <div class="input-group input-group-lg my-4">
+                <input class="form-control" type="search" placeholder="Search symbol here" aria-label="Search"
+                       name="ticker" aria-describedby="search-button">
+                <button class="btn btn-outline-success btn-lg" type="submit" id="search-button">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% endblock %}

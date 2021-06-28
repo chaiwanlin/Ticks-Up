@@ -6,6 +6,8 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 import matplotlib.spines as sp
+import os
+from pathlib import Path
 
 def p_and_l(name, lower_bound, upper_bound, delta, profit, loss, capped_profit, capped_loss, full_html = True, synthetic_split = False, synthetic_net = 0):
     loss = -loss
@@ -79,11 +81,12 @@ def p_and_l(name, lower_bound, upper_bound, delta, profit, loss, capped_profit, 
         height=500,
         width=800,
     )
-    fig.write_image(f"ticks_up/static/graphs/{name}.jpeg")
-    pio.write_html(fig, file=f'ticks_up/static/graphs/{name}.html', full_html = full_html, auto_open = False)
+    PATH = os.path.join(Path(__file__).resolve().parent.parent.parent, "./ticks_up/static/graphs/{name}.jpeg".format(name=name))
+    fig.write_image(PATH)
+    pio.write_html(fig, file=PATH, full_html=full_html, auto_open=False)
     # url = py.plot(fig, filename='graph', auto_open=True)
     # print(url)
-    fig.show()
+    # fig.show()
 
     # ax1 = plt.subplot(1,1,1)
 

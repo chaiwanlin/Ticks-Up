@@ -158,7 +158,7 @@ class Call(Option):
                     "strike_premium" : short_call_premium
                 }, 
                 "max_gain" : {
-                    "strike price" : max_gain_strike, 
+                    "strike_price" : max_gain_strike,
                     "strike_premium" : max_gain_premium,
                     "net_value_at_breakeven" : max_gain_net_value,
                     "max_profit" : max_gain_profit,
@@ -166,7 +166,7 @@ class Call(Option):
                     "max_loss" : max_gain_loss
                 },
                 "min_cost": {
-                    "strike price" : min_cost_strike, 
+                    "strike_price" : min_cost_strike,
                     "strike_premium" : min_cost_premium,
                     "net_value_at_breakeven" : min_cost_net_value,
                     "max_profit" : min_cost_profit,
@@ -221,7 +221,7 @@ class Call(Option):
                     "strike_premium" : short_call_premium
             }, 
             "max_gain" : {
-                "strike price" : max_gain_strike, 
+                "strike_price" : max_gain_strike,
                 "strike_premium" : max_gain_premium,
                 "net_value_at_breakeven" : max_gain_net_value,
                 "max_profit" : max_gain_profit,
@@ -229,7 +229,7 @@ class Call(Option):
                 "max_loss" : max_gain_loss
             },
             "min_loss": {
-                "strike price" : min_risk_strike, 
+                "strike_price" : min_risk_strike,
                 "strike_premium" : min_risk_premium,
                 "net_value_at_breakeven" : min_risk_net_value,
                 "max_profit" : min_risk_profit,
@@ -354,12 +354,12 @@ class Put(Option):
         return { 
             "stock" : entry_point, 
             "min_cost" : {
-                "strike price" : min_cost_strike_price, 
+                "strike_price" : min_cost_strike_price,
                 "strike_premium" : min_cost_strike_premium,
                 "risk" : min_cost_risk
             },
             "min_loss": {
-                "strike price" : min_loss_strike_price, 
+                "strike_price" : min_loss_strike_price,
                 "strike_premium" : min_loss_strike_premium,
                 "risk" : min_loss_risk
             }
@@ -417,7 +417,7 @@ class Put(Option):
                     "strike_premium" : short_put_premium
                 },  
                 "max_gain" : {
-                    "strike price" : max_gain_strike, 
+                    "strike_price" : max_gain_strike,
                     "strike_premium" : max_gain_premium,
                     "net_value_at_breakeven" : max_gain_net_value,
                     "max_profit" : max_gain_profit,
@@ -425,7 +425,7 @@ class Put(Option):
                     "max_loss" : max_gain_loss
                 },
                 "min_cost": {
-                    "strike price" : min_cost_strike, 
+                    "strike_price" : min_cost_strike,
                     "strike_premium" : min_cost_premium,
                     "net_value_at_breakeven" : min_cost_net_value,
                     "max_profit" : min_cost_profit,
@@ -479,7 +479,7 @@ class Put(Option):
                 "strike_premium" : short_put_premium
             },  
             "max_gain" : {
-                "strike price" : max_gain_strike, 
+                "strike_price" : max_gain_strike,
                 "strike_premium" : max_gain_premium,
                 "net_value_at_breakeven" : max_gain_net_value,
                 "max_profit" : max_gain_profit,
@@ -487,7 +487,7 @@ class Put(Option):
                 "max_loss" : max_gain_loss
             },
             "min_loss": {
-                "strike price" : min_risk_strike, 
+                "strike_price" : min_risk_strike,
                 "strike_premium" : min_risk_premium,
                 "net_value_at_breakeven" : min_risk_net_value,
                 "max_profit" : min_risk_profit,
@@ -544,7 +544,7 @@ class Put(Option):
                 "strike_premium" : short_call_premium
             },  
             "max_gain" : {
-                "strike price" : max_gain_strike, 
+                "strike_price" : max_gain_strike,
                 "strike_premium" : max_gain_premium,
                 "net_value_at_breakeven" : max_gain_net_value,
                 "cost" : max_gain_cost,
@@ -553,7 +553,7 @@ class Put(Option):
                 "max_loss" : max_gain_loss
             },
             "min_loss": {
-                "strike price" : min_risk_strike, 
+                "strike_price" : min_risk_strike,
                 "strike_premium" : min_risk_premium,
                 "net_value_at_breakeven" : min_risk_net_value,
                 "cost" : min_risk_cost,
