@@ -1,17 +1,45 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block content %}
 
 <div class="container-fluid">
-    <h2>Your portfolio(s):</h2>
+    <h1 class="display-6 my-4">Your portfolio(s):</h1>
+    <hr class="mb-4">
 
-    <div class="list-group">
+    <div class="list-group w-50 p-3">
         {% for portfolio in user.portfolio_set.all %}
-        <a href="{% url 'view_portfolio' portfolio.id %}" class="list-group-item list-group-item-action">{{ portfolio.name }}</a>
+        <a href="{% url 'view_portfolio' portfolio.id %}" class="list-group-item list-group-item-action">
+            {{ portfolio.name }}
+        </a>
         {% endfor %}
-    </div></p>
 
-    <a href="{% url 'add_portfolio' %}">Add Portfolio</a>
+        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addPortfolio">
+            <i class="bi bi-plus-circle"></i>
+        </button>
+
+        <div class="modal fade" id="addPortfolio" tabindex="-1" aria-labelledby="addPortfolioLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addPortfolioLabel">Add new portfolio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form method="post" action="{% url 'add_portfolio' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form|crispy }}
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    </div>
 </div>
 
 {% endblock %}

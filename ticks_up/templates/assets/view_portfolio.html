@@ -1,23 +1,151 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block content %}
 
 <div class="container-fluid">
-    <h2>{{ portfolio.name }}</h2>
+    <h1 class="display-6 my-4 text-center">{{ portfolio.name }}</h1>
+    <hr class="mb-4">
 
-    {% for ticker, pos in positions.items %}
-    <a href="{% url 'search_ticker' %}?ticker={{ ticker }}">{{ ticker }}</a></p>
-        <body>{{ pos.0 }}</body>
-        <a href="{% url 'hedge_stock_position' portfolio_id=portfolio.id ticker_name=ticker %}">Hedge this stock position</a></p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Symbol</th>
+                <th scope="col">Position</th>
+                <th scope="col">Total cost</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Cost per quantity</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for ticker, pos in positions.items %}
+        <tbody>
+            <tr class="table-secondary">
+                <th scope="row">
+                    <a href="{% url 'search_ticker' %}?ticker={{ ticker }}" class="link-dark">{{ ticker }}</a>
+                </th>
+                {% if pos.0 %}
+                <td>Shares</td>
+                <td>{{ pos.0.total_cost }}</td>
+                <td>{{ pos.0.total_shares }}</td>
+                <td>{{ pos.0.average_cost }}</td>
+                <td>
+                    <button type="button" class="btn btn-warning btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#hedgeStock">
+                        <i class="bi bi-shield-shaded"></i>
+                        Hedge
+                    </button>
 
-
-        {% for option_pos in pos.1 %}
-        <body>{{ option_pos }}</body></p>
+                    <div class="modal fade" id="hedgeStock" tabindex="-1" aria-labelledby="hedgeStockLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="hedgeStockLabel">Hedge your stocks in {{ ticker }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    {{ hedge_stock_form|crispy }}
+                                </div>
+                                <button type="submit" class="btn btn-outline-primary">Hedge</button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                        <button type="button" class="btn btn-success btn-sm">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm">
+                            <i class="bi bi-dash-lg"></i>
+                        </button>
+                    </div>
+                </td>
+                {% else %}
+                <td colspan="6">-</td>
+                {% endif %}
+            </tr>
+            {% for option in pos.1 %}
+            <tr class="table-light">
+                <th></th>
+                <td>{{ option }}</td>
+                <td>{{ option.total_cost }}</td>
+                <td>{{ option.total_shares }}</td>
+                <td>{{ option.average_cost }}</td>
+                <td></td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                        <button type="button" class="btn btn-success btn-sm">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm">
+                            <i class="bi bi-dash-lg"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
+        <tbody>
+    </table>
 
-    <a href="{% url 'add_stock_position' portfolio.id %}">Add Stock Position</a>
-    <a href="{% url 'add_option_position' portfolio.id %}">Add Option Position</a>
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addStockPosition">
+        <i class="bi bi-plus-circle-fill"></i>
+        Add stock position
+    </button>
+
+    <div class="modal fade" id="addStockPosition" tabindex="-1" aria-labelledby="addStockPositionLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addStockPositionLabel">Add stock position</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="{% url 'add_stock_position' portfolio.id %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ tform|crispy }}
+                    {{ sform|crispy }}
+                </div>
+                <button type="submit" class="btn btn-outline-primary">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addOptionPosition">
+        <i class="bi bi-plus-circle-fill"></i>
+        Add option position
+    </button>
+
+    <div class="modal fade" id="addOptionPosition" tabindex="-1" aria-labelledby="addOptionPositionLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addOptionPositionLabel">Add option position</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="{% url 'add_option_position' portfolio.id %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ tform|crispy }}
+                    {{ oform|crispy }}
+                </div>
+                <button type="submit" class="btn btn-outline-primary">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 </div>
 
 {% endblock %}

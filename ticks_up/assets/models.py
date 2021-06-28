@@ -59,6 +59,9 @@ class StockPosition(models.Model):
         except StockPosition.DoesNotExist:
             super().save(*args, **kwargs)
 
+    def average_cost(self):
+        return self.total_cost / self.total_shares
+
 
 # Portfolio ---|one-to-many|---> OptionPosition
 # Ticker ---|one-to-many|---> OptionPosition
@@ -85,13 +88,28 @@ class OptionPosition(models.Model):
     total_contracts = models.PositiveIntegerField()
 
     def __str__(self):
-        return "[OPTION] {ticker} {strike_price}{call_or_put} {expiration_date} {buy_or_sell}" \
-               " | Total Cost: {total_cost} | Total Contracts: {total_contracts}".format(
-            ticker=self.ticker,
+        return "{expiration_date} {strike_price}{call_or_put} {buy_or_sell}".format(
             strike_price=self.strike_price,
             call_or_put=self.call_or_put,
             expiration_date=self.expiration_date,
             buy_or_sell=self.buy_or_sell,
-            total_cost=self.total_cost,
-            total_contracts=self.total_contracts,
         )
+
+    def save(self, *args, **kwargs):
+        try:
+            option = OptionPosition.objects.get(
+                portfolio=self.portfolio,
+                ticker=self.ticker,
+                call_or_put=self.call_or_put,
+                buy_or_sell=self.buy_or_sell,
+                expiration_date=self.expiration_date,
+                strike_price=self.strike_price,
+            )
+            option.total_cost += self.total_cost
+            option.total_contracts += self.total_contracts
+            super(OptionPosition, option).save()
+        except OptionPosition.DoesNotExist:
+            super().save(*args, **kwargs)
+
+    def average_cost(self):
+        return self.total_cost / self.total_contracts

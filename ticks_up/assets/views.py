@@ -19,7 +19,10 @@ def user_check(user, portfolio_id):
 @login_required
 def assets(request):
     user = request.user
-    return render(request, "assets/assets.html", {'user': user})
+    return render(request, "assets/assets.html", {
+        'user': user,
+        'form': AddPortfolioForm,
+    })
 
 
 @login_required
@@ -58,6 +61,10 @@ def view_portfolio(request, portfolio_id):
     return render(request, "assets/view_portfolio.html", {
         'portfolio': portfolio,
         'positions': positions,
+        'tform': TickerForm,
+        'sform': AddStockPositionForm,
+        'oform': AddOptionPositionForm,
+        'hedge_stock_form': HedgeStockForm,
     })
 
 

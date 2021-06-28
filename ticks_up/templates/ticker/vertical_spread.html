@@ -14,8 +14,6 @@
     {% for type, spread in spreads.items %}
     <body>{{ type }}: {{ spread }}</body></p>
     {% endfor %}
-
-    <a href="{% url 'ticker' ticker %}">Back</a>
 </div>
 
 {% endblock %}
