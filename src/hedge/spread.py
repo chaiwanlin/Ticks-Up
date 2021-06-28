@@ -55,6 +55,6 @@ def collar(ticker, days, entry_price, lower_bound, target_price, risk):
 
     return result
 
-# print(bull_credit_spread("aapl", 58, 140, 150, 80))
+print(bull_credit_spread("aapl", 58, 140, 150, 80))
 # print(bear_credit_spread("aapl", 30, 130, 120, 80))
-print(collar("aapl", 30, 120, 130, 150, 20))
+# print(collar("aapl", 30, 120, 130, 150, 20))
