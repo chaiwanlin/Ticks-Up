@@ -47,3 +47,4 @@ def hedge_stock(ticker, entry_price, breakeven_point, risk, days, capped = True,
 # print(hedge_stock("aapl", 135, 10, 140, 30, False, 150))
 # print(get_iv("aapl", 30))
 # print(range_to_date(datetime.date(2021, 6,20), 0.2, 100))
+
