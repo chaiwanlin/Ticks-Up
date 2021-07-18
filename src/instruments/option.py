@@ -175,6 +175,39 @@ class Call(Option):
                 }
             }
 
+    def adjust_bull_spread(self, long_call, short_call, short_call_premium, breakeven_point, target_price, net_premium, risk, threshold = 1):
+        
+        max_gain_net_value = -math.inf
+        max_gain_strike = breakeven_point
+        max_gain_premium = breakeven_point
+
+        min_threshold = -threshold
+
+        min_cost_net_value = None
+        min_cost_strike = breakeven_point
+        min_cost_premium = breakeven_point
+
+        for strike in self.data:
+            strike_price = strike["strike"]
+            strike_premium = strike["lastPrice"]
+
+            if strike_price < short_call:
+                net_cost = short_call_premium - strike_premium
+                net_value = breakeven_point - long_call + net_cost
+                max_loss = net_premium + net_cost
+
+                if risk < max_loss:
+                    if net_value > max_gain_net_value:
+                        max_gain_net_value = net_value
+                        max_gain_strike = strike_price
+                        max_gain_premium = strike_premium 
+                    
+                    if min_threshold <= net_value <= threshold and strike_premium < min_cost_premium: 
+                        min_cost_net_value = net_value
+                        min_cost_strike = strike_price
+                        min_cost_premium = strike_premium 
+
+
     def get_strike_for_breakeven_credit(self, breakeven_point, short_call_strike, short_call_premium, risk = math.inf):
         net_breakeven_value = short_call_premium - (breakeven_point - short_call_strike)
 
@@ -471,8 +504,9 @@ class Put(Option):
         max_gain_breakeven = short_put_strike - max_gain_profit
 
         min_risk_profit = short_put_premium - min_risk_premium
-        min_risk_loss = short_put_strike - max_gain_strike - min_risk_profit
+        min_risk_loss = short_put_strike - min_risk_strike - min_risk_profit
         min_risk_breakeven = short_put_strike - min_risk_profit
+
         return {
             "short_put" : {
                 "strike_strike" : short_put_strike,
