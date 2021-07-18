@@ -13,7 +13,11 @@ class Stock(Instrument):
         result = data["quoteSummary"]["result"][0]
         self.price = result["price"]["regularMarketPrice"]
 
+        print(url)
+
         super().__init__(ticker, self)
 
     def get_price(self):
         return float(self.price["fmt"])
+
+Stock("AAPL")

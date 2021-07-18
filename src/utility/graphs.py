@@ -82,8 +82,12 @@ def p_and_l(name, lower_bound, upper_bound, delta, profit, loss, capped_profit, 
         width=800,
     )
     PATH = os.path.join(Path(__file__).resolve().parent.parent.parent, "./ticks_up/static/graphs/{name}.jpeg".format(name=name))
+    PATH_HTML = os.path.join(Path(__file__).resolve().parent.parent.parent, "./ticks_up/static/graphs/{name}.html".format(name=name))
     fig.write_image(PATH)
-    pio.write_html(fig, file=PATH, full_html=full_html, auto_open=False)
+    pio.write_html(fig, file=PATH_HTML, full_html=full_html, auto_open=False)
+    # fig.write_image(f"ticks_up/static/graphs/{name}.jpeg")
+    # pio.write_html(fig, file=f"ticks_up/static/graphs/{name}.html", full_html=full_html, auto_open=False)
+
     # url = py.plot(fig, filename='graph', auto_open=True)
     # print(url)
     # fig.show()
