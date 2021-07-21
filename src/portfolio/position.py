@@ -4,18 +4,19 @@ from instruments.stock import Stock as Stock_Data
 
 class Overall_Position:
 
-    def __init__(self, ticker, sector, stocks, options):
+    def __init__(self, ticker, sector, industry, stocks, options):
         self.sector = sector
+        self.industry = industry
         self.ticker = ticker
         self.stocks = stocks
         self.options = options
 
-    
-    def get_overall_position(self):
-        overall_capital_invested = self.stocks.capital_invested + self.options.capital_invested
-        overall_capital_collateral = self.stocks.capital_collateral + self.options.capital_collateral
-        
-
+        self.capital_invested = self.stocks.capital_invested + self.options.capital_invested
+        self.capital_collateral = self.stocks.capital_collateral + self.options.capital_collateral
+        self.value = self.stocks.value + self.options.value
+        self.cost_to_cover = self.stocks.cost_to_cover + self.options.cost_to_cover
+        self.short_PL = self.stocks.short_PL + self.options.short_PL
+          
 class Stock_Position:
 
     def __init__(self, ticker, long_positions, short_positions, margin, margin_value = 0):
@@ -29,13 +30,19 @@ class Stock_Position:
 
         self.capital_invested = 0
         self.capital_collateral = 0
+        self.value = 0
+        self.cost_to_cover = 0
+        self.short_PL = 0
 
         for e in self.long_positions:
             self.capital_invested += e.cost
+            self.value += e.value
         
         if margin:
             for e in self.short_positions:
                 self.capital_invested += e.cost + margin_value * price
+                self.cost_to_cover += price
+                self.short_PL += e.cost - price
 
 class Option_Position:
 
@@ -55,31 +62,44 @@ class Option_Position:
         
         self.capital_invested = 0
         self.capital_collateral = 0
+        self.cost_to_cover = 0
+        self.short_PL = 0
 
         for e in self.long_calls:
             self.capital_invested += e.cost
+            self.value += e.value
 
         for e in self.long_puts:
             self.capital_invested += e.cost   
+            self.value += e.value
 
         for e in self.spreads:
             if e.type == CREDIT:
                 self.capital_collateral += e.risk 
+                self.cost_to_cover += e.value
+                self.short_PL += e.cost - e.value
 
             if e.type == DEBIT:
                 self.capital_invested += e.cost 
+                self.value += e.value
         
         if margin:
             for e in self.short_calls:
                 otm = e.strike - price if e.strike - price else 0
                 self.capital_collateral += max(0.2 * price - otm, 0.1 * price) * 100
+                self.cost_to_cover += e.value
+                self.short_PL += e.cost - e.value
 
             for e in self.short_puts:
                 otm = e.strike - price if e.strike - price else 0
                 self.capital_collateral += max(0.2 * price - otm, 0.1 * price) * 100
+                self.cost_to_cover += e.value
+                self.short_PL += e.cost - e.value
         else:
-            for e in self.short_calls:
+            for e in self.short_puts:
                 self.capital_collateral += e.strike * 100
+                self.cost_to_cover += e.value
+                self.short_PL += e.cost - e.value
 
 
 
@@ -102,9 +122,7 @@ class Option_Position:
         #             if put < sput:
         #                 if count < sput.quantity:
         #                 elif sput.quantity < count:
-        #                 else:
-
-        
+        #                 else:   
 
 lst = [Stock(LONG, 3), Stock(LONG, 5), Stock(LONG, 2)]
 

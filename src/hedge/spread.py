@@ -56,7 +56,6 @@ def collar(ticker, days, entry_price, lower_bound, target_price, risk):
 
     return result
 
-
 # def adjust_bull_spread(ticker, net_premium, lower_bound, upper_bound, outlook, new_target_price, risk):
 #     # debit spread
 #     if net_premium < 0:
@@ -71,9 +70,7 @@ def collar(ticker, days, entry_price, lower_bound, target_price, risk):
 #         elif outlook == BULL:
 
 #         # roll back short leg
-#         elif outlook == NEUTRAL:
-        
-            
+#         elif outlook == NEUTRAL:          
 
 #     # credit spread
 #     else:
@@ -99,6 +96,6 @@ def collar(ticker, days, entry_price, lower_bound, target_price, risk):
 
 
 
-print(bull_credit_spread("aapl", 30, 140, 150, 20))
+# print(bull_debit_spread("aapl", 30, 140, 150, 30))
 # print(bear_credit_spread("aapl", 30, 130, 120, 80))
 # print(collar("aapl", 30, 120, 130, 150, 20))

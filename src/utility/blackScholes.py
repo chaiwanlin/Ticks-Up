@@ -24,7 +24,6 @@ class BlackScholes:
     def put_price(self):
         return -self.underlying * self.eqt * self.normal.cdf(-self.d1) + self.ert * self.strike * self.normal.cdf(-self.d2)
        
-    
     def delta(self):
         delta = self.eqt * self.normal.cdf(self.d1)
         return delta

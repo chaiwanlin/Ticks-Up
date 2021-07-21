@@ -3,6 +3,7 @@ from utility.search import  bin_search_closest
 from instruments.instrument import Instrument
 from instruments.stock import Stock
 from instruments.constants import YAHOO_OPTION
+from utility.blackScholes import BlackScholes
 import urllib.request
 import urllib.response
 import json
@@ -109,6 +110,24 @@ class Call(Option):
         
         return (agg_iv, total)
 
+    def get_25_delta(self):
+        len = self.strikes.len()
+        lo = 0
+        hi = len - 1
+
+        while lo <= hi:
+            mid = (hi + lo) // 2 + lo
+
+            if(0.25 < self.get_option_for_strike(self.strikes[mid]).delta()):
+                hi = mid - 1
+            else:
+                lo = mid + 1
+
+            hi_delta_diff = abs(self.get_option_for_strike(self.strikes[hi]).delta() - 0.25)
+            lo_delta_diff = abs(self.get_option_for_strike(self.strikes[lo]).delta() - 0.25)
+
+            return lo_delta_diff if lo_delta_diff < hi_delta_diff else hi_delta_diff
+    
     def get_strike_for_breakeven_debit(self, breakeven_point, short_call_strike, short_call_premium,  risk = math.inf, threshold = 1):
         max_premium = risk - short_call_premium
 
@@ -144,11 +163,11 @@ class Call(Option):
             threshold += 1
             return self.get_strike_for_breakeven_debit(breakeven_point, short_call_strike, short_call_premium, risk,  threshold)
         else:
-            max_gain_loss = short_call_premium - max_gain_premium
+            max_gain_loss = max_gain_premium - short_call_premium
             max_gain_profit = short_call_strike - max_gain_strike - max_gain_loss
             max_gain_breakeven = max_gain_loss + max_gain_strike
 
-            min_cost_loss = short_call_premium - min_cost_premium 
+            min_cost_loss = min_cost_premium - short_call_premium 
             min_cost_profit = short_call_strike - min_cost_strike - min_cost_loss
             min_cost_breakeven = min_cost_loss + min_cost_strike
 
@@ -206,7 +225,6 @@ class Call(Option):
                         min_cost_net_value = net_value
                         min_cost_strike = strike_price
                         min_cost_premium = strike_premium 
-
 
     def get_strike_for_breakeven_credit(self, breakeven_point, short_call_strike, short_call_premium, risk = math.inf):
         net_breakeven_value = short_call_premium - (breakeven_point - short_call_strike)
@@ -283,6 +301,9 @@ class CallOption:
         self.ask = data["ask"]
         self.implied_volatility = data["impliedVolatility"]
 
+    def delta(self):
+        return None
+
     def get_ticker(self):
         return self.ticker
     
@@ -351,6 +372,24 @@ class Put(Option):
 
         return (agg_iv, total)
 
+    def get_25_delta(self):
+        len = self.strikes.len()
+        lo = 0
+        hi = len - 1
+
+        while lo <= hi:
+            mid = (hi + lo) // 2 + lo
+
+            if(0.25 < self.get_option_for_strike(self.strikes[mid]).delta()):
+                hi = mid - 1
+            else:
+                lo = mid + 1
+
+            hi_delta_diff = abs(self.get_option_for_strike(self.strikes[hi]).delta() - 0.25)
+            lo_delta_diff = abs(self.get_option_for_strike(self.strikes[lo]).delta() - 0.25)
+            
+            return lo_delta_diff if lo_delta_diff < hi_delta_diff else hi_delta_diff
+            
     def get_open_interest_count(self):
         sum = 0
         for strike in self.data:
