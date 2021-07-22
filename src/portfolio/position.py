@@ -126,4 +126,4 @@ class Option_Position:
 
 lst = [Stock(LONG, 3), Stock(LONG, 5), Stock(LONG, 2)]
 
-Overall_Position("AAPL", lst).get_overall_position()
+Overall_Position("AAPL", lst)
