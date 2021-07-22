@@ -6,6 +6,12 @@ BEAR = "BEAR"
 
 BULL = "BULL"
 
+ITM = "ITM"
+
+ATM = "ATM"
+
+OTM = "OTM"
+
 STRADDLE = "STRADDLE"
 
 NEUTRAL = "NEUTRAL"

@@ -123,6 +123,7 @@ class Straddle(Spread):
         self.upper_bound = upper
 
 class Collar(Spread): 
+    
     def __init__(self, type, quantity, cost, profit, breakeven, lower, upper, expiry, value):
         super().__init__(type, quantity, cost, profit, value)
         self.expiry = expiry

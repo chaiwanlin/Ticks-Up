@@ -87,6 +87,25 @@ class Call(Option):
         next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
         return Call(self.ticker, next_date.year, next_date.month, next_date.day)
 
+    def get_option_nearest_premium(self, lower_bound, premium):
+        index = bin_search_closest(lower_bound, self.strikes)[0]
+        diff = self.get_option_for_strike(lower_bound).get_price() - premium
+        index += 1
+        
+        while diff > 0:
+            next_strike = self.strikes[index]
+            diff = self.get_option_for_strike(next_strike).get_price() - premium
+            index += 1
+
+        index -= 1
+        strike = self.strikes[index]
+        premium = self.get_option_for_strike(strike).get_price()
+
+        return {
+            "strike" : strike,
+            "premium" : premium
+        }
+
     def get_open_interest_count(self):
         sum = 0
         for strike in self.data:
@@ -389,7 +408,27 @@ class Put(Option):
             lo_delta_diff = abs(self.get_option_for_strike(self.strikes[lo]).delta() - 0.25)
             
             return lo_delta_diff if lo_delta_diff < hi_delta_diff else hi_delta_diff
-            
+
+    def get_option_nearest_premium(self, lower_bound, premium):
+        index = bin_search_closest(lower_bound, self.strikes)[0]
+        diff = self.get_option_for_strike(lower_bound).get_price() - premium
+        index -= 1
+        
+        while diff > 0:
+            next_strike = self.strikes[index]
+            diff = self.get_option_for_strike(next_strike).get_price() - premium
+            index -= 1
+
+        index += 1
+        strike = self.strikes[index]
+        premium = self.get_option_for_strike(strike).get_price()
+
+        return {
+            "strike" : strike,
+            "premium" : premium
+        }
+
+
     def get_open_interest_count(self):
         sum = 0
         for strike in self.data:
