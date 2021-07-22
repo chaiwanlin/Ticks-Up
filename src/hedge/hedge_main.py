@@ -38,6 +38,10 @@ def range_to_date(IV, stock_price, days = None):
 
 def hedge_stock(ticker, entry_price, risk, breakeven_point, days, capped = True, target_price = None):
     result = Put(ticker).get_nearest_day(days).get_hedge_stike(risk, entry_price)
+<<<<<<< HEAD
+
+=======
+>>>>>>> 43c52961b66087be52b793021aae992b1163fe87
     if capped:
         return [result, collar(ticker, days, entry_price, breakeven_point, target_price, risk)]
     else:
