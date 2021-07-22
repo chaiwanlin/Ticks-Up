@@ -3,6 +3,7 @@ from utility.search import  bin_search_closest
 from instruments.instrument import Instrument
 from instruments.stock import Stock
 from instruments.constants import YAHOO_OPTION
+from utility.graphs import draw_graph
 import urllib.request
 import urllib.response
 import json
@@ -129,11 +130,11 @@ class Call(Option):
             if strike_price < breakeven_point:
                 net_value = breakeven_point - strike_price + short_call_premium - strike_premium
 
-                if strike_premium  < max_premium:
+                if strike_premium < max_premium:
                     if net_value > max_gain_net_value:
                         max_gain_net_value = net_value
                         max_gain_strike = strike_price
-                        max_gain_premium = strike_premium 
+                        max_gain_premium = strike_premium
                     
                     if min_threshold <= net_value <= threshold and strike_premium < min_cost_premium: 
                         min_cost_net_value = net_value
@@ -153,25 +154,50 @@ class Call(Option):
             min_cost_breakeven = min_cost_loss + min_cost_strike
 
             return {
-                "short_call" : {
-                    "strike_strike" : short_call_strike,
-                    "strike_premium" : short_call_premium
-                }, 
-                "max_gain" : {
-                    "strike_price" : max_gain_strike,
-                    "strike_premium" : max_gain_premium,
-                    "net_value_at_breakeven" : max_gain_net_value,
-                    "max_profit" : max_gain_profit,
-                    "breakeven" : max_gain_breakeven,
-                    "max_loss" : max_gain_loss
+                "data": {
+                    "short_call" : {
+                        "strike_strike" : short_call_strike,
+                        "strike_premium" : short_call_premium
+                    },
+                    "max_gain" : {
+                        "strike_price" : max_gain_strike,
+                        "strike_premium" : max_gain_premium,
+                        "net_value_at_breakeven" : max_gain_net_value,
+                        "max_profit" : max_gain_profit,
+                        "breakeven" : max_gain_breakeven,
+                        "max_loss" : max_gain_loss
+                    },
+                    "min_cost": {
+                        "strike_price" : min_cost_strike,
+                        "strike_premium" : min_cost_premium,
+                        "net_value_at_breakeven" : min_cost_net_value,
+                        "max_profit" : min_cost_profit,
+                        "breakeven" : min_cost_breakeven,
+                        "max_loss" : min_cost_loss
+                    }
                 },
-                "min_cost": {
-                    "strike_price" : min_cost_strike,
-                    "strike_premium" : min_cost_premium,
-                    "net_value_at_breakeven" : min_cost_net_value,
-                    "max_profit" : min_cost_profit,
-                    "breakeven" : min_cost_breakeven,
-                    "max_loss" : min_cost_loss
+                "graph": {
+                    "price_limit": self.strikes[-1],
+                    "coordinate_lists": [
+                        {"name": "Debit Max Gain", "coordinates": [(0, max_gain_loss),
+                                                             (max_gain_strike, max_gain_loss),
+                                                             (short_call_strike, max_gain_profit),
+                                                             (self.strikes[-1], max_gain_profit)]},
+                        {"name": "Debit Min Cost", "coordinates": [(0, min_cost_loss),
+                                                             (min_cost_strike, min_cost_loss),
+                                                             (short_call_strike, min_cost_profit),
+                                                             (self.strikes[-1], min_cost_profit)]},
+                    ],
+                    "graph": draw_graph(price_limit=self.strikes[-1], coordinate_lists=[
+                        {"name": "Debit Max Gain", "coordinates": [(0, max_gain_loss),
+                                                             (max_gain_strike, max_gain_loss),
+                                                             (short_call_strike, max_gain_profit),
+                                                             (self.strikes[-1], max_gain_profit)]},
+                        {"name": "Debit Min Cost", "coordinates": [(0, min_cost_loss),
+                                                             (min_cost_strike, min_cost_loss),
+                                                             (short_call_strike, min_cost_profit),
+                                                             (self.strikes[-1], min_cost_profit)]},
+                    ])
                 }
             }
 
@@ -216,25 +242,50 @@ class Call(Option):
         min_risk_loss = min_risk_strike - short_call_strike - min_risk_profit
         min_risk_breakeven = short_call_strike + min_risk_profit
         return {
-            "short_call" : {
-                    "strike_strike" : short_call_strike,
-                    "strike_premium" : short_call_premium
-            }, 
-            "max_gain" : {
-                "strike_price" : max_gain_strike,
-                "strike_premium" : max_gain_premium,
-                "net_value_at_breakeven" : max_gain_net_value,
-                "max_profit" : max_gain_profit,
-                "breakeven" : max_gain_breakeven,
-                "max_loss" : max_gain_loss
+            "data": {
+                "short_call": {
+                    "strike_strike": short_call_strike,
+                    "strike_premium": short_call_premium
+                },
+                "max_gain": {
+                    "strike_price": max_gain_strike,
+                    "strike_premium": max_gain_premium,
+                    "net_value_at_breakeven": max_gain_net_value,
+                    "max_profit": max_gain_profit,
+                    "breakeven": max_gain_breakeven,
+                    "max_loss": max_gain_loss
+                },
+                "min_loss": {
+                    "strike_price": min_risk_strike,
+                    "strike_premium": min_risk_premium,
+                    "net_value_at_breakeven": min_risk_net_value,
+                    "max_profit": min_risk_profit,
+                    "breakeven": min_risk_breakeven,
+                    "max_loss": min_risk_loss
+                }
             },
-            "min_loss": {
-                "strike_price" : min_risk_strike,
-                "strike_premium" : min_risk_premium,
-                "net_value_at_breakeven" : min_risk_net_value,
-                "max_profit" : min_risk_profit,
-                "breakeven" : min_risk_breakeven,
-                "max_loss" : min_risk_loss
+            "graph": {
+                "price_limit": self.strikes[-1],
+                "coordinate_lists": [
+                    {"name": "Credit Max Gain", "coordinates": [(0, max_gain_profit),
+                                                         (short_call_strike, max_gain_profit),
+                                                         (max_gain_strike, -max_gain_loss),
+                                                         (self.strikes[-1], -max_gain_loss)]},
+                    {"name": "Credit Min Cost", "coordinates": [(0, min_risk_profit),
+                                                         (short_call_strike, min_risk_profit),
+                                                         (min_risk_strike, -min_risk_loss),
+                                                         (self.strikes[-1], -min_risk_loss)]},
+                ],
+                "graph": draw_graph(price_limit=self.strikes[-1], coordinate_lists=[
+                    {"name": "Credit Max Gain", "coordinates": [(0, max_gain_profit),
+                                                         (short_call_strike, max_gain_profit),
+                                                         (max_gain_strike, -max_gain_loss),
+                                                         (self.strikes[-1], -max_gain_loss)]},
+                    {"name": "Credit Min Cost", "coordinates": [(0, min_risk_profit),
+                                                         (short_call_strike, min_risk_profit),
+                                                         (min_risk_strike, -min_risk_loss),
+                                                         (self.strikes[-1], -min_risk_loss)]},
+                ])
             }
         }
 
@@ -244,7 +295,10 @@ class CallOption:
         self.ticker = ticker
         self.underlying = underlying
         self.price = data["lastPrice"]
-        self.volume = data["volume"]
+        try:
+            self.volume = data["volume"]
+        except KeyError:
+            self.volume = None
         self.interest = data["openInterest"]
         self.bid = data["bid"]
         self.ask = data["ask"]
@@ -412,26 +466,51 @@ class Put(Option):
             min_cost_breakeven = min_cost_strike - min_cost_loss 
 
             return {
-                "short_put" : {
-                    "strike_strike" : short_put_strike,
-                    "strike_premium" : short_put_premium
-                },  
-                "max_gain" : {
-                    "strike_price" : max_gain_strike,
-                    "strike_premium" : max_gain_premium,
-                    "net_value_at_breakeven" : max_gain_net_value,
-                    "max_profit" : max_gain_profit,
-                    "breakeven" : max_gain_breakeven,
-                    "max_loss" : max_gain_loss
+                "data": {
+                    "short_put" : {
+                        "strike_strike" : short_put_strike,
+                        "strike_premium" : short_put_premium
+                    },
+                    "max_gain" : {
+                        "strike_price" : max_gain_strike,
+                        "strike_premium" : max_gain_premium,
+                        "net_value_at_breakeven" : max_gain_net_value,
+                        "max_profit" : max_gain_profit,
+                        "breakeven" : max_gain_breakeven,
+                        "max_loss" : max_gain_loss,
+                    },
+                    "min_cost": {
+                        "strike_price" : min_cost_strike,
+                        "strike_premium" : min_cost_premium,
+                        "net_value_at_breakeven" : min_cost_net_value,
+                        "max_profit" : min_cost_profit,
+                        "breakeven" : min_cost_breakeven,
+                        "max_loss" : min_cost_loss
+                    }
                 },
-                "min_cost": {
-                    "strike_price" : min_cost_strike,
-                    "strike_premium" : min_cost_premium,
-                    "net_value_at_breakeven" : min_cost_net_value,
-                    "max_profit" : min_cost_profit,
-                    "breakeven" : min_cost_breakeven,
-                    "max_loss" : min_cost_loss
-                }
+                "graph": {
+                    "price_limit": self.strikes[-1],
+                    "coordinate_lists": [
+                        {"name": "Debit Max Gain", "coordinates": [(0, max_gain_profit),
+                                                             (short_put_strike, max_gain_profit),
+                                                             (max_gain_strike, -max_gain_loss),
+                                                             (self.strikes[-1], -max_gain_loss)]},
+                        {"name": "Debit Min Cost", "coordinates": [(0, min_cost_profit),
+                                                             (short_put_strike, min_cost_profit),
+                                                             (min_cost_strike, -min_cost_loss),
+                                                             (self.strikes[-1], -min_cost_loss)]},
+                    ],
+                    "graph": draw_graph(price_limit=self.strikes[-1], coordinate_lists=[
+                        {"name": "Debit Max Gain", "coordinates": [(0, max_gain_profit),
+                                                             (short_put_strike, max_gain_profit),
+                                                             (max_gain_strike, -max_gain_loss),
+                                                             (self.strikes[-1], -max_gain_loss)]},
+                        {"name": "Debit Min Cost", "coordinates": [(0, min_cost_profit),
+                                                             (short_put_strike, min_cost_profit),
+                                                             (min_cost_strike, -min_cost_loss),
+                                                             (self.strikes[-1], -min_cost_loss)]},
+                    ])
+                    }
             }
 
     def get_strike_for_breakeven_credit(self, breakeven_point, short_put_strike, short_put_premium, risk = math.inf, threshold = 1):
@@ -474,27 +553,53 @@ class Put(Option):
         min_risk_loss = short_put_strike - max_gain_strike - min_risk_profit
         min_risk_breakeven = short_put_strike - min_risk_profit
         return {
-            "short_put" : {
-                "strike_strike" : short_put_strike,
-                "strike_premium" : short_put_premium
-            },  
-            "max_gain" : {
-                "strike_price" : max_gain_strike,
-                "strike_premium" : max_gain_premium,
-                "net_value_at_breakeven" : max_gain_net_value,
-                "max_profit" : max_gain_profit,
-                "breakeven" : max_gain_breakeven,
-                "max_loss" : max_gain_loss
+            "data": {
+                "short_put" : {
+                    "strike_strike" : short_put_strike,
+                    "strike_premium" : short_put_premium
+                },
+                "max_gain" : {
+                    "strike_price" : max_gain_strike,
+                    "strike_premium" : max_gain_premium,
+                    "net_value_at_breakeven" : max_gain_net_value,
+                    "max_profit" : max_gain_profit,
+                    "breakeven" : max_gain_breakeven,
+                    "max_loss" : max_gain_loss
+                },
+                "min_loss": {
+                    "strike_price" : min_risk_strike,
+                    "strike_premium" : min_risk_premium,
+                    "net_value_at_breakeven" : min_risk_net_value,
+                    "max_profit" : min_risk_profit,
+                    "breakeven" : min_risk_breakeven,
+                    "max_loss" : min_risk_loss
+                }
             },
-            "min_loss": {
-                "strike_price" : min_risk_strike,
-                "strike_premium" : min_risk_premium,
-                "net_value_at_breakeven" : min_risk_net_value,
-                "max_profit" : min_risk_profit,
-                "breakeven" : min_risk_breakeven,
-                "max_loss" : min_risk_loss
+            "graph": {
+                "price_limit": self.strikes[-1],
+                "coordinate_lists": [
+                    {"name": "Credit Max Gain", "coordinates": [(0, -max_gain_loss),
+                                                         (max_gain_strike, -max_gain_loss),
+                                                         (short_put_strike, max_gain_profit),
+                                                         (self.strikes[-1], max_gain_profit)]},
+                    {"name": "Credit Min Cost", "coordinates": [(0, -min_risk_loss),
+                                                         (min_risk_strike, -min_risk_loss),
+                                                         (short_put_strike, min_risk_profit),
+                                                         (self.strikes[-1], min_risk_profit)]},
+                ],
+                "graph": draw_graph(price_limit=self.strikes[-1], coordinate_lists=[
+                    {"name": "Credit Max Gain", "coordinates": [(0, -max_gain_loss),
+                                                         (max_gain_strike, -max_gain_loss),
+                                                         (short_put_strike, max_gain_profit),
+                                                         (self.strikes[-1], max_gain_profit)]},
+                    {"name": "Credit Min Cost", "coordinates": [(0, -min_risk_loss),
+                                                         (min_risk_strike, -min_risk_loss),
+                                                         (short_put_strike, min_risk_profit),
+                                                         (self.strikes[-1], min_risk_profit)]},
+                ])
             }
         }
+
 
     def get_strike_for_breakeven_collar(self, entry_price, breakeven_point, short_call_strike, short_call_premium, risk = math.inf, threshold = 1):
         breakeven_net_value = breakeven_point - entry_price + short_call_premium
@@ -542,7 +647,7 @@ class Put(Option):
             "short_call" : {
                 "strike_strike" : short_call_strike,
                 "strike_premium" : short_call_premium
-            },  
+            },
             "max_gain" : {
                 "strike_price" : max_gain_strike,
                 "strike_premium" : max_gain_premium,

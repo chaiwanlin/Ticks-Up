@@ -23,10 +23,11 @@
         <div class="row">
             <div class="col">
                 <h3>Maximum Profit</h3>
-                {% with 'graphs/'|add:ticker|add:'-hedge-max-gain-collar.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
+                {% if bull_spread_max_gain %}
+                {{ bull_spread_max_gain|safe }}
+                {% else %}
+                <p>No graph available.</p>
+                {% endif %}
                 <table class="table table-striped">
                     <tbody>
                         <tr>
@@ -58,10 +59,11 @@
             </div>
             <div class="col">
                 <h3>Minimum Loss</h3>
-                {% with 'graphs/'|add:ticker|add:'-hedge-min-loss-collar.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
+                {% if bull_spread_min_loss %}
+                {{ bull_spread_min_loss|safe }}
+                {% else %}
+                <p>No graph available.</p>
+                {% endif %}
                 <table class="table table-striped">
                     <tbody>
                         <tr>
@@ -99,10 +101,11 @@
         <div class="row">
             <div class="col">
                 <h3>Minimum Cost</h3>
-                {% with 'graphs/'|add:ticker|add:'-hedge-min-cost.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
+                {% if collar_min_cost %}
+                {{ collar_min_cost|safe }}
+                {% else %}
+                <p>No graph available.</p>
+                {% endif %}
                 <table class="table table-striped">
                     <tbody>
                         <tr>
@@ -122,10 +125,11 @@
             </div>
             <div class="col">
                 <h3>Minimum Loss</h3>
-                {% with 'graphs/'|add:ticker|add:'-hedge-min-loss.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
+                {% if collar_min_loss %}
+                {{ collar_min_loss|safe }}
+                {% else %}
+                <p>No graph available.</p>
+                {% endif %}
                 <table class="table table-striped">
                     <tbody>
                         <tr>

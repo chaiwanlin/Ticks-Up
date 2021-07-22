@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block stylesheet %}
+{% load static %}
+{% endblock %}
+
+
+{% block javascript %}
+{% endblock %}
+
+{% block content %}
+
+{% load ticker_extras %}
+<div class="container-fluid">
+    <h1 class="display-6 my-4">Option strategies for {{ ticker }} for</h1>
+    <table class="table table-striped w-25">
+        <tbody>
+        <tr>
+            <th>Days</th>
+            <td>
+                <form method="post" action="{% url 'vertical_spreads' ticker %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="number" name="days" value="{{ days }}">
+                        <input type="hidden" name="lower_bound" value="{{ lower_bound }}">
+                        <input type="hidden" name="target_price" value="{{ target_price }}">
+                        <input type="hidden" name="risk" value="{{ risk }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <th>Lower Bound</th>
+            <td>
+                <form method="post" action="{% url 'vertical_spreads' ticker %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="number" name="lower_bound" value="{{ lower_bound }}">
+                        <input type="hidden" name="days" value="{{ days }}">
+                        <input type="hidden" name="target_price" value="{{ target_price }}">
+                        <input type="hidden" name="risk" value="{{ risk }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <th>Upper Bound</th>
+            <td>
+                <form method="post" action="{% url 'vertical_spreads' ticker %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="number" name="target_price" value="{{ target_price }}">
+                        <input type="hidden" name="days" value="{{ days }}">
+                        <input type="hidden" name="lower_bound" value="{{ lower_bound }}">
+                        <input type="hidden" name="risk" value="{{ risk }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <th>Risk</th>
+            <td>
+                <form method="post" action="{% url 'vertical_spreads' ticker %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="number" name="risk" value="{{ risk }}">
+                        <input type="hidden" name="days" value="{{ days }}">
+                        <input type="hidden" name="lower_bound" value="{{ lower_bound }}">
+                        <input type="hidden" name="target_price" value="{{ target_price }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-center">{{ graph|safe }}</div>
+    <hr class="mb-4">
+
+    <div class="container-fluid">
+    {% for strategy_name, strategy in spreads.items %}
+        <h2>{{ strategy_name|header }}</h2>
+
+        <div class="row">
+            {% for data_name, data in strategy.data.items %}
+            <div class="col">
+                <table class="table table-striped">
+                    <h3>{{ data_name|header }}</h3>
+                    <tbody>
+                    {% for name, val in data.items %}
+                        <tr>
+                            <th>{{ name|header }}</th>
+                            <td>{{ val }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
+        </div>
+        <hr class="">
+    {% endfor %}
+
+{% endblock %}

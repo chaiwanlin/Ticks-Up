@@ -42,6 +42,14 @@ class AddOptionPositionForm(forms.ModelForm):
     # clean option data for validation
 
 
+class EditOptionPositionForm(forms.ModelForm):
+    class Meta:
+        model = OptionPosition
+        fields = ['total_cost', 'total_contracts']
+
+    # clean option data for validation
+
+
 class HedgeStockForm(forms.Form):
     risk = forms.FloatField(min_value=0, max_value=100)
     break_point = forms.FloatField(min_value=0)

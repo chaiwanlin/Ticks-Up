@@ -2,13 +2,10 @@
 
 {% block content %}
 
+{% load ticker_extras %}
 <div class="container-fluid">
-    <h1 class="display-6 my-4">Vertical spreads for {{ ticker }}</h1>
+    <h1 class="display-6 my-4">Option strategies for {{ ticker }}</h1>
     <hr class="mb-4">
-
-<!--    {% for type, spread in spreads.items %}-->
-<!--    <body>{{ type }}: {{ spread }}</body></p>-->
-<!--    {% endfor %}-->
 
     <div class="container-fluid">
         <h2>Debit Spread</h2>
@@ -27,10 +24,11 @@
         <div class="row">
             <div class="col">
                 <h3>Maximum Profit</h3>
-                {% with 'graphs/'|add:ticker|add:'-debit-spread-max-gain.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
+                {% if debit_spread_max_gain %}
+                {{ debit_spread_max_gain|safe }}
+                {% else %}
+                <p>No graph available.</p>
+                {% endif %}
                 <table class="table table-striped">
                     <tbody>
                         <tr>
@@ -62,10 +60,11 @@
             </div>
             <div class="col">
                 <h3>Minimum Cost</h3>
-                {% with 'graphs/'|add:ticker|add:'-debit-spread-min-cost.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
+                {% if debit_spread_min_cost %}
+                {{ debit_spread_min_cost|safe }}
+                {% else %}
+                <p>No graph available.</p>
+                {% endif %}
                 <table class="table table-striped">
                     <tbody>
                         <tr>
@@ -115,10 +114,11 @@
         <div class="row">
             <div class="col">
                 <h3>Maximum Profit</h3>
-                {% with 'graphs/'|add:ticker|add:'-credit-spread-max-gain.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
+                {% if credit_spread_max_gain %}
+                {{ credit_spread_max_gain|safe }}
+                {% else %}
+                <p>No graph available.</p>
+                {% endif %}
                 <table class="table table-striped">
                     <tbody>
                         <tr>
@@ -150,10 +150,11 @@
             </div>
             <div class="col">
                 <h3>Minimum Loss</h3>
-                {% with 'graphs/'|add:ticker|add:'-credit-spread-min-loss.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
+                {% if credit_spread_min_loss %}
+                {{ credit_spread_min_loss|safe }}
+                {% else %}
+                <p>No graph available.</p>
+                {% endif %}
                 <table class="table table-striped">
                     <tbody>
                         <tr>

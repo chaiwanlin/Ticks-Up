@@ -55,7 +55,15 @@ class StockPosition(models.Model):
             stock = StockPosition.objects.get(portfolio=self.portfolio, ticker=self.ticker)
             stock.total_cost += self.total_cost
             stock.total_shares += self.total_shares
-            super(StockPosition, stock).save()
+            if stock.total_shares < 0:
+                raise ValueError('You cannot sell more shares than you own!')
+            elif stock.total_shares == 0:
+                if stock.ticker.optionposition_set.all():
+                    stock.delete()
+                else:
+                    stock.ticker.delete()
+            else:
+                super(StockPosition, stock).save()
         except StockPosition.DoesNotExist:
             super().save(*args, **kwargs)
 
@@ -107,7 +115,16 @@ class OptionPosition(models.Model):
             )
             option.total_cost += self.total_cost
             option.total_contracts += self.total_contracts
-            super(OptionPosition, option).save()
+            if option.total_contracts < 0:
+                raise ValueError('You cannot sell more contracts than you own!')
+            elif option.total_contracts == 0:
+                try:
+                    option.ticker.stockposition
+                    self.delete()
+                except StockPosition.DoesNotExist:
+                    option.ticker.delete()
+            else:
+                super(OptionPosition, option).save()
         except OptionPosition.DoesNotExist:
             super().save(*args, **kwargs)
 

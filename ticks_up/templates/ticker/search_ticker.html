@@ -9,7 +9,32 @@
     <hr class="mb-4">
 
     <div class="container-fluid">
-        <div class="row">
+        <!-- TradingView Widget BEGIN -->
+        <div class="tradingview-widget-container">
+          <div id="tradingview_9c9cb"></div>
+          <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/{{ exchange }}-{{ ticker }}/" rel="noopener" target="_blank"><span class="blue-text">{{ ticker }} Chart</span></a> by TradingView</div>
+          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+          <script type="text/javascript">
+          new TradingView.widget(
+          {
+          "width": 980,
+          "height": 610,
+          "symbol": "{{ exchange }}:{{ ticker }}",
+          "interval": "D",
+          "timezone": "Etc/UTC",
+          "theme": "light",
+          "style": "1",
+          "locale": "en",
+          "toolbar_bg": "#f1f3f6",
+          "enable_publishing": false,
+          "allow_symbol_change": true,
+          "container_id": "tradingview_9c9cb"
+        }
+          );
+          </script>
+        </div>
+        <!-- TradingView Widget END -->
+        <div class="row mt-5">
             <div class="col-md-auto align-middle"><h1 class="display-6">Options data for {{ days }} day(s)</h1></div>
             <div class="col-3 align-middle">
                 <form method="get">
@@ -38,24 +63,24 @@
         </table>
     </div>
 
-    <div class="d-flex justify-content-center">
-        <button type="button" class="btn btn-warning btn-lg" data-bs-toggle="modal" data-bs-target="#verticalSpreads">
+    <div class="d-flex justify-content-center my-4">
+        <button type="button" class="btn btn-warning btn-lg" data-bs-toggle="modal" data-bs-target="#optionStrategies">
             <i class="bi bi-file-spreadsheet"></i>
-            See vertical spreads
+            Try option strategies
         </button>
 
-        <div class="modal fade" id="verticalSpreads" tabindex="-1" aria-labelledby="verticalSpreadsLabel" aria-hidden="true">
+        <div class="modal fade" id="optionStrategies" tabindex="-1" aria-labelledby="optionStrategiesLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="verticalSpreadsLabel">See vertical spreads for {{ ticker }}</h5>
+                <h5 class="modal-title" id="optionStrategiesLabel">Try option strategies for {{ ticker }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
                 <form method="post" action="{% url 'vertical_spreads' ticker %}">
                     {% csrf_token %}
                     <div class="mb-3">
-                        {{ vertical_spreads_form|crispy }}
+                        {{ option_strategies_form|crispy }}
                     </div>
                     <button type="submit" class="btn btn-outline-primary">View</button>
                 </form>

@@ -32,16 +32,16 @@
                 <td>{{ pos.0.total_shares }}</td>
                 <td>{{ pos.0.average_cost }}</td>
                 <td>
-                    <button type="button" class="btn btn-warning btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#hedgeStock">
+                    <button type="button" class="btn btn-warning btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#hedge{{ symbol }}Stock">
                         <i class="bi bi-shield-shaded"></i>
                         Hedge
                     </button>
 
-                    <div class="modal fade" id="hedgeStock" tabindex="-1" aria-labelledby="hedgeStockLabel" aria-hidden="true">
+                    <div class="modal fade" id="hedge{{ symbol }}Stock" tabindex="-1" aria-labelledby="hedge{{ symbol }}StockLabel" aria-hidden="true">
                       <div class="modal-dialog">
                         <div class="modal-content">
                           <div class="modal-header">
-                            <h5 class="modal-title" id="hedgeStockLabel">Hedge your stocks in {{ symbol }}</h5>
+                            <h5 class="modal-title" id="hedge{{ symbol }}StockLabel">Hedge your stocks in {{ symbol }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
                           <div class="modal-body">
@@ -59,16 +59,104 @@
                 </td>
                 <td>
                     <div class="btn-group" role="group" aria-label="Basic outlined example">
-                        <button type="button" class="btn btn-success btn-sm">
+                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}StockPosition">
                             <i class="bi bi-plus-lg"></i>
                         </button>
-                        <button type="button" class="btn btn-danger btn-sm">
+                        <div class="modal fade" id="add{{ symbol }}StockPosition" tabindex="-1" aria-labelledby="add{{ symbol }}StockPositionLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="add{{ symbol }}StockPositionLabel">Add {{ symbol }} stock position</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="post" action="{% url 'edit_stock_position' portfolio_id=portfolio.id ticker_name=symbol add_or_remove='ADD' %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        {{ sform|crispy }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}StockPosition">
                             <i class="bi bi-dash-lg"></i>
                         </button>
+                        <div class="modal fade" id="remove{{ symbol }}StockPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}StockPositionLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="remove{{ symbol }}StockPositionLabel">Remove {{ symbol }} stock position</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="post" action="{% url 'edit_stock_position' portfolio_id=portfolio.id ticker_name=symbol add_or_remove='REMOVE' %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        {{ sform|crispy }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                     </div>
                 </td>
                 {% else %}
-                <td colspan="6">-</td>
+                <td colspan="5">-</td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}StockPosition">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                        <div class="modal fade" id="add{{ symbol }}StockPosition" tabindex="-1" aria-labelledby="add{{ symbol }}StockPositionLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="add{{ symbol }}StockPositionLabel">Add {{ symbol }} stock position</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="post" action="{% url 'edit_stock_position' portfolio_id=portfolio.id ticker_name=symbol add_or_remove='ADD' %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        {{ sform|crispy }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}StockPosition">
+                            <i class="bi bi-dash-lg"></i>
+                        </button>
+                        <div class="modal fade" id="remove{{ symbol }}StockPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}StockPositionLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="remove{{ symbol }}StockPositionLabel">Remove {{ symbol }} stock position</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="post" action="{% url 'edit_stock_position' portfolio_id=portfolio.id ticker_name=symbol add_or_remove='REMOVE' %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        {{ sform|crispy }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </td>
                 {% endif %}
             </tr>
             {% for option in pos.1 %}
@@ -76,17 +164,64 @@
                 <th></th>
                 <td>{{ option }}</td>
                 <td>{{ option.total_cost }}</td>
-                <td>{{ option.total_shares }}</td>
+                <td>{{ option.total_contracts }}</td>
                 <td>{{ option.average_cost }}</td>
                 <td></td>
                 <td>
                     <div class="btn-group" role="group" aria-label="Basic outlined example">
-                        <button type="button" class="btn btn-success btn-sm">
+                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}OptionPosition">
                             <i class="bi bi-plus-lg"></i>
                         </button>
-                        <button type="button" class="btn btn-danger btn-sm">
+                        <div class="modal fade" id="add{{ symbol }}OptionPosition" tabindex="-1" aria-labelledby="add{{ symbol }}OptionPositionLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="add{{ symbol }}OptionPositionLabel">Add {{ symbol }} option position</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="post" action="{% url 'edit_option_position' portfolio.id option.ticker 'ADD' %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <input type="hidden" name="call_or_put" value="{{ option.call_or_put }}">
+                                        <input type="hidden" name="buy_or_sell" value="{{ option.buy_or_sell }}">
+                                        <input type="hidden" name="expiration_date" value="{{ option.expiration_date }}">
+                                        <input type="hidden" name="strike_price" value="{{ option.strike_price }}">
+                                        {{ eoform|crispy }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}OptionPosition">
                             <i class="bi bi-dash-lg"></i>
                         </button>
+                        <div class="modal fade" id="remove{{ symbol }}OptionPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}OptionPositionLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="remove{{ symbol }}OptionPositionLabel">Remove {{ symbol }} option position</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="post" action="{% url 'edit_option_position' portfolio.id option.ticker 'REMOVE' %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <input type="hidden" name="call_or_put" value="{{ option.call_or_put }}">
+                                        <input type="hidden" name="buy_or_sell" value="{{ option.buy_or_sell }}">
+                                        <input type="hidden" name="expiration_date" value="{{ option.expiration_date }}">
+                                        <input type="hidden" name="strike_price" value="{{ option.strike_price }}">
+                                        {{ eoform|crispy }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                     </div>
                 </td>
             </tr>
