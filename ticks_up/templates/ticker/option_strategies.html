@@ -18,7 +18,7 @@
         <tr>
             <th>Days</th>
             <td>
-                <form method="post" action="{% url 'vertical_spreads' ticker %}">
+                <form method="post" action="{% url 'option_strategies' ticker %}">
                     {% csrf_token %}
                     <div class="input-group input-group-sm">
                         <input class="form-control" type="number" name="days" value="{{ days }}">
@@ -35,7 +35,7 @@
         <tr>
             <th>Lower Bound</th>
             <td>
-                <form method="post" action="{% url 'vertical_spreads' ticker %}">
+                <form method="post" action="{% url 'option_strategies' ticker %}">
                     {% csrf_token %}
                     <div class="input-group input-group-sm">
                         <input class="form-control" type="number" name="lower_bound" value="{{ lower_bound }}">
@@ -52,7 +52,7 @@
         <tr>
             <th>Upper Bound</th>
             <td>
-                <form method="post" action="{% url 'vertical_spreads' ticker %}">
+                <form method="post" action="{% url 'option_strategies' ticker %}">
                     {% csrf_token %}
                     <div class="input-group input-group-sm">
                         <input class="form-control" type="number" name="target_price" value="{{ target_price }}">
@@ -69,7 +69,7 @@
         <tr>
             <th>Risk</th>
             <td>
-                <form method="post" action="{% url 'vertical_spreads' ticker %}">
+                <form method="post" action="{% url 'option_strategies' ticker %}">
                     {% csrf_token %}
                     <div class="input-group input-group-sm">
                         <input class="form-control" type="number" name="risk" value="{{ risk }}">

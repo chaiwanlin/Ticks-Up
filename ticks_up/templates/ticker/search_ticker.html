@@ -77,7 +77,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <form method="post" action="{% url 'vertical_spreads' ticker %}">
+                <form method="post" action="{% url 'option_strategies' ticker %}">
                     {% csrf_token %}
                     <div class="mb-3">
                         {{ option_strategies_form|crispy }}
