@@ -74,8 +74,8 @@ class Industry:
        
         return result
 
-    def get_k_closest_same_sector(self, k, sector, category, indicator):
-        sector = sector.lower().replace(" ", "-")
+    def get_k_closest_same_sector(self, k, category, indicator):
+        sector = self.sector.lower().replace(" ", "-")
         driver = webdriver.Chrome(PATH)
         driver.get(f"https://www.tradingview.com/markets/stocks-usa/sectorandindustry-sector/{sector}/")
 
@@ -180,8 +180,8 @@ class Industry:
         
         return result
 
-    def get_k_closest_same_industry(self, k, industry, category, indicator):
-        industry = industry.lower().replace(" ", "-")
+    def get_k_closest_same_industry(self, k, category, indicator):
+        industry = self.industry.lower().replace(" ", "-")
         driver = webdriver.Chrome(PATH)
         driver.get(f"https://www.tradingview.com/markets/stocks-usa/sectorandindustry-sector/{industry}/")
 

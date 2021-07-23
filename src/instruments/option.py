@@ -25,7 +25,6 @@ class Option(Instrument):
         response = urllib.request.urlopen(url)
         data = json.loads(response.read())
         result = data["optionChain"]["result"]
-        # print(result)
 
         if not result:
             raise LookupError("invalid ticker :D")
@@ -42,7 +41,6 @@ class Option(Instrument):
             date_before = self.expiration[closest_date[0]]
             date_after = self.expiration[closest_date[1]]
             status = closest_date[2]
-            print(date_before, date_after, status)
 
             url = f"{YAHOO_OPTION}{ticker}?date={date_after}"
             response = urllib.request.urlopen(url)
@@ -52,7 +50,6 @@ class Option(Instrument):
         self.options = data["options"][0]
         self.strikes = data["strikes"]
 
-        # print(data["optionChain"]["result"][0])
         super().__init__(ticker, Stock(ticker))
 
     def get_strikes(self):
@@ -372,7 +369,6 @@ class Put(Option):
     
     def get_nearest_day(self, day):
         next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
-        print(next_date)
         return Put(self.ticker, next_date.year, next_date.month, next_date.day)
     
     def aggregated_iv(self):
@@ -427,7 +423,6 @@ class Put(Option):
             "strike" : strike,
             "premium" : premium
         }
-
 
     def get_open_interest_count(self):
         sum = 0
@@ -496,7 +491,6 @@ class Put(Option):
 
             if strike_price > breakeven_point:
                 net_value = strike_price - breakeven_point + short_put_premium - strike_premium 
-                print(net_value)
 
                 if strike_premium  < max_premium:
                     if net_value > max_gain_net_value:

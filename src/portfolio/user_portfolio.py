@@ -22,19 +22,19 @@ class User_Portfolio:
         
         self.total_value = self.value + self.capital_collateral
 
-    def add_position(self, instrument, sector, industry, ticker):
-        found = False
+    # def add_position(self, instrument, sector, industry, ticker):
+    #     found = False
 
-        for e in self.sectors:
-            if e.id == sector:
-                e.add_position(instrument, industry, ticker)
-                found = True
+    #     for e in self.sectors:
+    #         if e.id == sector:
+    #             e.add_position(instrument, industry, ticker)
+    #             found = True
 
-        if not found:
-            tickers = [instrument]
-            industry = Industry_Portfolio(industry, tickers, type)
-            sector = Sector_Portfolio(sector, type, industry, tickers)
-            self.sectors.append(sector)    
+    #     if not found:
+    #         tickers = [instrument]
+    #         industry = Industry_Portfolio(industry, tickers, type)
+    #         sector = Sector_Portfolio(sector, type, industry, tickers)
+    #         self.sectors.append(sector)    
     
     def breakdown_by_ticker(self):
         dic = {}
