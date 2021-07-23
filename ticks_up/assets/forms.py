@@ -54,5 +54,5 @@ class HedgeStockForm(forms.Form):
     risk = forms.FloatField(min_value=0, max_value=100)
     break_point = forms.FloatField(min_value=0)
     days = forms.IntegerField(min_value=0)
-    capped = forms.BooleanField()
+    capped = forms.BooleanField(initial=True, required=False)
     target_price = forms.FloatField(min_value=0)

@@ -48,6 +48,11 @@ def bear_debit_spread(ticker, days, upper_bound, target_price, risk):
 
     return result
 
+def hedge_stock(ticker, entry_price, risk, breakeven_point, days, capped = True, target_price = None):
+    result = Put(ticker).get_nearest_day(days).get_hedge_strike(risk, entry_price)
+
+    return result
+
 def collar(ticker, days, entry_price, lower_bound, target_price, risk):
     calls = Call(ticker).get_nearest_day(days)
     strikes = calls.get_strikes()

@@ -231,8 +231,7 @@ class Call(Option):
                     if min_threshold <= net_value <= threshold and strike_premium < min_cost_premium: 
                         min_cost_net_value = net_value
                         min_cost_strike = strike_price
-                        min_cost_premium = strike_premium 
-
+                        min_cost_premium = strike_premium
 
     def get_strike_for_breakeven_credit(self, breakeven_point, short_call_strike, short_call_premium, risk = math.inf):
         net_breakeven_value = short_call_premium - (breakeven_point - short_call_strike)
@@ -411,7 +410,7 @@ class Put(Option):
             sum += strike["openInterest"]
         return sum
 
-    def get_hedge_stike(self, risk, entry_point):
+    def get_hedge_strike(self, risk, entry_point):
        
         min_cost_strike_price = entry_point
         min_cost_strike_premium = entry_point
@@ -438,17 +437,32 @@ class Put(Option):
                     min_loss_strike_premium = strike_premium
                     
             
-        return { 
-            "stock" : entry_point, 
-            "min_cost" : {
-                "strike_price" : min_cost_strike_price,
-                "strike_premium" : min_cost_strike_premium,
-                "risk" : min_cost_risk
+        return {
+            "data": {
+                "stock": {
+                    "entry_price": entry_point
+                },
+                "min_cost": {
+                    "strike_price": min_cost_strike_price,
+                    "strike_premium": min_cost_strike_premium,
+                    "risk": min_cost_risk
+                },
+                "min_loss": {
+                    "strike_price": min_loss_strike_price,
+                    "strike_premium": min_loss_strike_premium,
+                    "risk": min_loss_risk
+                }
             },
-            "min_loss": {
-                "strike_price" : min_loss_strike_price,
-                "strike_premium" : min_loss_strike_premium,
-                "risk" : min_loss_risk
+            "graph": {
+                "price_limit": self.strikes[-1],
+                "coordinate_lists": [
+                    {"name": "Hedge Stock Min Cost", "coordinates": [(0, -min_cost_risk),
+                                                                     (min_cost_strike_price, -min_cost_risk),
+                                                                     (min_cost_strike_price + 1, -min_cost_risk + 1)]},
+                    {"name": "Hedge Stock Min Loss", "coordinates": [(0, -min_loss_risk),
+                                                                     (min_loss_strike_price, -min_loss_risk),
+                                                                     (min_loss_strike_price + 1, -min_loss_risk + 1)]}
+                ]
             }
         }
         # ideally do a graph for best strike price to buy from current price to break point in a graph or wtv
@@ -634,7 +648,6 @@ class Put(Option):
             }
         }
 
-
     def get_strike_for_breakeven_collar(self, entry_price, breakeven_point, short_call_strike, short_call_premium, risk = math.inf, threshold = 1):
         breakeven_net_value = breakeven_point - entry_price + short_call_premium
 
@@ -678,27 +691,52 @@ class Put(Option):
         min_risk_profit = short_call_strike - entry_price - max_gain_cost
         min_risk_breakeven = entry_price + min_risk_cost
         return {
-            "short_call" : {
-                "strike_strike" : short_call_strike,
-                "strike_premium" : short_call_premium
+            "data": {
+                "short_call": {
+                    "strike_strike": short_call_strike,
+                    "strike_premium": short_call_premium
+                },
+                "max_gain": {
+                    "strike_price": max_gain_strike,
+                    "strike_premium": max_gain_premium,
+                    "net_value_at_breakeven": max_gain_net_value,
+                    "cost": max_gain_cost,
+                    "max_profit": max_gain_profit,
+                    "breakeven": max_gain_breakeven,
+                    "max_loss": max_gain_loss
+                },
+                "min_loss": {
+                    "strike_price": min_risk_strike,
+                    "strike_premium": min_risk_premium,
+                    "net_value_at_breakeven": min_risk_net_value,
+                    "cost": min_risk_cost,
+                    "max_profit": min_risk_profit,
+                    "breakeven": min_risk_breakeven,
+                    "max_loss": min_risk_loss
+                }
             },
-            "max_gain" : {
-                "strike_price" : max_gain_strike,
-                "strike_premium" : max_gain_premium,
-                "net_value_at_breakeven" : max_gain_net_value,
-                "cost" : max_gain_cost,
-                "max_profit" : max_gain_profit,
-                "breakeven" : max_gain_breakeven,
-                "max_loss" : max_gain_loss
-            },
-            "min_loss": {
-                "strike_price" : min_risk_strike,
-                "strike_premium" : min_risk_premium,
-                "net_value_at_breakeven" : min_risk_net_value,
-                "cost" : min_risk_cost,
-                "max_profit" : min_risk_profit,
-                "breakeven" : min_risk_breakeven,
-                "max_loss" : min_risk_loss
+            "graph": {
+                "price_limit": self.strikes[-1],
+                "coordinate_lists": [
+                    {"name": "Collar Max Gain", "coordinates": [(0, -max_gain_loss),
+                                                                (max_gain_strike, -max_gain_loss),
+                                                                (short_call_strike, max_gain_profit),
+                                                                (self.strikes[-1], max_gain_profit)]},
+                    {"name": "Collar Min Risk", "coordinates": [(0, -min_risk_loss),
+                                                                (min_risk_strike, -min_risk_loss),
+                                                                (short_call_strike, min_risk_profit),
+                                                                (self.strikes[-1], min_risk_profit)]},
+                ],
+                "graph": draw_graph(price_limit=self.strikes[-1], coordinate_lists=[
+                    {"name": "Collar Max Gain", "coordinates": [(0, -max_gain_loss),
+                                                                (max_gain_strike, -max_gain_loss),
+                                                                (short_call_strike, max_gain_profit),
+                                                                (self.strikes[-1], max_gain_profit)]},
+                    {"name": "Collar Min Risk", "coordinates": [(0, -min_risk_loss),
+                                                                (min_risk_strike, -min_risk_loss),
+                                                                (short_call_strike, min_risk_profit),
+                                                                (self.strikes[-1], min_risk_profit)]},
+                ])
             }
         }
 

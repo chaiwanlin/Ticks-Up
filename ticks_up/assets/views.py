@@ -1,3 +1,5 @@
+import math
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
@@ -5,9 +7,8 @@ from django.http import Http404
 from .forms import AddPortfolioForm, TickerForm, AddStockPositionForm, AddOptionPositionForm, HedgeStockForm, EditOptionPositionForm
 from .models import Portfolio, Ticker, StockPosition, OptionPosition
 from instruments.stock import Stock
-from hedge.hedge_main import hedge_stock
-from hedge.spread_graphs import hedge_stock as hedge_stock_graph
-from hedge.spread_graphs import bull_spread, bear_spread
+from hedge.spread import hedge_stock, collar
+from utility.graphs import draw_graph
 import datetime
 
 
@@ -229,46 +230,26 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         if form.is_valid():
             stock_position = portfolio.stockposition_set.get(ticker=ticker)
             average_cost = float(stock_position.total_cost / stock_position.total_shares)
-            hedge = hedge_stock(
-                ticker_name,
-                average_cost,
-                form.cleaned_data['risk'],
-                form.cleaned_data['break_point'],
-                form.cleaned_data['days'],
-                form.cleaned_data['capped'],
-                form.cleaned_data['target_price'],
-            )
-
-            bull_spread_max_gain = bull_spread(
-                ticker_name + "-hedge-max-gain-collar",
-                hedge[1]['max_gain']['strike_price'],
-                hedge[1]['short_call']['strike_strike'],
-                hedge[1]['max_gain']['max_profit'],
-                hedge[1]['max_gain']['max_loss'],
-            )
-            bull_spread_min_loss = bull_spread(
-                ticker_name + "-hedge-min-loss-collar",
-                hedge[1]['min_loss']['strike_price'],
-                hedge[1]['short_call']['strike_strike'],
-                hedge[1]['min_loss']['max_profit'],
-                hedge[1]['min_loss']['max_loss'],
-            )
-
-            collar_min_cost = hedge_stock_graph(
-                ticker_name + "-hedge-min-cost",
-                hedge[0]['min_cost']['strike_price'],
-                (average_cost * 1.5),
-                (average_cost * 1.5) - average_cost - hedge[0]['min_cost']['strike_premium'],
-                hedge[0]['min_cost']['risk'],
-            )
-
-            collar_min_loss = hedge_stock_graph(
-                ticker_name + "-hedge-min-loss",
-                hedge[0]['min_loss']['strike_price'],
-                (average_cost * 1.5),
-                (average_cost * 1.5) - average_cost - hedge[0]['min_loss']['strike_premium'],
-                hedge[0]['min_loss']['risk'],
-            )
+            risk = form.cleaned_data['risk']
+            break_point = form.cleaned_data['break_point']
+            days = form.cleaned_data['days']
+            capped = form.cleaned_data['capped']
+            target_price = form.cleaned_data['target_price']
+            hedge = {}
+            if capped:
+                hedge['married_put'] = hedge_stock(ticker_name, average_cost, risk, break_point, days, capped,
+                                                target_price)
+                hedge['collar'] = collar(ticker, days, average_cost, break_point, target_price, risk)
+            else:
+                hedge['married_put'] = hedge_stock(ticker_name, average_cost, risk, break_point, days, capped,
+                                                target_price)
+            max_price_limit = -math.inf
+            coordinate_lists = []
+            for strat in hedge:
+                if hedge[strat]['graph']['price_limit'] > max_price_limit:
+                    max_price_limit = hedge[strat]['graph']['price_limit']
+                coordinate_lists += (hedge[strat]['graph']['coordinate_lists'])
+            graph = draw_graph(price_limit=max_price_limit, coordinate_lists=coordinate_lists)
 
     else:
         form = HedgeStockForm()
@@ -279,8 +260,10 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         'ticker': ticker_name,
         'form': form,
         'hedge': hedge,
-        'bull_spread_max_gain': bull_spread_max_gain,
-        'bull_spread_min_loss': bull_spread_min_loss,
-        'collar_min_cost': collar_min_cost,
-        'collar_min_loss': collar_min_loss,
+        'risk': risk,
+        'break_point': break_point,
+        'days': days,
+        'capped': capped,
+        'target_price': target_price,
+        'graph': graph,
     })
