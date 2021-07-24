@@ -1,0 +1,1 @@
+web: gunicorn --pythonpath ticks_up ticks_up.wsgi
