@@ -33,12 +33,12 @@ def search_ticker(request):
         ticker_data['Volatility Skew'] = "We're working on it..."
         try:
             ticker_data['Implied Volatility'] = get_iv(ticker, days)
-        except ZeroDivisionError:
+        except (KeyError, ZeroDivisionError) as e:
             ticker_data['Implied Volatility'] = "Not available right now"
 
         try:
             ticker_data['Put-Call Ratio'] = put_call_ratio(ticker, days)
-        except ZeroDivisionError:
+        except (KeyError, ZeroDivisionError) as e:
             ticker_data['Put-Call Ratio'] = "Not available right now"
 
         return render(request, "ticker/search_ticker.html", {
