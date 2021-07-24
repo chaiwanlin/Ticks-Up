@@ -522,11 +522,164 @@ def adjust_bear_spread(ticker, day, month, year, net_premium, short_leg_strike, 
                     "Wait" : "Wait"
                 }
 
-def adjust_collar(ticker, net_premium, lower_bound, upper_bound, outlook, new_target_price, risk):
-    # roll out, adj challenged leg
-        
-def adjust_condor():
+def adjust_collar(ticker, day, month, year, stock_entry, net_premium, put_strike, short_call_strike, outlook, target_price, risk):
+    puts = Put(ticker, day, month, year)
+    put_strikes = puts.get_strikes
+    
+    calls = Call(ticker, day, month, year)
+    call_strikes = calls.get_strikes()
 
+    # roll up short call
+    if outlook == BULL:
+        new_short_call_price = call_strikes[bin_search_closest(target_price, call_strikes)]
+        new_short_call_premium = calls.get_option_for_strike(new_short_call_price).get_price()
+        old_short_call_premium = calls.get_option_for_strike(short_call_strike).get_price()
+
+        net_debit = old_short_call_premium - new_short_call_premium
+
+        new_premium = net_premium + net_debit
+        roll_up_max_profit = new_short_call_price - stock_entry  - new_premium
+        roll_up_breakeven = stock_entry + new_premium
+        roll_up_max_loss = stock_entry - put_strike - new_premium
+        
+        return {
+            "Close trade" : "close trade",
+            "Roll short call up" : {
+                "net_debit" : net_debit,
+                "strike_price" : new_short_call_price,
+                "strike_premium" : new_short_call_premium,
+                "max_profit" : roll_up_max_profit,
+                "breakeven" : roll_up_breakeven,
+                "max_loss" : roll_up_max_loss
+            }
+        }
+
+
+    # roll down short call short call have to be < old shortr call
+    elif outlook == BEAR:
+        new_short_call_price = call_strikes[bin_search_closest(target_price, call_strikes)]
+        new_short_call_premium = calls.get_option_for_strike(new_short_call_price).get_price()
+        old_short_call_premium = calls.get_option_for_strike(short_call_strike).get_price()
+
+        net_credit = new_short_call_premium - old_short_call_premium
+
+        new_premium = net_premium - net_credit
+        roll_up_max_profit = new_short_call_price - stock_entry  - new_premium
+        roll_up_breakeven = stock_entry + new_premium
+        roll_up_max_loss = stock_entry - put_strike - new_premium
+        
+        return {
+            "Close trade" : "close trade",
+            "Roll short call up" : {
+                "net_credit" : net_credit,
+                "strike_price" : new_short_call_price,
+                "strike_premium" : new_short_call_premium,
+                "max_profit" : roll_up_max_profit,
+                "breakeven" : roll_up_breakeven,
+                "max_loss" : roll_up_max_loss
+            }
+        }
+        
+def adjust_condor(ticker, day, month, year, credit, short_call_strike, long_call_strike, short_put_strike, long_put_strike, moneyness, outlook, target_price, risk):
+    puts = Put(ticker, day, month, year)
+    put_strikes = puts.get_strikes
+    
+    calls = Call(ticker, day, month, year)
+    call_strikes = calls.get_strikes()
+
+    # roll up bull spread
+    if outlook == BULL:
+        diff = short_put_strike - long_put_strike
+        
+        old_short_put_premium = puts.get_option_for_strike(short_put_strike).get_price()
+        old_long_put_premium = puts.get_option_for_strike(long_put_strike).get_price()
+        cost_to_close = old_short_put_premium - old_long_put_premium      
+
+        # butterfly since target more than bear threshhold
+        if target_price > short_call_strike:
+            new_short_put_price = short_call_strike
+            new_short_put_premium = puts.get_option_for_strike(new_short_put_price).get_price()
+
+            new_long_put_price = put_strikes[bin_search_closest((new_short_put_price - diff), put_strikes)[1]]
+            new_long_put_premium = puts.get_option_for_strike(new_long_put_price).get_price()
+        # condor
+        else:
+            new_short_put_price = put_strikes[bin_search_closest(target_price, put_strikes)[0]]
+            new_short_put_premium = puts.get_option_for_strike(new_short_put_price).get_price()
+
+            new_long_put_price = put_strikes[bin_search_closest((new_short_put_price - diff), put_strikes)[1]]
+            new_long_put_premium = puts.get_option_for_strike(new_long_put_price).get_price()
+
+        credit_to_open = new_short_put_premium - new_long_put_premium
+
+        net_credit = credit_to_open - cost_to_close      
+        
+        new_credit =  credit + net_credit
+        roll_up_breakeven_bear = new_short_put_price - new_credit
+        roll_up_breakeven_bull = short_call_strike + new_credit
+        roll_up_max_loss = diff - new_credit
+
+        return {
+            "Roll bull spread up" : {
+                "long_put_strike" : new_long_put_price,
+                "long_put_premium" : new_long_put_premium,
+                "short_put_strike" : new_short_put_price,
+                "short_put_premium" : new_short_put_premium,
+
+                "net_credit" : net_credit,
+                "max_profit" : new_credit,
+                "breakeven_bear" : roll_up_breakeven_bear,
+                "breakeven_bull" : roll_up_breakeven_bull,
+                "max_loss" : roll_up_max_loss
+            }
+        }    
+
+    #roll in bear spread 
+    elif outlook == BEAR:
+        diff = long_call_strike - short_call_strike
+        
+        old_short_call_premium = calls.get_option_for_strike(short_call_strike).get_price()
+        old_long_call_premium = calls.get_option_for_strike(long_call_strike).get_price()
+        cost_to_close = old_short_call_premium - old_long_call_premium      
+
+        # butterfly since target more than bear threshhold
+        if target_price < short_put_strike:
+            new_short_call_price = short_put_strike
+            new_short_call_premium = calls.get_option_for_strike(new_short_call_price).get_price()
+
+            new_long_call_price = put_strikes[bin_search_closest((new_short_call_price + diff), put_strikes)[1]]
+            new_long_call_premium = puts.get_option_for_strike(new_long_call_price).get_price()
+        # condor
+        else:
+            new_short_call_price = call_strikes[bin_search_closest(target_price, put_strikes)[0]]
+            new_short_call_premium = calls.get_option_for_strike(new_short_call_price).get_price()
+
+            new_long_call_price = put_strikes[bin_search_closest((new_short_call_price + diff), put_strikes)[1]]
+            new_long_call_premium = puts.get_option_for_strike(new_long_call_price).get_price()
+
+        credit_to_open = new_short_call_premium - new_long_call_premium
+
+        net_credit = credit_to_open - cost_to_close      
+        
+        new_credit =  credit + net_credit
+        roll_up_breakeven_bear = short_put_strike - new_credit
+        roll_up_breakeven_bull = new_short_call_price + new_credit
+        roll_up_max_loss = diff - new_credit
+
+        return {
+            "Roll bull spread up" : {
+                "long_call_strike" : new_long_call_price,
+                "long_call_premium" : new_long_call_premium,
+                "short_call_strike" : new_short_call_price,
+                "short_call_premium" : new_short_call_premium,
+
+                "net_credit" : net_credit,
+                "max_profit" : new_credit,
+                "breakeven_bear" : roll_up_breakeven_bear,
+                "breakeven_bull" : roll_up_breakeven_bull,
+                "max_loss" : roll_up_max_loss
+            }
+        }  
 
 # print(bull_debit_spread("aapl", 30, 140, 150, 30))
 # print(bear_credit_spread("aapl", 30, 130, 120, 80))

@@ -19,7 +19,7 @@ class Overall_Position:
           
 class Stock_Position:
 
-    def __init__(self, ticker, long_positions, short_positions, margin, margin_value = 0):
+    def __init__(self, ticker, long_positions, short_positions, margin, margin_value = 0.2):
         self.ticker = ticker
         self.long_positions = long_positions
         self.short_positions = short_positions
@@ -46,7 +46,7 @@ class Stock_Position:
 
 class Option_Position:
 
-    def __init__(self, ticker, short_call, long_call, short_puts, long_puts, spreads, margin, margin_value = 0):
+    def __init__(self, ticker, short_call, long_call, short_puts, long_puts, spreads, margin, margin_value = 0.2):
         self.ticker = ticker
         self.short_calls = short_call
         self.long_calls = long_call
@@ -101,29 +101,25 @@ class Option_Position:
                 self.cost_to_cover += e.value
                 self.short_PL += e.cost - e.value
 
-
-
-
-
     def get_option_positions(self):
 
-        self.short_puts.sort(key = lambda x : x.strike)
+        self.short_puts.sort(key = lambda x : x.strike, reversed = True)
         self.long_puts.sort(key = lambda x : x.strike, reversed = True)
         self.short_calls.sort(key = lambda x : x.strike)
         self.long_calls.sort(key = lambda x : x.strike) 
 
-        # for put in self.long_puts:
-        #     count = put.quantity
+        # for call in self.short_calls:
+        #     count = call.quantity
         #     if not self.short_puts:
         #         index = 0
-        #         for sput in self.short_puts:
+        #         for scall in self.short_calls:
         #             if count == 0:
         #                 break
-        #             if put < sput:
-        #                 if count < sput.quantity:
-        #                 elif sput.quantity < count:
+        #             if call < scall:
+        #                 if count < scall.quantity:
+        #                 elif scall.quantity < count:
         #                 else:   
 
-lst = [Stock(LONG, 3), Stock(LONG, 5), Stock(LONG, 2)]
+# lst = [Stock(LONG, 3), Stock(LONG, 5), Stock(LONG, 2)]
 
-Overall_Position("AAPL", lst)
+# Overall_Position("AAPL", lst)

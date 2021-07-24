@@ -24,7 +24,7 @@ def historical_volatility(ticker):
 def volatility_skew(ticker, days = 30):
     calls = Call(ticker).get_nearest_day(days).get_25_delta()
     puts = Put(ticker).get_nearest_day(days).get_25_delta()
-    return None
+    return puts - calls
 
 def get_iv(ticker, days):
     call = Call(ticker).get_nearest_day(days).aggregated_iv()
