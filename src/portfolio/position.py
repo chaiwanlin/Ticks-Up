@@ -81,10 +81,6 @@ class Option_Position:
             for e in self.short_calls:
                 self.capital_collateral += e.strike * 100
 
-
-
-
-
     def get_option_positions(self):
 
         self.short_puts.sort(key = lambda x : x.strike)

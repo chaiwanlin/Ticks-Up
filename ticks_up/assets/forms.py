@@ -1,8 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Portfolio, Ticker, StockPosition, OptionPosition
-# from .src-old-hedge1.instruments import instrument, stock, option
-from wallstreet import Stock, Call, Put
+from .models import *
+from instruments.stock import Stock
 
 
 class AddPortfolioForm(forms.ModelForm):
@@ -14,7 +13,10 @@ class AddPortfolioForm(forms.ModelForm):
 class TickerForm(forms.ModelForm):
     class Meta:
         model = Ticker
-        exclude = ('portfolio',)
+        fields = ['name']
+        labels = {
+            'name': 'Ticker'
+        }
 
     def clean_ticker(self):
         ticker = self.cleaned_data['name']
@@ -48,6 +50,18 @@ class EditOptionPositionForm(forms.ModelForm):
         fields = ['total_cost', 'total_contracts']
 
     # clean option data for validation
+
+
+class AddVerticalSpreadForm(forms.ModelForm):
+    class Meta:
+        model = VerticalSpread
+        fields = ['types', 'credit_or_debit']
+
+
+class AddButterflySpreadForm(forms.ModelForm):
+    class Meta:
+        model = ButterflySpread
+        fields = ['types']
 
 
 class HedgeStockForm(forms.Form):

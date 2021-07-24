@@ -243,14 +243,14 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form method="post" action="{% url 'add_stock_position' portfolio.id %}">
+              <form method="post" action="{% url 'add_stock_position' portfolio.id %}">
                 {% csrf_token %}
                 <div class="mb-3">
                     {{ tform|crispy }}
                     {{ sform|crispy }}
                 </div>
                 <button type="submit" class="btn btn-outline-primary">Save</button>
-            </form>
+              </form>
           </div>
         </div>
       </div>
@@ -269,14 +269,67 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form method="post" action="{% url 'add_option_position' portfolio.id %}">
-                {% csrf_token %}
-                <div class="mb-3">
-                    {{ tform|crispy }}
-                    {{ oform|crispy }}
-                </div>
-                <button type="submit" class="btn btn-outline-primary">Save</button>
-            </form>
+              <ul class="nav nav-tabs" id="myTab" role="tablist">
+                  <li class="nav-item" role="presentation">
+                      <button class="nav-link active" id="naked-tab" data-bs-toggle="tab" data-bs-target="#naked" type="button" role="tab" aria-controls="naked" aria-selected="true">Naked</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="vertical-spread-tab" data-bs-toggle="tab" data-bs-target="#vertical-spread" type="button" role="tab" aria-controls="vertical-spread" aria-selected="false">Vertical Spread</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="butterfly-spread-tab" data-bs-toggle="tab" data-bs-target="#butterfly-spread" type="button" role="tab" aria-controls="butterfly-spread" aria-selected="false">Butterfly Spread</button>
+                  </li>
+              </ul>
+              <div class="tab-content" id="myTabContent">
+                  <div class="tab-pane fade show active" id="naked" role="tabpanel" aria-labelledby="naked-tab">
+                      <form method="post" action="{% url 'add_option_position' portfolio.id %}">
+                          {% csrf_token %}
+                          <div class="mb-3">
+                              {{ tform|crispy }}
+                              {{ oform|crispy }}
+                          </div>
+                          <button type="submit" class="btn btn-outline-primary">Save</button>
+                      </form>
+                  </div>
+                  <div class="tab-pane fade" id="vertical-spread" role="tabpanel" aria-labelledby="vertical-spread-tab">
+                      <form method="post" action="{% url 'add_option_position' portfolio.id %}">
+                          {% csrf_token %}
+                          <div class="mb-3">
+                              {{ tform|crispy }}
+                              {{ vsform|crispy }}
+                              <hr>
+                              <h4 class="my-2 text-center">Short Leg</h4>
+                              {{ oform|crispy }}
+                              <hr>
+                              <h4 class="my-2 text-center">Long Leg</h4>
+                              {{ oform|crispy }}
+                          </div>
+                          <button type="submit" class="btn btn-outline-primary">Save</button>
+                      </form>
+                  </div>
+                  <div class="tab-pane fade" id="butterfly-spread" role="tabpanel" aria-labelledby="butterfly-spread-tab">
+                      <form method="post" action="{% url 'add_option_position' portfolio.id %}">
+                          {% csrf_token %}
+                          <div class="mb-3">
+                              {{ tform|crispy }}
+                              {{ bsform|crispy }}
+                              <hr>
+                              <h4 class="my-2 text-center">Bear Spread</h4>
+                              <h5 class="my-2">Long Leg</h5>
+                              {{ oform|crispy }}
+                              <h5 class="my-2">Short Leg</h5>
+                              {{ oform|crispy }}
+                              <hr>
+                              <h4 class="my-2 text-center">Bull Spread</h4>
+                              <h5 class="my-2">Short Leg</h5>
+                              {{ oform|crispy }}
+                              <h5 class="my-2">Long Leg</h5>
+                              {{ oform|crispy }}
+                          </div>
+                          <button type="submit" class="btn btn-outline-primary">Save</button>
+                      </form>
+                  </div>
+              </div>
           </div>
         </div>
       </div>

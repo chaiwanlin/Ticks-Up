@@ -125,5 +125,5 @@ class Industry:
 
 
 # Industry("AAPL")
-Industry.get_stocks_same_sector("energy Minerals")
+# Industry.get_stocks_same_sector("energy Minerals")
 # Industry.get_stocks_same_industry("aerospace defense")

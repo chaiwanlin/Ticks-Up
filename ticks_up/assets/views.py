@@ -4,11 +4,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.http import Http404
-from .forms import AddPortfolioForm, TickerForm, AddStockPositionForm, AddOptionPositionForm, HedgeStockForm, EditOptionPositionForm
-from .models import Portfolio, Ticker, StockPosition, OptionPosition
+from .forms import *
+from .models import *
 from instruments.stock import Stock
 from hedge.spread import hedge_stock, collar
 from utility.graphs import draw_graph
+from portfolio.industry import Industry as Classification
 import datetime
 
 
@@ -76,6 +77,8 @@ def view_portfolio(request, portfolio_id):
         'tform': TickerForm,
         'sform': AddStockPositionForm,
         'oform': AddOptionPositionForm,
+        'vsform': AddVerticalSpreadForm,
+        'bsform': AddButterflySpreadForm,
         'hedge_stock_form': HedgeStockForm,
         'eoform': EditOptionPositionForm,
     })
@@ -92,10 +95,18 @@ def add_stock_position(request, portfolio_id):
         if tform.is_valid() and sform.is_valid():
             name = tform.cleaned_data['name'].upper()
             try:
-                ticker = portfolio.ticker_set.get(name=name)
+                ticker = Ticker.objects.get(name=name)
             except Ticker.DoesNotExist:
-                ticker = Ticker(portfolio=portfolio, name=name)
+                # classification = Classification(name)
+                # sector = Sector(name=classification.get_sector())
+                # industry = Industry(name=classification.get_industry(), sector=sector)
+                sector = Sector(name='Sex')
+                sector.save()
+                industry = Industry(name='Nuggets', sector=sector)
+                industry.save()
+                ticker = Ticker(name=name, sector=sector, industry=industry)
                 ticker.save()
+            ticker.portfolio.add(portfolio)
             stock_position = sform.save(commit=False)
             stock_position.portfolio = portfolio
             stock_position.ticker = ticker
@@ -150,10 +161,11 @@ def add_option_position(request, portfolio_id):
         if tform.is_valid() and oform.is_valid():
             name = tform.cleaned_data['name'].upper()
             try:
-                ticker = portfolio.ticker_set.get(name=name)
+                ticker = Ticker.objects.get(name=name)
             except Ticker.DoesNotExist:
-                ticker = Ticker(portfolio=portfolio, name=name)
+                ticker = Ticker(name=name)
                 ticker.save()
+            ticker.portfolio.add(portfolio)
             option_position = oform.save(commit=False)
             option_position.portfolio = portfolio
             option_position.ticker = ticker
