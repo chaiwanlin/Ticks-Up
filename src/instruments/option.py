@@ -3,7 +3,9 @@ from utility.search import  bin_search_closest
 from instruments.instrument import Instrument
 from instruments.stock import Stock
 from instruments.constants import YAHOO_OPTION
+from utility.blackScholes import BlackScholes
 from utility.graphs import draw_graph
+
 import urllib.request
 import urllib.response
 import json
@@ -25,7 +27,6 @@ class Option(Instrument):
         response = urllib.request.urlopen(url)
         data = json.loads(response.read())
         result = data["optionChain"]["result"]
-        # print(result)
 
         if not result:
             raise LookupError("invalid ticker :D")
@@ -42,7 +43,6 @@ class Option(Instrument):
             date_before = self.expiration[closest_date[0]]
             date_after = self.expiration[closest_date[1]]
             status = closest_date[2]
-            print(date_before, date_after, status)
 
             url = f"{YAHOO_OPTION}{ticker}?date={date_after}"
             response = urllib.request.urlopen(url)
@@ -52,7 +52,6 @@ class Option(Instrument):
         self.options = data["options"][0]
         self.strikes = data["strikes"]
 
-        # print(data["optionChain"]["result"][0])
         super().__init__(ticker, Stock(ticker))
 
     def get_strikes(self):
@@ -87,6 +86,25 @@ class Call(Option):
         next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
         return Call(self.ticker, next_date.year, next_date.month, next_date.day)
 
+    def get_option_nearest_premium(self, lower_bound, premium):
+        index = bin_search_closest(lower_bound, self.strikes)[0]
+        diff = self.get_option_for_strike(lower_bound).get_price() - premium
+        index += 1
+        
+        while diff > 0:
+            next_strike = self.strikes[index]
+            diff = self.get_option_for_strike(next_strike).get_price() - premium
+            index += 1
+
+        index -= 1
+        strike = self.strikes[index]
+        premium = self.get_option_for_strike(strike).get_price()
+
+        return {
+            "strike" : strike,
+            "premium" : premium
+        }
+
     def get_open_interest_count(self):
         sum = 0
         for strike in self.data:
@@ -110,6 +128,24 @@ class Call(Option):
         
         return (agg_iv, total)
 
+    def get_25_delta(self):
+        len = self.strikes.len()
+        lo = 0
+        hi = len - 1
+
+        while lo <= hi:
+            mid = (hi + lo) // 2 + lo
+
+            if(0.25 < self.get_option_for_strike(self.strikes[mid]).delta()):
+                hi = mid - 1
+            else:
+                lo = mid + 1
+
+            hi_delta_diff = abs(self.get_option_for_strike(self.strikes[hi]).delta() - 0.25)
+            lo_delta_diff = abs(self.get_option_for_strike(self.strikes[lo]).delta() - 0.25)
+
+            return lo_delta_diff if lo_delta_diff < hi_delta_diff else hi_delta_diff
+    
     def get_strike_for_breakeven_debit(self, breakeven_point, short_call_strike, short_call_premium,  risk = math.inf, threshold = 1):
         max_premium = risk - short_call_premium
 
@@ -145,11 +181,11 @@ class Call(Option):
             threshold += 1
             return self.get_strike_for_breakeven_debit(breakeven_point, short_call_strike, short_call_premium, risk,  threshold)
         else:
-            max_gain_loss = short_call_premium - max_gain_premium
+            max_gain_loss = max_gain_premium - short_call_premium
             max_gain_profit = short_call_strike - max_gain_strike - max_gain_loss
             max_gain_breakeven = max_gain_loss + max_gain_strike
 
-            min_cost_loss = short_call_premium - min_cost_premium 
+            min_cost_loss = min_cost_premium - short_call_premium 
             min_cost_profit = short_call_strike - min_cost_strike - min_cost_loss
             min_cost_breakeven = min_cost_loss + min_cost_strike
 
@@ -231,7 +267,9 @@ class Call(Option):
                     if min_threshold <= net_value <= threshold and strike_premium < min_cost_premium: 
                         min_cost_net_value = net_value
                         min_cost_strike = strike_price
-                        min_cost_premium = strike_premium
+                        min_cost_premium = strike_premium 
+
+  
 
     def get_strike_for_breakeven_credit(self, breakeven_point, short_call_strike, short_call_premium, risk = math.inf):
         net_breakeven_value = short_call_premium - (breakeven_point - short_call_strike)
@@ -336,6 +374,9 @@ class CallOption:
         self.ask = data["ask"]
         self.implied_volatility = data["impliedVolatility"]
 
+    def delta(self):
+        return None
+
     def get_ticker(self):
         return self.ticker
     
@@ -385,7 +426,6 @@ class Put(Option):
     
     def get_nearest_day(self, day):
         next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
-        print(next_date)
         return Put(self.ticker, next_date.year, next_date.month, next_date.day)
     
     def aggregated_iv(self):
@@ -403,6 +443,43 @@ class Put(Option):
         agg_iv = itm_vol/total * itm_iv + otm_vol/total * otm_iv
 
         return (agg_iv, total)
+
+    def get_25_delta(self):
+        len = self.strikes.len()
+        lo = 0
+        hi = len - 1
+
+        while lo <= hi:
+            mid = (hi + lo) // 2 + lo
+
+            if(0.25 < self.get_option_for_strike(self.strikes[mid]).delta()):
+                hi = mid - 1
+            else:
+                lo = mid + 1
+
+            hi_delta_diff = abs(self.get_option_for_strike(self.strikes[hi]).delta() - 0.25)
+            lo_delta_diff = abs(self.get_option_for_strike(self.strikes[lo]).delta() - 0.25)
+            
+            return lo_delta_diff if lo_delta_diff < hi_delta_diff else hi_delta_diff
+
+    def get_option_nearest_premium(self, lower_bound, premium):
+        index = bin_search_closest(lower_bound, self.strikes)[0]
+        diff = self.get_option_for_strike(lower_bound).get_price() - premium
+        index -= 1
+        
+        while diff > 0:
+            next_strike = self.strikes[index]
+            diff = self.get_option_for_strike(next_strike).get_price() - premium
+            index -= 1
+
+        index += 1
+        strike = self.strikes[index]
+        premium = self.get_option_for_strike(strike).get_price()
+
+        return {
+            "strike" : strike,
+            "premium" : premium
+        }
 
     def get_open_interest_count(self):
         sum = 0
@@ -486,7 +563,6 @@ class Put(Option):
 
             if strike_price > breakeven_point:
                 net_value = strike_price - breakeven_point + short_put_premium - strike_premium 
-                print(net_value)
 
                 if strike_premium  < max_premium:
                     if net_value > max_gain_net_value:
