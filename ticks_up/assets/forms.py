@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import *
-from instruments.stock import Stock
+from hedge_instruments.stock import Stock
 
 
 class AddPortfolioForm(forms.ModelForm):

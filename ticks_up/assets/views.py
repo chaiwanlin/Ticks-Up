@@ -6,10 +6,10 @@ from django.urls import reverse
 from django.http import Http404
 from .forms import *
 from .models import *
-from instruments.stock import Stock
-from hedge.spread import hedge_stock, collar
-from utility.graphs import draw_graph
-from portfolio.industry import Industry as Classification
+from hedge_instruments.stock import Stock
+from hedge_functions.spread import hedge_stock, collar
+from utils.graphs import draw_graph
+from portfolio_functions.industry import Industry as Classification
 import datetime
 
 

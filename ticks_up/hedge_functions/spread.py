@@ -1,10 +1,10 @@
 import math
-from ticks_up.utils.search import bin_search_closest
-from ticks_up.utils.graphs import draw_graph
-from ticks_up.hedge_instruments.instrument import Instrument
-from ticks_up.hedge_instruments.option import Call, Put
-from ticks_up.hedge_instruments.stock import Stock
-from ticks_up.portfolio_functions.portfolio_constants import BEAR, BULL, STRADDLE, NEUTRAL, OTM, ATM, ITM
+from utils.search import bin_search_closest
+from utils.graphs import draw_graph
+from hedge_instruments.instrument import Instrument
+from hedge_instruments.option import Call, Put
+from hedge_instruments.stock import Stock
+from portfolio_functions.portfolio_constants import BEAR, BULL, STRADDLE, NEUTRAL, OTM, ATM, ITM
 
 # incoperate open interest? alot of outlier data 
 

@@ -5,8 +5,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from ticks_up.portfolio_functions.portfolio_constants import PATH, MKT_CAP
-from ticks_up.portfolio_functions.data import Data
+from .portfolio_constants import PATH, MKT_CAP
+from .data import Data
 
 class Industry:
 

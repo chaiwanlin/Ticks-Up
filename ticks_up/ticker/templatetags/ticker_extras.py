@@ -1,6 +1,6 @@
 from django import template
 from django.template.defaultfilters import stringfilter
-from utility.graphs import draw_graph
+from utils.graphs import draw_graph
 
 register = template.Library()
 

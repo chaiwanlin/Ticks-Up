@@ -2,10 +2,10 @@ import math
 from django.shortcuts import render, redirect, reverse
 from django.http import Http404, JsonResponse
 from .forms import OptionStrategiesForm
-from instruments.stock import Stock
-from hedge.hedge_main import historical_volatility, volatility_skew, get_iv, put_call_ratio, range_to_date, hedge_stock
-from hedge import spread
-from utility.graphs import draw_graph
+from hedge_instruments.stock import Stock
+from hedge_functions.hedge_main import historical_volatility, volatility_skew, get_iv, put_call_ratio, range_to_date, hedge_stock
+from hedge_functions import spread
+from utils.graphs import draw_graph
 
 
 def home(request):

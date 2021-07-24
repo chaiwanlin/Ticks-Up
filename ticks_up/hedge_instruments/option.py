@@ -1,10 +1,10 @@
 import math
-from ticks_up.utils.search import bin_search_closest
-from instrument import Instrument
-from stock import Stock
-from constants import YAHOO_OPTION
-from ticks_up.utils.blackScholes import BlackScholes
-from ticks_up.utils.graphs import draw_graph
+from utils.search import bin_search_closest
+from .instrument import Instrument
+from .stock import Stock
+from .constants import YAHOO_OPTION
+from utils.blackScholes import BlackScholes
+from utils.graphs import draw_graph
 
 import urllib.request
 import urllib.response

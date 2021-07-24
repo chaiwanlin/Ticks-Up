@@ -6,12 +6,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from portfolio.portfolio_constants import PATH
+from portfolio_functions.portfolio_constants import PATH
 import requests
 import datetime
 import math
-from spread import collar
-from ticks_up.hedge_instruments.option import Put, Call
+from .spread import collar
+from hedge_instruments.option import Put, Call
 
 def historical_volatility(ticker):
     # driver = webdriver.Chrome(PATH)
