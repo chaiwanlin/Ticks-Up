@@ -33,7 +33,3 @@ typing-extensions==3.10.0.0
 urllib3==1.26.2
 uvicorn==0.13.4
 wallstreet==0.3
-./src/hedge
-./src/instruments
-./src/portfolio
-./src/utility
