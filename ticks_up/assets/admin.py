@@ -1,7 +1,11 @@
 from django.contrib import admin
-from .models import Portfolio, Ticker, StockPosition, OptionPosition
+from django.apps import apps
 
-admin.site.register(Portfolio)
-admin.site.register(Ticker)
-admin.site.register(StockPosition)
-admin.site.register(OptionPosition)
+
+models = apps.get_models()
+
+for model in models:
+    try:
+        admin.site.register(model)
+    except admin.sites.AlreadyRegistered:
+        continue

@@ -245,6 +245,7 @@ class Industry:
         return lst
 
 # Industry("AAPL")
+
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
 
