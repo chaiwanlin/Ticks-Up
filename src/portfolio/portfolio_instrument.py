@@ -6,6 +6,7 @@ from instruments.stock import Stock as Stock_Data
 import instruments.option as op
 import math
 
+
 class Asset:
     def __init__(self, quantity, cost, value):
         self.quantity = quantity
@@ -14,6 +15,7 @@ class Asset:
 
     def get_quantity(self):
         return self.quantity    
+
 
 class Cash(Asset):
     def __init__(self, quantity):
@@ -50,7 +52,7 @@ class Stock(Instrument):
         elif position == SHORT:
             self.outlook ==  BEAR
             self.risk = math.inf
-    
+            
 class Option(Instrument):
 
     def __init__(self, position, quantity, cost, strike_price, expiry, value):
@@ -58,6 +60,7 @@ class Option(Instrument):
         self.expiry = expiry
         self.leveraged_quantity = quantity * 100
         self.strike_price = strike_price
+
 
 class Put(Option):
 
@@ -70,6 +73,7 @@ class Put(Option):
             self.outlook ==  BULL
             self.risk = math.inf
 
+
 class Call(Option):
 
     def __init__(self, position, quantity, cost, strike_price, expiry, value):
@@ -81,6 +85,7 @@ class Call(Option):
             self.outlook ==  BEAR
             self.risk = cost
 
+
 class Spread(Instrument):
 
     def __init__(self, type, quantity, cost, profit, value):
@@ -88,6 +93,7 @@ class Spread(Instrument):
         self.type = type
         self.profit = profit
         self.leveraged_quantity = quantity * 100
+
 
 class Bear(Spread):
     
@@ -134,6 +140,7 @@ class Bear(Spread):
         self.breakeven = breakeven
         self.lower_bound = lower_leg
         self.upper_bound = upper_leg
+
 
 class Bull(Spread):
 
@@ -191,6 +198,7 @@ class Neutral(Spread):
         self.upper_breakeven = upper_breakeven
         self.lower_bound = lower
         self.upper_bound = upper
+
 
 class Straddle(Spread):
     

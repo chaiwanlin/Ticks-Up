@@ -8,18 +8,41 @@
     <h1 class="display-6 my-4">Your portfolio(s):</h1>
     <hr class="mb-4">
 
-    <div class="list-group w-50 p-3">
+    <ul class="list-group w-50 p-3">
         {% for portfolio in user.portfolio_set.all %}
-        <a href="{% url 'view_portfolio' portfolio.id %}" class="list-group-item list-group-item-action">
-            {{ portfolio.name }}
-        </a>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{% url 'view_portfolio' portfolio.id %}" class="list-group-item list-group-item-action border-0">
+                {{ portfolio.name }}
+            </a>
+
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#removePortfolio">
+                <i class="bi bi-x-circle" data-bs-toggle="modal" data-bs-target="#removePortfolio"></i>
+            </button>
+
+            <div class="modal fade" id="removePortfolio" tabindex="-1" aria-labelledby="removePortfolioLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="removePortfolioLabel">Remove {{ portfolio.name }} portfolio?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                <a href="{% url 'remove_portfolio' portfolio.id %}" class="btn btn-outline-primary">Confirm</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        </li>
         {% endfor %}
+    </ul>
 
-        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addPortfolio">
-            <i class="bi bi-plus-circle"></i>
-        </button>
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addPortfolio">
+        <i class="bi bi-plus-circle" data-bs-toggle="modal" data-bs-target="#addPortfolio"></i>
+        Add portfolio
+    </button>
 
-        <div class="modal fade" id="addPortfolio" tabindex="-1" aria-labelledby="addPortfolioLabel" aria-hidden="true">
+    <div class="modal fade" id="addPortfolio" tabindex="-1" aria-labelledby="addPortfolioLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
@@ -38,8 +61,6 @@
             </div>
           </div>
         </div>
-
-    </div>
 </div>
 
 {% endblock %}

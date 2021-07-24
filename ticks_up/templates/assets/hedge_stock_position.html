@@ -1,149 +1,141 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+{% load assets_extras %}
 <div class="container-fluid">
     <h1 class="display-6 my-4">Hedge position for {{ ticker }}</h1>
+    <table class="table table-striped w-25">
+        <tbody>
+        <tr>
+            <th>Days</th>
+            <td>
+                <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="number" name="days" value="{{ days }}">
+                        <input type="hidden" name="break_point" value="{{ break_point }}">
+                        <input type="hidden" name="target_price" value="{{ target_price }}">
+                        <input type="hidden" name="capped" value="{{ capped }}">
+                        <input type="hidden" name="risk" value="{{ risk }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <th>Lower Bound</th>
+            <td>
+                <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="number" name="break_point" value="{{ break_point }}">
+                        <input type="hidden" name="days" value="{{ days }}">
+                        <input type="hidden" name="target_price" value="{{ target_price }}">
+                        <input type="hidden" name="capped" value="{{ capped }}">
+                        <input type="hidden" name="risk" value="{{ risk }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <th>Upper Bound</th>
+            <td>
+                <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="number" name="target_price" value="{{ target_price }}">
+                        <input type="hidden" name="days" value="{{ days }}">
+                        <input type="hidden" name="break_point" value="{{ break_point }}">
+                        <input type="hidden" name="capped" value="{{ capped }}">
+                        <input type="hidden" name="risk" value="{{ risk }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <th>Capped</th>
+            <td>
+                <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col d-flex justify-content-end align-items-center">
+                            {% if capped %}
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" name="capped" id="flexCheckChecked" checked>
+                            </div>
+                            {% else %}
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" name="capped" id="flexCheckDefault">
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col d-flex justify-content-end">
+                            <input type="hidden" name="days" value="{{ days }}">
+                            <input type="hidden" name="break_point" value="{{ break_point }}">
+                            <input type="hidden" name="target_price" value="{{ target_price }}">
+                            <input type="hidden" name="risk" value="{{ risk }}">
+                            <button class="btn btn-outline-warning btn-sm" type="submit">
+                                Change
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <th>Risk</th>
+            <td>
+                <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="number" name="risk" value="{{ risk }}">
+                        <input type="hidden" name="days" value="{{ days }}">
+                        <input type="hidden" name="break_point" value="{{ break_point }}">
+                        <input type="hidden" name="target_price" value="{{ target_price }}">
+                        <input type="hidden" name="capped" value="{{ capped }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-center">{{ graph|safe }}</div>
     <hr class="mb-4">
 
     <div class="container-fluid">
-        <h2>Collar</h2>
-        <table class="table table-striped w-25">
-            <tbody>
-                <tr>
-                    <th>Short call strike price</th>
-                    <td>{{ hedge.1.short_call.strike_strike }}</td>
-                </tr>
-                <tr>
-                    <th>Short call premium</th>
-                    <td>{{ hedge.1.short_call.strike_premium }}</td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="row">
-            <div class="col">
-                <h3>Maximum Profit</h3>
-                {% with 'graphs/'|add:ticker|add:'-hedge-max-gain-collar.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
-                <table class="table table-striped">
-                    <tbody>
-                        <tr>
-                            <th>Strike price</th>
-                            <td>{{ hedge.1.max_gain.strike_price }}</td>
-                        </tr>
-                        <tr>
-                            <th>Premium</th>
-                            <td>{{ hedge.1.max_gain.strike_premium }}</td>
-                        </tr>
-                        <tr>
-                            <th>Net value at breakeven</th>
-                            <td>{{ hedge.1.max_gain.net_value_at_breakeven }}</td>
-                        </tr>
-                        <tr>
-                            <th>Maximum profit</th>
-                            <td>{{ hedge.1.max_gain.strike_premium }}</td>
-                        </tr>
-                        <tr>
-                            <th>Breakeven</th>
-                            <td>{{ hedge.1.max_gain.breakeven }}</td>
-                        </tr>
-                        <tr>
-                            <th>Maximum loss</th>
-                            <td>{{ hedge.1.max_gain.max_loss }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col">
-                <h3>Minimum Loss</h3>
-                {% with 'graphs/'|add:ticker|add:'-hedge-min-loss-collar.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
-                <table class="table table-striped">
-                    <tbody>
-                        <tr>
-                            <th>Strike price</th>
-                            <td>{{ hedge.1.min_loss.strike_price }}</td>
-                        </tr>
-                        <tr>
-                            <th>Premium</th>
-                            <td>{{ hedge.1.min_loss.strike_premium }}</td>
-                        </tr>
-                        <tr>
-                            <th>Net value at breakeven</th>
-                            <td>{{ hedge.1.min_loss.net_value_at_breakeven }}</td>
-                        </tr>
-                        <tr>
-                            <th>Maximum profit</th>
-                            <td>{{ hedge.1.min_loss.strike_premium }}</td>
-                        </tr>
-                        <tr>
-                            <th>Breakeven</th>
-                            <td>{{ hedge.1.min_loss.breakeven }}</td>
-                        </tr>
-                        <tr>
-                            <th>Maximum loss</th>
-                            <td>{{ hedge.1.min_loss.max_loss }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    {% for strategy_name, strategy in hedge.items %}
+        <h2>{{ strategy_name|header }}</h2>
 
-        <hr class="my-4">
-
-        <h2>Protective Put</h2>
         <div class="row">
+            {% for data_name, data in strategy.data.items %}
             <div class="col">
-                <h3>Minimum Cost</h3>
-                {% with 'graphs/'|add:ticker|add:'-hedge-min-cost.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
                 <table class="table table-striped">
+                    <h3>{{ data_name|header }}</h3>
                     <tbody>
+                    {% for name, val in data.items %}
                         <tr>
-                            <th>Strike price</th>
-                            <td>{{ hedge.0.min_cost.strike_price }}</td>
+                            <th>{{ name|header }}</th>
+                            <td>{{ val }}</td>
                         </tr>
-                        <tr>
-                            <th>Premium</th>
-                            <td>{{ hedge.0.min_cost.strike_premium }}</td>
-                        </tr>
-                        <tr>
-                            <th>Risk</th>
-                            <td>{{ hedge.0.min_cost.risk }}</td>
-                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <div class="col">
-                <h3>Minimum Loss</h3>
-                {% with 'graphs/'|add:ticker|add:'-hedge-min-loss.jpeg' as image_static %}
-                    {% load static %}
-                    <img src="{% static image_static %}" class="img-fluid" alt="fuck">
-                {% endwith %}
-                <table class="table table-striped">
-                    <tbody>
-                        <tr>
-                            <th>Strike price</th>
-                            <td>{{ hedge.0.min_loss.strike_price }}</td>
-                        </tr>
-                        <tr>
-                            <th>Premium</th>
-                            <td>{{ hedge.0.min_loss.strike_premium }}</td>
-                        </tr>
-                        <tr>
-                            <th>Risk</th>
-                            <td>{{ hedge.0.min_loss.risk }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            {% endfor %}
         </div>
+        <hr class="">
+    {% endfor %}
     </div>
 </div>
 
