@@ -111,7 +111,7 @@ class Bear(Spread):
             value = short_premium - long_premium
             risk = max_loss
         elif type == DEBIT:
-            puts = op.Put(date.day, date.month, date.year)
+            puts = op.Put(expiry.day, expiry.month, expiry.year)
 
             debit = long_leg.cost - short_leg.cost
             max_profit = long_leg.strike_price - short_leg.strike_price - debit
@@ -120,9 +120,9 @@ class Bear(Spread):
 
             cost = debit
             profit = max_profit
-            breakeven = long_leg.strike_price + debit
-            lower_leg = long_leg.strike_price
-            upper_leg = short_leg.strike_price
+            breakeven = long_leg.strike_price - debit
+            lower_leg = short_leg.strike_price
+            upper_leg = long_leg.strike_price
             value = long_premium - short_premium
             risk = debit
         else:
@@ -132,8 +132,8 @@ class Bear(Spread):
         self.risk = risk
         self.expiry = expiry
         self.breakeven = breakeven
-        self.lower_leg = lower_leg
-        self.upper_leg = upper_leg
+        self.lower_bound = lower_leg
+        self.upper_bound = upper_leg
 
 class Bull(Spread):
 
@@ -158,12 +158,12 @@ class Bull(Spread):
             value = short_premium - long_premium
             risk = max_loss
         elif type == DEBIT:
-            puts = op.Put(expiry.day, expiry.month, expiry.year)
+            calls = op.Put(expiry.day, expiry.month, expiry.year)
 
             debit = long_leg.cost - short_leg.cost
-            max_profit = long_leg.strike_price - short_leg.strike_price - debit
-            long_premium = puts.get_option_for_strike(long_leg.strike_price).get_price()
-            short_premium = puts.get_option_for_strike(short_leg.strike_price).get_price()
+            max_profit = short_leg.strike_price - long_leg.strike_price - debit
+            long_premium = calls.get_option_for_strike(long_leg.strike_price).get_price()
+            short_premium = calls.get_option_for_strike(short_leg.strike_price).get_price()
 
             cost = debit
             profit = max_profit
@@ -176,10 +176,11 @@ class Bull(Spread):
             raise ValueError("Not valid spread type: Bear")
 
         super().__init__(type, quantity, cost, profit, value)
+        self.risk = risk
         self.expiry = expiry
         self.breakeven = breakeven
-        self.lower_bound = lower
-        self.upper_bound = upper
+        self.lower_bound = lower_leg
+        self.upper_bound = upper_leg
 
 class Neutral(Spread):
 
