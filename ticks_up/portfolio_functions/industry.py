@@ -52,6 +52,8 @@ class Industry:
     def get_sector(self):
         return self.sector    
 
+    # category: string choices
+    # indicator: string choices
     def get_stocks_same_sector(sector, category, indicator):
         sector = sector.lower().replace(" ", "-")
         driver = get_driver()
