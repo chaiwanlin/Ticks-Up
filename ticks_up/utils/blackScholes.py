@@ -2,9 +2,22 @@ from math import log, sqrt
 import math
 from typing import Sequence
 from statistics import NormalDist
+from bs4 import BeautifulSoup
+import urllib.request as rq
 
 class BlackScholes:
-    def __init__(self, underlying, strike, volatility, risk_free_rate, dividend, maturity):
+    def __init__(self, underlying, strike, volatility, dividend, maturity):
+        try:
+            request = rq.urlopen("https://www.treasury.gov/resource-center/data-chart-center/interest-rates/pages/textview.aspx?data=yield")
+            soup = BeautifulSoup(request.read(), 'html.parser')
+
+            tr = soup.find("table", class_ = "t-chart").find_all("tr")
+            last_tr = tr[len(tr) - 1]
+            td = last_tr.find_all("td")
+            risk_free_rate = int(td[10].get_text()) / 100
+        except Exception:
+            risk_free_rate = 0.02
+        
         self.underlying = underlying
         self.strike = strike
         self.volatility = volatility
