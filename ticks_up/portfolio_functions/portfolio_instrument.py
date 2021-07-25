@@ -70,12 +70,18 @@ class Put(Option):
         puts = op.Put(ticker, expiry.day, expiry.month, expiry.year)
         value = puts.get_option_for_strike(strike_price)
         super().__init__(position, quantity, cost, strike_price, expiry, value)
+
+        self.ticker = ticker
         if position == LONG:
             self.outlook = BEAR
             self.risk = cost
         elif position == SHORT:
             self.outlook ==  BULL
             self.risk = math.inf
+
+    def extract_quantity(self, n):
+        self.quantity -= n
+        return self.__init__(self.ticker, self.position, n, self.cost, self.strike_price, self.expiry)
 
 
 class Call(Option):
@@ -84,14 +90,18 @@ class Call(Option):
         calls = op.Call(ticker, expiry.day, expiry.month, expiry.year)
         value = calls.get_option_for_strike(strike_price)
         super().__init__(position, quantity, cost, strike_price, expiry, value)
-
+        
+        self.ticker = ticker
         if position == LONG:
             self.outlook = BULL
             self.risk = cost
         elif position == SHORT:
             self.outlook ==  BEAR
             self.risk = cost
-
+    
+    def extract_quantity(self, n):
+        self.quantity -= n
+        return self.__init__(self.ticker, self.position, n, self.cost, self.strike_price, self.expiry)
 
 class Spread(Instrument):
 
