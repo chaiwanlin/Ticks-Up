@@ -855,7 +855,7 @@ class PutOption:
         return self.BandS.delta()
 
     def theta(self):
-        return self.BandS.theta("CALL")
+        return self.BandS.theta("PUT")
 
     def gamma(self):
         return self.BandS.gamma()
@@ -864,7 +864,7 @@ class PutOption:
         return self.BandS.vega()
     
     def rho(self):
-        return self.BandS.rho("CALL")
+        return self.BandS.rho("PUT")
 
     def get_ticker(self):
         return self.ticker
