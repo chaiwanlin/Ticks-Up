@@ -1,5 +1,5 @@
 from portfolio_constants import BEAR, BULL, LONG, SHORT, STRADDLE, CREDIT, DEBIT
-from portfolio_instrument import Instrument, Stock, Put, Call
+from portfolio_instrument import Instrument, Stock, Put, Call, Bear, Bull
 from ticks_up.hedge_instruments.stock import Stock as Stock_Data
 
 class Overall_Position:
@@ -121,74 +121,132 @@ class Option_Position:
         while not short_calls and not long_calls:
             if short_empty:
                 short_call = short_calls.pop(0)
+                short_empty = False
             if long_empty:
                 long_call = long_calls.pop(0)
+                long_empty = False
 
             if short_call.strike < long_call.strike:
-                    if short_call.quantity < long_call.quantity:
-                        
-                    elif short_call.quantity > long_call.quantity:
-
-                    else:
-                        spreads.append(Bear(CREDIT, call, lcall))        
+                if short_call.quantity < long_call.quantity:
+                    n = short_call.quantity
+                    extracted_long_call = long_call.extract_quantity(n)
+                    spreads.append(Bear(CREDIT, short_call, extracted_long_call)) 
+                    short_empty = True
                     
+                elif short_call.quantity > long_call.quantity:
+                    n = long_call.quantity
+                    extracted_short_call = short_call.extract_quantity(n)
+                    spreads.append(Bear(CREDIT, extracted_short_call, long_call))
+                    long_empty = True
+
+                else:
+                    spreads.append(Bear(CREDIT, short_call, long_call))  
+                    short_empty = True
+                    long_empty = True      
+                
                     # bull debit spread
             elif short_call.strike > long_call.strike:
                 if short_call.quantity < long_call.quantity:
+                    n = short_call.quantity
+                    extracted_long_call = long_call.extract_quantity(n)
+                    spreads.append(Bull(DEBIT, short_call, extracted_long_call))
+                    short_empty = True 
 
-                elif call.quantity > lcall.quantity:
+                elif short_call.quantity > long_call.quantity:
+                    n = long_call.quantity
+                    extracted_short_call = short_call.extract_quantity(n)
+                    spreads.append(Bull(DEBIT, extracted_short_call, long_call)) 
+                    long_empty = True
                     
                 else:
-                    long_calls.pop(0)
-                    spreads.append(Bull(DEBIT, call, lcall))
-                    break 
+                    spreads.append(Bull(DEBIT, short_call, long_call))
+                    short_empty = True
+                    long_empty = True
             # cancels out
             else:
-                if call.quantity < lcall.quantity:
+                if short_call.quantity < long_call.quantity:
+                    n = short_call.quantity
+                    extracted_long_call = long_call.extract_quantity(n)
+                    short_empty = True 
 
-                elif call.quantity > lcall.quantity:
+                elif short_call.quantity > long_call.quantity:
+                    n = long_call.quantity
+                    extracted_short_call = short_call.extract_quantity(n)
+                    long_empty = True
                     
                 else:
-                    self.long_calls.pop(0)
+                    short_empty = True
+                    long_empty = True
+
+        short_empty = True
+        long_empty = True
             
+        while not short_puts and not long_puts:
+            if short_empty:
+                short_put = short_puts.pop(0)
+                short_empty = False
+            if long_empty:
+                long_put = long_calls.pop(0)
+                long_empty = False
 
-
-        for call in short_calls:
-            count = call.quantity
-            if not long_calls:
-                index = 0
-                for lcall in long_calls:
-                    if count == 0:
-                        break
-                    # bear credit
-                    if call.strike < lcall.strike:
-                        if call.quantity < lcall.quantity:
-                            
-                        elif call.quantity > lcall.quantity:
-
-                        else:
-                            long_calls.pop(0)
-                            spreads.append(Bear(CREDIT, call, lcall))
-                            break        
+                # bear debit 
+            if short_put.strike < long_put.strike:
+                if short_put.quantity < long_put.quantity:
+                    n = short_put.quantity
+                    extracted_long_put = long_put.extract_quantity(n)
+                    spreads.append(Bear(DEBIT, short_put, extracted_long_put)) 
+                    short_empty = True
                     
-                    # bull debit spread
-                    elif call.strike > lcall.strike:
-                        if call.quantity < lcall.quantity:
+                elif short_put.quantity > long_put.quantity:
+                    n = short_put.quantity
+                    extracted_short_put = short_put.extract_quantity(n)
+                    spreads.append(Bear(DEBIT, extracted_short_put, long_put))
+                    long_empty = True
 
-                        elif call.quantity > lcall.quantity:
-                            
-                        else:
-                            long_calls.pop(0)
-                            spreads.append(Bull(DEBIT, call, lcall))
-                            break 
-                    # cancels out
-                    else:
-                        if call.quantity < lcall.quantity:
+                else:
+                    spreads.append(Bear(DEBIT, short_put, long_put))  
+                    short_empty = True
+                    long_empty = True      
+                
+                    # bull credit spread
+            elif short_put.strike > long_put.strike:
+                if short_put.quantity < long_put.quantity:
+                    n = short_put.quantity
+                    extracted_long_put = long_put.extract_quantity(n)
+                    spreads.append(Bull(CREDIT, short_put, extracted_long_put))
+                    short_empty = True 
 
-                        elif call.quantity > lcall.quantity:
-                            
-                        else:
-                            self.long_calls.pop(0)
+                elif short_put.quantity > long_put.quantity:
+                    n = long_put.quantity
+                    extracted_short_put = short_put.extract_quantity(n)
+                    spreads.append(Bull(CREDIT, extracted_short_put, long_put)) 
+                    long_empty = True
+                    
+                else:
+                    spreads.append(Bull(CREDIT, short_call, long_put))
+                    short_empty = True
+                    long_empty = True
+            # cancels out
+            else:
+                if short_put.quantity < long_put.quantity:
+                    n = short_put.quantity
+                    extracted_long_put = long_put.extract_quantity(n)
+                    short_empty = True 
+
+                elif short_put.quantity > long_put.quantity:
+                    n = long_put.quantity
+                    extracted_short_call = short_put.extract_quantity(n)
+                    long_empty = True
+                    
+                else:
+                    short_empty = True
+                    long_empty = True
+
+        self.short_puts = short_puts
+        self.long_puts = long_puts
+        self.short_calls = short_calls
+        self.long_calls = long_calls
+        self.spreads.extend(spreads)
 
 
 # lst = [Stock(LONG, 3), Stock(LONG, 5), Stock(LONG, 2)]
