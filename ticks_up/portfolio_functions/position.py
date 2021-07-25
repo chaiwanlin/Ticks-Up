@@ -249,6 +249,8 @@ class Option_Position:
         self.spreads.extend(spreads)
 
 
-# lst = [Stock(LONG, 3), Stock(LONG, 5), Stock(LONG, 2)]
+# scalls = [Stock(LONG, 3), Stock(LONG, 5), Stock(LONG, 2)]
+# lcalls = []
+
 
 # Overall_Position("AAPL", lst)

@@ -284,7 +284,7 @@ class Collar(Spread):
         self.lower_bound = long_put.strike_price
         self.upper_bound = short_call.strike_price
 
-class Hedged_stock(Spread):    
+class HedgedStock(Spread):    
     def __init__(self, stock, long_put):
         quantity = long_put.quantity
         expiry = long_put.expiry
@@ -304,7 +304,7 @@ class Hedged_stock(Spread):
         self.lower_bound = long_put.strike_price
         self.upper_bound = math.inf
 
-class Covered_Call(Spread):
+class CoveredCall(Spread):
     def __init__(self, stock, short_call):
         quantity = short_call.quantity
         expiry = short_call.expiry
