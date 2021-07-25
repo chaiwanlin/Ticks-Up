@@ -90,13 +90,14 @@ WSGI_APPLICATION = 'ticks_up.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "chaiwanlin",
-        "USER": "",
-        "PASSWORD": "",
-        "HOST": "localhost",
-        "PORT": "",
+        "NAME": "d392nvre1b9n3l",
+        "USER": "gjngggaydqqyxc",
+        "PASSWORD": "90b74cd6f1c850d0d94696df96609faed150232231e2abfa53c8bb3b007caa2c",
+        "HOST": "ec2-54-167-152-185.compute-1.amazonaws.com",
+        "PORT": "5432",
     }
 }
+# postgres://gjngggaydqqyxc:90b74cd6f1c850d0d94696df96609faed150232231e2abfa53c8bb3b007caa2c@ec2-54-167-152-185.compute-1.amazonaws.com:5432/d392nvre1b9n3l
 
 db_from_env = dj_database_url.config(conn_max_age=600)
 DATABASES['default'].update(db_from_env)
