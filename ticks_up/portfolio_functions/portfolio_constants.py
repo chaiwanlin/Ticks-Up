@@ -12,6 +12,12 @@ ATM = "ATM"
 
 OTM = "OTM"
 
+PUT = "PUT"
+
+CALL = "CALL"
+
+IRON = "IRON"
+
 STRADDLE = "STRADDLE"
 
 NEUTRAL = "NEUTRAL"

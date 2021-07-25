@@ -42,7 +42,7 @@ def bin_search_closest_lambda(val, dataset, fn):
 
         if val < fn(dataset[mid]):
             high = mid - 1
-        elif val > dataset[mid]:
+        elif val > fn(dataset[mid]):
             low = mid + 1
         else:
             low_index = mid
@@ -60,4 +60,3 @@ def bin_search_closest_lambda(val, dataset, fn):
             low_index, high_index = high, low
             status = "IN_RANGE"
     return (low_index, high_index, status)
-
