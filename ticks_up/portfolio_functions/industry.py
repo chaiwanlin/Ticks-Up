@@ -7,13 +7,28 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from .portfolio_constants import PATH, MKT_CAP
 from .data import Data
+import os
+
+
+def get_driver():
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
+
+    return driver
+
 
 class Industry:
 
     def __init__(self, ticker):
         # PATH = "C:\Program Files (x86)/chromedriver.exe"
         self.ticker = ticker
-        driver = webdriver.Chrome(PATH)
+
+        driver = get_driver()
+
         driver.get("https://www.tradingview.com/markets/stocks-usa/market-movers-large-cap/") 
 
         search = WebDriverWait(driver, 20).until(
@@ -37,7 +52,7 @@ class Industry:
 
     def get_stocks_same_sector(sector, category, indicator):
         sector = sector.lower().replace(" ", "-")
-        driver = webdriver.Chrome(PATH)
+        driver = get_driver()
         driver.get(f"https://www.tradingview.com/markets/stocks-usa/sectorandindustry-sector/{sector}/")
 
         if category != "Overview":
@@ -76,7 +91,7 @@ class Industry:
 
     def get_k_closest_same_sector(self, k, category, indicator):
         sector = self.sector.lower().replace(" ", "-")
-        driver = webdriver.Chrome(PATH)
+        driver = get_driver()
         driver.get(f"https://www.tradingview.com/markets/stocks-usa/sectorandindustry-sector/{sector}/")
 
         if category != "Overview":
@@ -140,7 +155,7 @@ class Industry:
 
     def get_stocks_same_industry(industry, category, indicator):
         industry = industry.lower().replace(" ", "-")
-        driver = webdriver.Chrome(PATH)
+        driver = get_driver()
         driver.get(f"https://www.tradingview.com/markets/stocks-usa/sectorandindustry-industry/{industry}/")
 
         if category != "Overview":
@@ -182,7 +197,7 @@ class Industry:
 
     def get_k_closest_same_industry(self, k, category, indicator):
         industry = self.industry.lower().replace(" ", "-")
-        driver = webdriver.Chrome(PATH)
+        driver = get_driver()
         driver.get(f"https://www.tradingview.com/markets/stocks-usa/sectorandindustry-sector/{industry}/")
 
         if category != "Overview":
@@ -245,7 +260,6 @@ class Industry:
         return lst
 
 # Industry("AAPL")
-
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
 
