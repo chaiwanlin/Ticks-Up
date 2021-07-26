@@ -90,9 +90,9 @@ WSGI_APPLICATION = 'ticks_up.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "password",
+        "NAME": "chaiwanlin",
+        "USER": "",
+        "PASSWORD": "",
         "HOST": "localhost",
         "PORT": "",
     }
