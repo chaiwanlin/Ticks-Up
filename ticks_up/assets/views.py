@@ -12,7 +12,10 @@ from hedge_functions.spread import hedge_stock, collar
 from utils.graphs import draw_graph
 from portfolio_functions.industry import Industry as Classification
 from portfolio_functions.portfolio_instrument import *
-from portfolio_functions.position import *
+from portfolio_functions.position import OverallPosition as OverallPos
+from portfolio_functions.position import StockPosition as StockPos
+from portfolio_functions.position import OptionPosition as OptionPos
+
 
 
 def user_check(user, portfolio_id):
@@ -81,18 +84,100 @@ def view_portfolio(request, portfolio_id):
     tickers = portfolio.ticker_set.all()
     stock_positions = portfolio.stockposition_set.all()
     option_positions = portfolio.optionposition_set.all()
+    vertical_spreads = portfolio.verticalspread_set.all()
+    butterfly_spreads = portfolio.butterflyspread_set.all()
+    collars = portfolio.collar_set.all()
+    protective_puts = portfolio.protectiveput_set.all()
     positions = {}
     for t in tickers:
         try:
             stock = stock_positions.get(ticker=t)
+            stock_pos = [make_stock(stock)]
         except StockPosition.DoesNotExist:
             stock = StockPosition.objects.none()
+            stock_pos = []
 
         options = option_positions.filter(ticker=t)
         positions[t.name] = (stock, options)
 
-    # Portfolio sorting
+        spread_list = []
+
+        for bs in butterfly_spreads:
+            spread = Condor(bs.types,
+                            make_vertical_spread(bs.bull_spread),
+                            make_vertical_spread(bs.bear_spread))
+            spread_list.append(spread)
+
+        for c in collars:
+            spread_list.append(Collar(make_stock(c.stock_position),
+                                      make_option(c.long_put),
+                                      make_option(c.short_call)))
+
+        for pp in protective_puts:
+            spread_list.append(HedgedStock(make_stock(pp.stock_position), make_option(c.long_put)))
+
+        # Check if vertical spread has been used before
+        for vs in vertical_spreads:
+            solo = True
+
+            for bs in portfolio.butterflyspread_set.all():
+                if vs == bs.bull_spread or vs == bs.bear_spread:
+                    solo = False
+                    break
+
+            if solo:
+                spread_list.append(make_vertical_spread(vs))
+
+
+        option_list = []
+        for option in options:
+            solo = True
+
+            for vs in portfolio.verticalspread_set.all():
+                if option == vs.short_leg or option == vs.long_leg:
+                    solo = False
+                    break
+
+            for c in portfolio.collar_set.all():
+                if option == c.short_call or option == c.long_put:
+                    solo = False
+                    break
+
+            for pp in portfolio.protectiveput_set.all():
+                if option == c.long_put:
+                    solo = False
+                    break
+
+            if solo:
+                option_list.append(make_option(option))
+
+        print(stock_pos, spread_list, option_list)
+
+    # # Portfolio sorting
+    # stock_list = []
     # for stock_pos in stock_positions:
+    #     stock_list.append(make_stock(stock_pos))
+    #
+    # option_list = []
+    # for option_pos in option_positions:
+    #     option_list.append(make_option(option_pos))
+    #
+    # spread_list = []
+    # for vs in vertical_spreads:
+    #     spread_list.append(make_vertical_spread(vs))
+    #
+    # # for bs in butterfly_spreads:
+    # #     spread_list.append(Condor(bs.types,
+    # #                               make_vertical_spread(bs.bull_spread),
+    # #                               make_vertical_spread(bs.bear_spread)))
+    #
+    # for c in collars:
+    #     spread_list.append(Collar(make_stock(c.stock_position),
+    #                               make_option(c.long_put),
+    #                               make_option(c.short_call)))
+    #
+    # for pp in protective_puts:
+    #     spread_list.append(HedgedStock(make_stock(pp.stock_position), make_option(c.long_put)))
 
 
     return render(request, "assets/view_portfolio.html", {
@@ -110,6 +195,50 @@ def view_portfolio(request, portfolio_id):
         'hedge_stock_form': HedgeStockForm,
         'eoform': EditOptionPositionForm,
     })
+
+
+def make_stock(stock_pos):
+    return Stock(stock_pos.ticker.name,
+                 stock_pos.long_or_short,
+                 stock_pos.total_shares,
+                 stock_pos.total_cost)
+
+def make_option(option_pos):
+    if option_pos.call_or_put == 'CALL':
+        option = Call(
+            option_pos.ticker.name,
+            option_pos.long_or_short,
+            option_pos.total_contracts,
+            option_pos.total_cost,
+            option_pos.strike_price,
+            option_pos.expiration_date
+        )
+    else:
+        option = Put(
+            option_pos.ticker.name,
+            option_pos.long_or_short,
+            option_pos.total_contracts,
+            option_pos.total_cost,
+            option_pos.strike_price,
+            option_pos.expiration_date
+        )
+    return option
+
+def make_vertical_spread(vs):
+    if vs.types == 'BULL':
+        vspread = Bull(
+            vs.credit_or_debit,
+            make_option(vs.short_leg),
+            make_option(vs.long_leg)
+        )
+    else:
+        vspread = Bear(
+            vs.credit_or_debit,
+            make_option(vs.short_leg),
+            make_option(vs.long_leg)
+        )
+    return vspread
+
 
 
 @login_required

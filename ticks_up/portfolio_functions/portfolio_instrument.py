@@ -81,7 +81,7 @@ class Put(Option):
     # strike_price: float
     # expiry: python datetime object
     def __init__(self, ticker, position, quantity, cost, strike_price, expiry):
-        puts = op.Put(ticker, expiry.day, expiry.month, expiry.year)
+        puts = op.Put(ticker, expiry.year, expiry.month, expiry.day)
         value = puts.get_option_for_strike(strike_price)
         super().__init__(position, quantity, cost, strike_price, expiry, value)
 
@@ -101,7 +101,7 @@ class Put(Option):
 class Call(Option):
 
     def __init__(self, ticker, position, quantity, cost, strike_price, expiry):
-        calls = op.Call(ticker, expiry.day, expiry.month, expiry.year)
+        calls = op.Call(ticker, expiry.year, expiry.month, expiry.day)
         value = calls.get_option_for_strike(strike_price)
         super().__init__(position, quantity, cost, strike_price, expiry, value)
         
@@ -183,17 +183,18 @@ class Bull(Spread):
             max_loss =  short_leg.strike_price - long_leg.strike_price - credit
             long_premium = long_leg.value
             short_premium = short_leg.value
+            print(long_premium)
 
             cost = max_loss
             profit = credit
-            breakeven = short_leg - credit
+            breakeven = short_leg.strike_price - credit
             lower_leg = long_leg.strike_price
             upper_leg = short_leg.strike_price
             # cost to cover
             value = short_premium - long_premium
             risk = max_loss
         elif type == DEBIT:
-            calls = op.Put(expiry.day, expiry.month, expiry.year)
+            calls = op.Put(short_leg.ticker, expiry.year, expiry.month, expiry.day)
 
             debit = long_leg.cost - short_leg.cost
             max_profit = short_leg.strike_price - long_leg.strike_price - debit
