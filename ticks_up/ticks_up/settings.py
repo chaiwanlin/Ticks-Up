@@ -90,14 +90,13 @@ WSGI_APPLICATION = 'ticks_up.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "chaiwanlin",
-        "USER": "",
-        "PASSWORD": "",
+        "NAME": "postgres",
+        "USER": "postgres",
+        "PASSWORD": "password",
         "HOST": "localhost",
         "PORT": "",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

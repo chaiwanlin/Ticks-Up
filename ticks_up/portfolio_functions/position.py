@@ -4,7 +4,6 @@ from hedge_instruments.stock import Stock as Stock_Data
 
 
 class OverallPosition:
-
     # ticker: string (e.g. "AMC")
     # sector: string choice
     # industry: string choice
@@ -124,8 +123,8 @@ class OptionPosition:
 
     def get_option_positions(self):
 
-        self.short_puts.sort(key = lambda x : x.strike, reversed = True)
-        self.long_puts.sort(key = lambda x : x.strike, reversed = True)
+        self.short_puts.sort(key = lambda x : x.strike, reverse = True)
+        self.long_puts.sort(key = lambda x : x.strike, reverse = True)
         self.short_calls.sort(key = lambda x : x.strike)
         self.long_calls.sort(key = lambda x : x.strike)
 
@@ -139,7 +138,7 @@ class OptionPosition:
         short_empty = True
         long_empty = True
 
-        while not short_calls and not long_calls:
+        while short_calls and long_calls:
             if short_empty:
                 short_call = short_calls.pop(0)
                 short_empty = False
@@ -202,7 +201,7 @@ class OptionPosition:
         short_empty = True
         long_empty = True
             
-        while not short_puts and not long_puts:
+        while short_puts and long_puts:
             if short_empty:
                 short_put = short_puts.pop(0)
                 short_empty = False
