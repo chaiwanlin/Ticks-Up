@@ -1,4 +1,5 @@
 from os import PathLike
+from .portfolio_constants import PATH
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -139,9 +140,6 @@ class Industry:
 
             result.append(Data(value, data))
             count += 1
-
-            print(tds[0].find_element_by_xpath(".//div/a").text)
-            print(tds[6].text)
         
         len = count - 1
         lo, hi = index - 1, index + 1
@@ -151,10 +149,24 @@ class Industry:
             if val - result[lo].value <= result[hi] - val:
                 lst.append(result[lo])
                 lo -= 1
+                k -= 1
             else:
                 lst.append(result[hi])
                 hi += 1
-        
+                k -= 1
+
+        # no ele on right
+        while k > 0 and lo >= 0 :
+            lst.append(result[lo])
+            lo -= 1
+            k -= 1
+ 
+        #no ele on left
+        while k > 0 and hi <= len :
+            lst.append(result[hi])
+            hi += 1
+            k -= 1
+
         return lst
 
     def get_stocks_same_industry(industry, category, indicator):
@@ -193,9 +205,6 @@ class Industry:
             }
 
             result.append(Data(value, data))
-
-            print(tds[0].find_element_by_xpath(".//div/a").text)
-            print(tds[6].text)
         
         return result
 
@@ -245,9 +254,6 @@ class Industry:
 
             result.append(Data(value, data))
             count += 1
-
-            print(tds[0].find_element_by_xpath(".//div/a").text)
-            print(tds[6].text)
         
         len = count - 1
         lo, hi = index - 1, index + 1
@@ -257,13 +263,27 @@ class Industry:
             if val - result[lo].value <= result[hi] - val:
                 lst.append(result[lo])
                 lo -= 1
+                k -= 1
             else:
                 lst.append(result[hi])
                 hi += 1
+                k -= 1
+
+        # no ele on right
+        while k > 0 and lo >= 0 :
+            lst.append(result[lo])
+            lo -= 1
+            k -= 1
+ 
+        #no ele on left
+        while k > 0 and hi <= len :
+            lst.append(result[hi])
+            hi += 1
+            k -= 1
         
         return lst
 
-# Industry("AAPL")
+# print(Industry("AAPL").get_k_closest_same_sector(5, "Overview", MKT_CAP))
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
 
