@@ -1,8 +1,8 @@
 from datetime import datetime
 from numpy import short
-from portfolio_constants import *
-from ticks_up.hedge_instruments.stock import Stock as Stock_Data
-import ticks_up.hedge_instruments.option as op
+from .portfolio_constants import *
+from hedge_instruments.stock import Stock as Stock_Data
+import hedge_instruments.option as op
 import math
 
 

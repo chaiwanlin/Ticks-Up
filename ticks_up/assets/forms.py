@@ -2,6 +2,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from .models import *
 from hedge_instruments.stock import Stock
+from hedge_instruments.option import *
+from portfolio_functions.industry import Industry as Classification
 
 
 class AddPortfolioForm(forms.ModelForm):
@@ -21,7 +23,7 @@ class TickerForm(forms.ModelForm):
     def clean_ticker(self):
         ticker = self.cleaned_data['name']
         try:
-            test = Stock(ticker)
+            Stock(ticker)
             return ticker.upper()
         except:     #fill in error
             raise ValidationError("Invalid ticker!")
@@ -30,7 +32,7 @@ class TickerForm(forms.ModelForm):
 class AddStockPositionForm(forms.ModelForm):
     class Meta:
         model = StockPosition
-        exclude = ('portfolio', 'ticker')
+        exclude = ('portfolio', 'ticker', 'long_or_short')
 
 
 class AddOptionPositionForm(forms.ModelForm):
@@ -41,7 +43,17 @@ class AddOptionPositionForm(forms.ModelForm):
             'expiration_date': 'Expiration date (YYYY-MM-DD)'
         }
 
-    # clean option data for validation
+    # Problem is recognising the ticker without access to ticker form
+    # def clean_optionposition(self):
+    #     call_or_put = self.cleaned_data['call_or_put']
+    #     expiration_date = self.cleaned_data['expiration_date']
+    #     strike_price = self.cleaned_data['strike_price']
+    #     try:
+    #         if call_or_put == "CALL":
+    #             Call(ticker)
+    #             return ticker.upper()
+    #     except:  # fill in error
+    #         raise ValidationError("Invalid ticker!")
 
 
 class EditOptionPositionForm(forms.ModelForm):
@@ -49,19 +61,62 @@ class EditOptionPositionForm(forms.ModelForm):
         model = OptionPosition
         fields = ['total_cost', 'total_contracts']
 
-    # clean option data for validation
-
 
 class AddVerticalSpreadForm(forms.ModelForm):
+
     class Meta:
         model = VerticalSpread
         fields = ['types', 'credit_or_debit']
+
+
+class AddVerticalSpreadExtraForm(forms.Form):
+    expiration_date = forms.DateField()
+    quantity = forms.IntegerField(min_value=1)
+
+    short_leg_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    long_leg_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    short_leg_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    long_leg_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+
 
 
 class AddButterflySpreadForm(forms.ModelForm):
     class Meta:
         model = ButterflySpread
         fields = ['types']
+
+
+class AddButterflySpreadExtraForm(forms.Form):
+    expiration_date = forms.DateField()
+    quantity = forms.IntegerField(min_value=1)
+
+    long_put_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    short_put_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    short_call_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    long_call_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+
+    long_put_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    short_put_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    short_call_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    long_call_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+
+
+class AddCollarForm(forms.Form):
+    expiration_date = forms.DateField()
+    quantity = forms.IntegerField(min_value=1)
+
+    long_put_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    short_call_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    long_put_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    short_call_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+
+
+class AddProtectivePutForm(forms.Form):
+    expiration_date = forms.DateField()
+    quantity = forms.IntegerField(min_value=1)
+
+    long_put_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    long_put_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
 
 
 class HedgeStockForm(forms.Form):

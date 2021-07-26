@@ -1,6 +1,6 @@
-from portfolio_constants import BEAR, BULL, LONG, SHORT, STRADDLE, CREDIT, DEBIT
-from portfolio_instrument import Instrument, Stock, Put, Call, Bear, Bull
-from ticks_up.hedge_instruments.stock import Stock as Stock_Data
+from .portfolio_constants import BEAR, BULL, LONG, SHORT, STRADDLE, CREDIT, DEBIT
+from .portfolio_instrument import Instrument, Stock, Put, Call, Bear, Bull
+from hedge_instruments.stock import Stock as Stock_Data
 
 
 class OverallPosition:
