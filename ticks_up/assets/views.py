@@ -129,7 +129,12 @@ def view_portfolio(request, portfolio_id):
                 spread_list.append(make_vertical_spread(vs))
 
 
-        option_list = []
+        option_lists = {
+            'short_call': [],
+            'long_call': [],
+            'short_put': [],
+            'long_put': []
+        }
         for option in options:
             solo = True
 
@@ -149,9 +154,49 @@ def view_portfolio(request, portfolio_id):
                     break
 
             if solo:
-                option_list.append(make_option(option))
+                op = make_option(option)
+                if option.long_or_short == 'SHORT':
+                    if option.call_or_put == 'CALL':
+                        option_lists['short_call'].append(op)
+                    else:
+                        option_lists['short_put'].append(op)
+                else:
+                    if option.call_or_put == 'CALL':
+                        option_lists['long_call'].append(op)
+                    else:
+                        option_lists['long_put'].append(op)
 
-        print(stock_pos, spread_list, option_list)
+        if portfolio.margin:
+            option_pos = OptionPos(
+                t.name,
+                option_lists['short_call'],
+                option_lists['long_call'],
+                option_lists['short_put'],
+                option_lists['long_put'],
+                spread_list,
+                True,
+                portfolio.margin
+            )
+        else:
+            option_pos = OptionPos(
+                t.name,
+                option_lists['short_call'],
+                option_lists['long_call'],
+                option_lists['short_put'],
+                option_lists['long_put'],
+                spread_list,
+                False
+            )
+
+        overall_pos = OverallPos(
+            t.name,
+            t.sector,
+            t.industry,
+            stock_pos,
+            option_pos,
+        )
+
+        print(stock_pos, spread_list, option_lists)
 
     # # Portfolio sorting
     # stock_list = []
