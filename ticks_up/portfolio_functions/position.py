@@ -1,9 +1,15 @@
-from portfolio_constants import BEAR, BULL, LONG, SHORT, STRADDLE, CREDIT, DEBIT
-from portfolio_instrument import Instrument, Stock, Put, Call, Bear, Bull
-from ticks_up.hedge_instruments.stock import Stock as Stock_Data
+from .portfolio_constants import BEAR, BULL, LONG, SHORT, STRADDLE, CREDIT, DEBIT
+from .portfolio_instrument import Instrument, Stock, Put, Call, Bear, Bull
+from hedge_instruments.stock import Stock as Stock_Data
 
-class Overall_Position:
 
+class OverallPosition:
+
+    # ticker: string (e.g. "AMC")
+    # sector: string choice
+    # industry: string choice
+    # stocks: StockPosition
+    # options: OptionPosition
     def __init__(self, ticker, sector, industry, stocks, options):
         self.sector = sector
         self.industry = industry
@@ -16,9 +22,15 @@ class Overall_Position:
         self.value = self.stocks.value + self.options.value
         self.cost_to_cover = self.stocks.cost_to_cover + self.options.cost_to_cover
         self.short_PL = self.stocks.short_PL + self.options.short_PL
-          
-class Stock_Position:
 
+
+class StockPosition:
+
+    # ticker: string (e.g. "AMC")
+    # long_positions: list of "LONG" Stock objects
+    # long_positions: list of "SHORT" Stock objects
+    # margin: Boolean
+    # margin_value: float (0 <= x)
     def __init__(self, ticker, long_positions, short_positions, margin, margin_value = 0.2):
         self.ticker = ticker
         self.long_positions = long_positions
@@ -44,8 +56,17 @@ class Stock_Position:
                 self.cost_to_cover += price
                 self.short_PL += e.cost - price
 
-class Option_Position:
 
+class OptionPosition:
+
+    # ticker: string (e.g. "AMC")
+    # short_call: list of "SHORT" Call objects
+    # long_call: list of "LONG" Call objects
+    # short_puts: list of "SHORT" Put objects
+    # long_puts: list of "LONG" Put objects
+    # spreads: list of Spread object
+    # margin: Boolean
+    # margin_value: float (0 <= x)
     def __init__(self, ticker, short_call, long_call, short_puts, long_puts, spreads, margin, margin_value = 0.2):
         self.ticker = ticker
         self.short_calls = short_call

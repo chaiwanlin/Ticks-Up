@@ -1,9 +1,10 @@
 from datetime import datetime
 from numpy import short
-from portfolio_constants import *
-from ticks_up.hedge_instruments.stock import Stock as Stock_Data
-import ticks_up.hedge_instruments.option as op
+from .portfolio_constants import *
+from hedge_instruments.stock import Stock as Stock_Data
+import hedge_instruments.option as op
 import math
+
 
 class Asset:
     def __init__(self, quantity, cost, value):
@@ -21,6 +22,7 @@ class Asset:
 class Cash(Asset):
     def __init__(self, quantity):
         super().__init__(quantity)
+
 
 class Instrument(Asset):
 
@@ -40,9 +42,14 @@ class Instrument(Asset):
 
     def get_leveraged_quantity(self):
         return self.leveraged_quantity
-  
+
+
 class Stock(Instrument):
 
+    # ticker: string (e.g. "AMC")
+    # position: "LONG" or "SHORT"
+    # quantity: float
+    # cost: float
     def __init__(self, ticker, position, quantity, cost):
         value = Stock_Data(ticker).get_price()
         super().__init__(position, quantity, cost, value)
@@ -54,7 +61,8 @@ class Stock(Instrument):
         elif position == SHORT:
             self.outlook ==  BEAR
             self.risk = math.inf
-            
+
+
 class Option(Instrument):
 
     def __init__(self, position, quantity, cost, strike_price, expiry, value):
@@ -66,8 +74,14 @@ class Option(Instrument):
 
 class Put(Option):
 
+    # ticker: string (e.g. "AMC")
+    # position: "LONG" or "SHORT"
+    # quantity: int
+    # cost: float
+    # strike_price: float
+    # expiry: python datetime object
     def __init__(self, ticker, position, quantity, cost, strike_price, expiry):
-        puts = op.Put(ticker, expiry.day, expiry.month, expiry.year)
+        puts = op.Put(ticker, expiry.year, expiry.month, expiry.day)
         value = puts.get_option_for_strike(strike_price)
         super().__init__(position, quantity, cost, strike_price, expiry, value)
 
@@ -87,7 +101,7 @@ class Put(Option):
 class Call(Option):
 
     def __init__(self, ticker, position, quantity, cost, strike_price, expiry):
-        calls = op.Call(ticker, expiry.day, expiry.month, expiry.year)
+        calls = op.Call(ticker, expiry.year, expiry.month, expiry.day)
         value = calls.get_option_for_strike(strike_price)
         super().__init__(position, quantity, cost, strike_price, expiry, value)
         
@@ -103,6 +117,7 @@ class Call(Option):
         self.quantity -= n
         return self.__init__(self.ticker, self.position, n, self.cost, self.strike_price, self.expiry)
 
+
 class Spread(Instrument):
 
     def __init__(self, type, quantity, cost, profit, value):
@@ -113,7 +128,9 @@ class Spread(Instrument):
 
 
 class Bear(Spread):
-    
+
+    # type: # "DEBIT" or "CREDIT"
+    # short_leg/long_leg: Call/Put object
     def __init__(self, type, short_leg, long_leg):
         quantity = short_leg.quantity
         expiry = short_leg.expiry
@@ -166,17 +183,18 @@ class Bull(Spread):
             max_loss =  short_leg.strike_price - long_leg.strike_price - credit
             long_premium = long_leg.value
             short_premium = short_leg.value
+            print(long_premium)
 
             cost = max_loss
             profit = credit
-            breakeven = short_leg - credit
+            breakeven = short_leg.strike_price - credit
             lower_leg = long_leg.strike_price
             upper_leg = short_leg.strike_price
             # cost to cover
             value = short_premium - long_premium
             risk = max_loss
         elif type == DEBIT:
-            calls = op.Put(expiry.day, expiry.month, expiry.year)
+            calls = op.Put(short_leg.ticker, expiry.year, expiry.month, expiry.day)
 
             debit = long_leg.cost - short_leg.cost
             max_profit = short_leg.strike_price - long_leg.strike_price - debit
@@ -200,8 +218,11 @@ class Bull(Spread):
         self.lower_bound = lower_leg
         self.upper_bound = upper_leg
 
+
 class Condor(Spread):
 
+    # type: # "PUT" or "CALL" or "IRON"
+    # bull_spread/bear_spread: Bull/Bear object
     def __init__(self, type, bear_spread, bull_spread):
         quantity = bear_spread.quantity
         expiry = bear_spread.expiry
@@ -233,7 +254,9 @@ class Condor(Spread):
 
 
 class Straddle(Spread):
-    
+
+    # type: # "PUT" or "CALL" or "IRON"
+    # bull_spread/bear_spread: Bull/Bear object
     def __init__(self, type, bear_spread, bull_spread):
         quantity = bear_spread.quantity
         expiry = bear_spread.expiry
@@ -261,8 +284,11 @@ class Straddle(Spread):
         self.bear_spread = bear_spread
         self.bull_spread = bull_spread
 
-class Collar(Spread): 
-    
+
+class Collar(Spread):
+
+    # stock: Stock class
+    # long_put/short_call: Put/Call object
     def __init__(self, stock, long_put, short_call):
         quantity = long_put.quantity
         expiry = long_put.expiry
@@ -284,7 +310,11 @@ class Collar(Spread):
         self.lower_bound = long_put.strike_price
         self.upper_bound = short_call.strike_price
 
-class HedgedStock(Spread):    
+
+class HedgedStock(Spread):
+
+    # stock: Stock class
+    # long_put: Put object
     def __init__(self, stock, long_put):
         quantity = long_put.quantity
         expiry = long_put.expiry
@@ -304,7 +334,11 @@ class HedgedStock(Spread):
         self.lower_bound = long_put.strike_price
         self.upper_bound = math.inf
 
+
 class CoveredCall(Spread):
+
+    # stock: Stock class
+    # short_call: Call object
     def __init__(self, stock, short_call):
         quantity = short_call.quantity
         expiry = short_call.expiry

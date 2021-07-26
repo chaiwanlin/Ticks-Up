@@ -18,6 +18,7 @@
                 <th scope="col">Cost per quantity</th>
                 <th></th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         {% for symbol, pos in positions.items %}
@@ -52,6 +53,53 @@
                                 </div>
                                 <button type="submit" class="btn btn-outline-primary">Hedge</button>
                             </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}HedgePosition">
+                        <i class="bi bi-shield-plus"></i>
+                        Add hedge position
+                    </button>
+
+                    <div class="modal fade" id="add{{ symbol }}HedgePosition" tabindex="-1" aria-labelledby="add{{ symbol }}HedgePositionLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="add{{ symbol }}HedgePosition">Add your hedge position for {{ symbol }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                              <ul class="nav nav-tabs" id="hedgeTab" role="tablist">
+                                  <li class="nav-item" role="presentation">
+                                      <button class="nav-link active" id="collar-tab" data-bs-toggle="tab" data-bs-target="#collar" type="button" role="tab" aria-controls="collar" aria-selected="true">Collar</button>
+                                  </li>
+                                  <li class="nav-item" role="presentation">
+                                      <button class="nav-link" id="protective-put-tab" data-bs-toggle="tab" data-bs-target="#protective-put" type="button" role="tab" aria-controls="protective-put" aria-selected="false">Protective Put</button>
+                                  </li>
+                              </ul>
+                              <div class="tab-content" id="hedgeTabContent">
+                                  <div class="tab-pane fade show active" id="collar" role="tabpanel" aria-labelledby="collar-tab">
+                                      <form method="post" action="{% url 'add_collar' portfolio.id symbol %}">
+                                          {% csrf_token %}
+                                          <div class="mb-3">
+                                              {{ cform|crispy }}
+                                          </div>
+                                          <button type="submit" class="btn btn-outline-primary">Save</button>
+                                      </form>
+                                  </div>
+                                  <div class="tab-pane fade" id="protective-put" role="tabpanel" aria-labelledby="protective-put-tab">
+                                      <form method="post" action="{% url 'add_protective_put' portfolio.id symbol %}">
+                                          {% csrf_token %}
+                                          <div class="mb-3">
+                                              {{ ppform|crispy }}
+                                          </div>
+                                          <button type="submit" class="btn btn-outline-primary">Save</button>
+                                      </form>
+                                  </div>
+                              </div>
                           </div>
                         </div>
                       </div>
@@ -107,7 +155,7 @@
                     </div>
                 </td>
                 {% else %}
-                <td colspan="5">-</td>
+                <td colspan="6">-</td>
                 <td>
                     <div class="btn-group" role="group" aria-label="Basic outlined example">
                         <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}StockPosition">
@@ -167,6 +215,7 @@
                 <td>{{ option.total_contracts }}</td>
                 <td>{{ option.average_cost }}</td>
                 <td></td>
+                <td></td>
                 <td>
                     <div class="btn-group" role="group" aria-label="Basic outlined example">
                         <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}OptionPosition">
@@ -184,7 +233,7 @@
                                     {% csrf_token %}
                                     <div class="mb-3">
                                         <input type="hidden" name="call_or_put" value="{{ option.call_or_put }}">
-                                        <input type="hidden" name="buy_or_sell" value="{{ option.buy_or_sell }}">
+                                        <input type="hidden" name="long_or_short" value="{{ option.long_or_short }}">
                                         <input type="hidden" name="expiration_date" value="{{ option.expiration_date }}">
                                         <input type="hidden" name="strike_price" value="{{ option.strike_price }}">
                                         {{ eoform|crispy }}
@@ -211,7 +260,7 @@
                                     {% csrf_token %}
                                     <div class="mb-3">
                                         <input type="hidden" name="call_or_put" value="{{ option.call_or_put }}">
-                                        <input type="hidden" name="buy_or_sell" value="{{ option.buy_or_sell }}">
+                                        <input type="hidden" name="long_or_short" value="{{ option.long_or_short }}">
                                         <input type="hidden" name="expiration_date" value="{{ option.expiration_date }}">
                                         <input type="hidden" name="strike_price" value="{{ option.strike_price }}">
                                         {{ eoform|crispy }}
@@ -292,39 +341,23 @@
                       </form>
                   </div>
                   <div class="tab-pane fade" id="vertical-spread" role="tabpanel" aria-labelledby="vertical-spread-tab">
-                      <form method="post" action="{% url 'add_option_position' portfolio.id %}">
+                      <form method="post" action="{% url 'add_vertical_spread' portfolio.id %}">
                           {% csrf_token %}
                           <div class="mb-3">
                               {{ tform|crispy }}
                               {{ vsform|crispy }}
-                              <hr>
-                              <h4 class="my-2 text-center">Short Leg</h4>
-                              {{ oform|crispy }}
-                              <hr>
-                              <h4 class="my-2 text-center">Long Leg</h4>
-                              {{ oform|crispy }}
+                              {{ vseform|crispy }}
                           </div>
                           <button type="submit" class="btn btn-outline-primary">Save</button>
                       </form>
                   </div>
                   <div class="tab-pane fade" id="butterfly-spread" role="tabpanel" aria-labelledby="butterfly-spread-tab">
-                      <form method="post" action="{% url 'add_option_position' portfolio.id %}">
+                      <form method="post" action="{% url 'add_butterfly_spread' portfolio.id %}">
                           {% csrf_token %}
                           <div class="mb-3">
                               {{ tform|crispy }}
                               {{ bsform|crispy }}
-                              <hr>
-                              <h4 class="my-2 text-center">Bear Spread</h4>
-                              <h5 class="my-2">Long Leg</h5>
-                              {{ oform|crispy }}
-                              <h5 class="my-2">Short Leg</h5>
-                              {{ oform|crispy }}
-                              <hr>
-                              <h4 class="my-2 text-center">Bull Spread</h4>
-                              <h5 class="my-2">Short Leg</h5>
-                              {{ oform|crispy }}
-                              <h5 class="my-2">Long Leg</h5>
-                              {{ oform|crispy }}
+                              {{ bseform|crispy }}
                           </div>
                           <button type="submit" class="btn btn-outline-primary">Save</button>
                       </form>
@@ -334,6 +367,8 @@
         </div>
       </div>
     </div>
+
+    <div class="mt-4"></div>
 </div>
 
 {% endblock %}
