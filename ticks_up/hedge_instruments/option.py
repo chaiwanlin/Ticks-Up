@@ -5,7 +5,6 @@ from .stock import Stock
 from .constants import YAHOO_OPTION
 from utils.blackScholes import BlackScholes
 from utils.graphs import draw_graph
-
 import urllib.request
 import urllib.response
 import json
@@ -268,9 +267,7 @@ class Call(Option):
                         min_cost_net_value = net_value
                         min_cost_strike = strike_price
                         min_cost_premium = strike_premium 
-
-  
-
+ 
     def get_strike_for_breakeven_credit(self, breakeven_point, short_call_strike, short_call_premium, risk = math.inf):
         net_breakeven_value = short_call_premium - (breakeven_point - short_call_strike)
 
@@ -362,8 +359,10 @@ class Call(Option):
 
 class CallOption:
     def __init__(self, ticker, underlying, data):
+        now = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         self.ticker = ticker
         self.underlying = underlying
+        self.strike = data["strike"]
         self.price = data["lastPrice"]
         try:
             self.volume = data["volume"]
@@ -373,9 +372,25 @@ class CallOption:
         self.bid = data["bid"]
         self.ask = data["ask"]
         self.implied_volatility = data["impliedVolatility"]
+        expiry = ((data["expiration"] - now)  + 75600)/ 31536000
+        self.expiry = expiry
+
+        self.BandS = BlackScholes(underlying.price, self.strike, self.implied_volatility, underlying.dividend, expiry)
 
     def delta(self):
-        return None
+        return self.BandS.delta()
+
+    def theta(self):
+        return self.BandS.theta("CALL")
+
+    def gamma(self):
+        return self.BandS.gamma()
+
+    def vega(self):
+        return self.BandS.vega()
+    
+    def rho(self):
+        return self.BandS.rho("CALL")
 
     def get_ticker(self):
         return self.ticker
@@ -818,14 +833,38 @@ class Put(Option):
 
 class PutOption:
     def __init__(self, ticker, underlying, data):
+        now = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         self.ticker = ticker
         self.underlying = underlying
+        self.strike = data["strike"]
         self.price = data["lastPrice"]
-        self.volume = data["volume"]
+        try:
+            self.volume = data["volume"]
+        except KeyError:
+            self.volume = None
         self.interest = data["openInterest"]
         self.bid = data["bid"]
         self.ask = data["ask"]
         self.implied_volatility = data["impliedVolatility"]
+        expiry = ((data["expiration"] - now) + 75600)/ 31536000
+        self.expiry = expiry
+
+        self.BandS = BlackScholes(underlying.price, self.strike, self.implied_volatility, underlying.dividend, expiry)
+
+    def delta(self):
+        return self.BandS.delta()
+
+    def theta(self):
+        return self.BandS.theta("PUT")
+
+    def gamma(self):
+        return self.BandS.gamma()
+
+    def vega(self):
+        return self.BandS.vega()
+    
+    def rho(self):
+        return self.BandS.rho("PUT")
 
     def get_ticker(self):
         return self.ticker

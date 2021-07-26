@@ -89,6 +89,7 @@ def view_portfolio(request, portfolio_id):
     collars = portfolio.collar_set.all()
     protective_puts = portfolio.protectiveput_set.all()
     positions = {}
+    
     for t in tickers:
         try:
             stock = stock_positions.get(ticker=t)

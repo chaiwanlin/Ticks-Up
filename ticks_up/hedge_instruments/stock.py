@@ -4,7 +4,6 @@ import urllib.request
 import urllib.response
 import json
 
-
 class Stock(Instrument):
 
     def __init__(self, ticker):
@@ -13,6 +12,11 @@ class Stock(Instrument):
         data = json.loads(response.read())
         result = data["quoteSummary"]["result"][0]
         self.price = result["price"]["regularMarketPrice"]
+
+        self.dividend = 0
+        dividend = result["summaryDetail"]["dividendRate"]
+        if dividend:
+            self.dividend = dividend["raw"]/100
 
         # Assigns name of exchange in uppercase (only considering NYSE and NASDAQ)
         exchange_name = result["price"]["exchangeName"]
@@ -28,3 +32,5 @@ class Stock(Instrument):
 
     def get_exchange(self):
         return self.exchange
+
+# Stock("AAPL")

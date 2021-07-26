@@ -82,7 +82,7 @@ class Put(Option):
     # expiry: python datetime object
     def __init__(self, ticker, position, quantity, cost, strike_price, expiry):
         puts = op.Put(ticker, expiry.year, expiry.month, expiry.day)
-        value = puts.get_option_for_strike(strike_price)
+        value = puts.get_option_for_strike(strike_price).get_price()
         super().__init__(position, quantity, cost, strike_price, expiry, value)
 
         self.ticker = ticker
@@ -102,7 +102,7 @@ class Call(Option):
 
     def __init__(self, ticker, position, quantity, cost, strike_price, expiry):
         calls = op.Call(ticker, expiry.year, expiry.month, expiry.day)
-        value = calls.get_option_for_strike(strike_price)
+        value = calls.get_option_for_strike(strike_price).get_price()
         super().__init__(position, quantity, cost, strike_price, expiry, value)
         
         self.ticker = ticker
@@ -231,7 +231,8 @@ class Condor(Spread):
             return None
         elif type == CALL:
             return None
-        elif type == IRON:
+            # iron
+        elif type == CREDIT:
             credit = bear_spread.profit + bull_spread.profit
             max_loss = bear_spread.cost - bull_spread.profit
 
@@ -265,7 +266,8 @@ class Straddle(Spread):
             return None
         elif type == CALL:
             return None
-        elif type == IRON:
+            # debit
+        elif type == DEBIT:
             debit = bear_spread.cost + bear_spread.cost
 
             cost = debit
