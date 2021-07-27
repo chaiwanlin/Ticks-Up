@@ -22,8 +22,6 @@ def get_driver():
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
     # driver = webdriver.Chrome(PATH)
     return driver
-
-
 class Industry:
 
     def __init__(self, ticker):

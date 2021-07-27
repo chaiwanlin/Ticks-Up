@@ -28,3 +28,5 @@ CREDIT = "CREDIT"
 
 DEBIT = "DEBIT"
 
+UNKNOWN = "Unknown"
+
