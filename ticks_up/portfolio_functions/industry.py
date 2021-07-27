@@ -31,18 +31,20 @@ class Industry:
 
         driver = get_driver()
 
-        driver.get("https://www.tradingview.com/markets/stocks-usa/market-movers-large-cap/") 
+        # driver.get("https://www.tradingview.com/markets/stocks-usa/market-movers-large-cap/") 
 
-        search = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="tv-screener-table__search-query js-search-query tv-screener-table__search-query--without-description"] input[class="tv-screener-table__search-input js-search-input"]'))
-        )
-        search.send_keys(ticker)
+        # search = WebDriverWait(driver, 20).until(
+        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="tv-screener-table__search-query js-search-query tv-screener-table__search-query--without-description"] input[class="tv-screener-table__search-input js-search-input"]'))
+        # )
+        # search.send_keys(ticker)
 
-        sleep(2)
+        # sleep(2)
+        
+        # search = WebDriverWait(driver, 20).until(
+        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'a[class="tv-screener__symbol apply-common-tooltip"]'))
+        # ).click()
 
-        search = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'a[class="tv-screener__symbol apply-common-tooltip"]'))
-        ).click()
+        driver.get("https://www.tradingview.com/symbols/{ticker}/") 
 
         lst = driver.find_elements_by_class_name("tv-widget-description__value")
         self.sector = lst[0].text
