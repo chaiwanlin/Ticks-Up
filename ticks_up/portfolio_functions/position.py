@@ -1,4 +1,4 @@
-from .portfolio_constants import BEAR, BULL, LONG, SHORT, STRADDLE, CREDIT, DEBIT
+from .portfolio_constants import BEAR, BULL, LONG, SHORT, STRADDLE, CREDIT, DEBIT, UNKNOWN
 from .portfolio_instrument import Instrument, Stock, Put, Call, Bear, Bull
 from hedge_instruments.stock import Stock as Stock_Data
 
@@ -9,7 +9,7 @@ class OverallPosition:
     # industry: string choice
     # stocks: StockPosition
     # options: OptionPosition
-    def __init__(self, ticker, sector, industry, stocks, options):
+    def __init__(self, ticker, stocks, options, sector = UNKNOWN, industry = UNKNOWN):
         self.sector = sector
         self.industry = industry
         self.ticker = ticker
@@ -30,7 +30,7 @@ class StockPosition:
     # long_positions: list of "SHORT" Stock objects
     # margin: Boolean
     # margin_value: float (0 <= x)
-    def __init__(self, ticker, long_positions, short_positions, margin, margin_value = 0.2):
+    def __init__(self, ticker, long_positions, short_positions, margin = False, margin_value = 0.2):
         self.ticker = ticker
         self.long_positions = long_positions
         self.short_positions = short_positions
@@ -66,7 +66,7 @@ class OptionPosition:
     # spreads: list of Spread object
     # margin: Boolean
     # margin_value: float (0 <= x)
-    def __init__(self, ticker, short_call, long_call, short_puts, long_puts, spreads, margin, margin_value = 0.2):
+    def __init__(self, ticker, short_call, long_call, short_puts, long_puts, spreads, margin = False, margin_value = 0.2):
         self.ticker = ticker
         self.short_calls = short_call
         self.long_calls = long_call
@@ -78,7 +78,7 @@ class OptionPosition:
 
         price = Stock_Data(ticker).get_price()
 
-        self.get_option_positions()
+        self.get_option_positions_spread()
         
         self.capital_invested = 0
         self.capital_collateral = 0
@@ -121,7 +121,7 @@ class OptionPosition:
                 self.cost_to_cover += e.value
                 self.short_PL += e.cost - e.value
 
-    def get_option_positions(self):
+    def get_option_positions_spread(self):
 
         self.short_puts.sort(key = lambda x : x.strike, reverse = True)
         self.long_puts.sort(key = lambda x : x.strike, reverse = True)
