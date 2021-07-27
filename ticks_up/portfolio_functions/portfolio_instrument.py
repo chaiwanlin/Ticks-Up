@@ -183,7 +183,6 @@ class Bull(Spread):
             max_loss =  short_leg.strike_price - long_leg.strike_price - credit
             long_premium = long_leg.value
             short_premium = short_leg.value
-            print(long_premium)
 
             cost = max_loss
             profit = credit

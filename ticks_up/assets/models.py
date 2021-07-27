@@ -10,7 +10,8 @@ from portfolio_functions.industry import Industry as Classification
 class Portfolio(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
-    margin = models.DecimalField(max_digits=4, decimal_places=2, help_text='Leave blank if unknown', blank=True, null=True)
+    cash = models.DecimalField(max_digits=19, decimal_places=2)
+    margin = models.DecimalField(max_digits=4, decimal_places=2, help_text='Leave blank if not margin account', blank=True, null=True)
     # date_created = models.DateTimeField()     # required? useful to sort
 
     def __str__(self):

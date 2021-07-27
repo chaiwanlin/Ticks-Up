@@ -139,7 +139,7 @@ def view_portfolio(request, portfolio_id):
 
         list_of_sector_portfolios.append(Sector_Portfolio(sector, list_of_industries, list_of_tickers, margin))
 
-    user_portfolio = User_Portfolio(list_of_overall_pos, 0, margin, list_of_sector_portfolios)
+    user_portfolio = User_Portfolio(list_of_overall_pos, portfolio.cash, margin, list_of_sector_portfolios)
 
     portfolio_breakdown = {
         'portfolio_ticker_breakdown': make_pie(user_portfolio.breakdown_by_ticker()),
@@ -417,7 +417,6 @@ def edit_option_position(request, portfolio_id, ticker_name, add_or_remove):
         if eoform.is_valid():
             portfolio = Portfolio.objects.get(id=portfolio_id)
             ticker = portfolio.ticker_set.get(name=ticker_name)
-            print(request.POST.get('strike_price'))
             option = portfolio.optionposition_set.get(
                 ticker=ticker,
                 call_or_put=request.POST.get('call_or_put'),
