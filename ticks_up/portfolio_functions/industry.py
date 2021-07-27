@@ -1,26 +1,26 @@
 from os import PathLike
-from .portfolio_constants import PATH
+from portfolio_constants import PATH
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from .industry_constants import *
-from .data import Data
+from industry_constants import *
+from data import Data
 import os
 
 
 def get_driver():
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    chrome_options.add_argument("--window-size=1920,1080")
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
-    # driver = webdriver.Chrome(PATH)
+    # chrome_options = webdriver.ChromeOptions()
+    # chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    # chrome_options.add_argument("--window-size=1920,1080")
+    # chrome_options.add_argument("--start-maximized")
+    # chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--disable-dev-shm-usage")
+    # chrome_options.add_argument("--no-sandbox")
+    # driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
+    driver = webdriver.Chrome(PATH)
     return driver
     
 class Industry:
@@ -28,28 +28,31 @@ class Industry:
     def __init__(self, ticker):
         # PATH = "C:\Program Files (x86)/chromedriver.exe"
         self.ticker = ticker
+        try: 
 
-        driver = get_driver()
+            driver = get_driver()
 
-        # driver.get("https://www.tradingview.com/markets/stocks-usa/market-movers-large-cap/") 
+            # driver.get("https://www.tradingview.com/markets/stocks-usa/market-movers-large-cap/") 
 
-        # search = WebDriverWait(driver, 20).until(
-        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="tv-screener-table__search-query js-search-query tv-screener-table__search-query--without-description"] input[class="tv-screener-table__search-input js-search-input"]'))
-        # )
-        # search.send_keys(ticker)
+            # search = WebDriverWait(driver, 20).until(
+            #     EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="tv-screener-table__search-query js-search-query tv-screener-table__search-query--without-description"] input[class="tv-screener-table__search-input js-search-input"]'))
+            # )
+            # search.send_keys(ticker)
 
-        # sleep(2)
-        
-        # search = WebDriverWait(driver, 20).until(
-        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'a[class="tv-screener__symbol apply-common-tooltip"]'))
-        # ).click()
+            # sleep(2)
+            
+            # search = WebDriverWait(driver, 20).until(
+            #     EC.presence_of_element_located((By.CSS_SELECTOR, 'a[class="tv-screener__symbol apply-common-tooltip"]'))
+            # ).click()
 
-        driver.get("https://www.tradingview.com/symbols/{ticker}/") 
+            driver.get("https://www.tradingview.com/symbols/{ticker}/") 
 
-        lst = driver.find_elements_by_class_name("tv-widget-description__value")
-        self.sector = lst[0].text
-        self.industry = lst[1].text
-    
+            lst = driver.find_elements_by_class_name("tv-widget-description__value")
+            self.sector = lst[0].text
+            self.industry = lst[1].text
+        except Exception:
+            raise LookupError("hehexd wrogn ticekr!")
+
     def get_industry(self):
         return self.industry
 
@@ -289,5 +292,5 @@ class Industry:
 # print(Industry("AAPL").get_k_closest_same_sector(5, "Overview", MKT_CAP))
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
-# print(Industry("AAPL"))
+# print(Industry("hehexd"))
 
