@@ -70,6 +70,8 @@ class Option(Instrument):
         self.expiry = expiry
         self.leveraged_quantity = quantity * 100
         self.strike_price = strike_price
+        self.lot_value = value * 100
+        self.lot_cost = cost * 100
 
 
 class Put(Option):
@@ -92,6 +94,8 @@ class Put(Option):
         elif position == SHORT:
             self.outlook ==  BULL
             self.risk = math.inf
+    
+        
 
     def extract_quantity(self, n):
         self.quantity -= n
@@ -112,6 +116,9 @@ class Call(Option):
         elif position == SHORT:
             self.outlook ==  BEAR
             self.risk = cost
+
+        self.lot_value = value * 100
+        self.lot_cost = cost * 100
     
     def extract_quantity(self, n):
         self.quantity -= n
@@ -125,6 +132,8 @@ class Spread(Instrument):
         self.type = type
         self.profit = profit
         self.leveraged_quantity = quantity * 100
+        self.lot_value = value * 100
+        self.lot_cost = cost * 100
 
 
 class Bear(Spread):
