@@ -27,7 +27,7 @@ class StockPosition:
 
     # ticker: string (e.g. "AMC")
     # long_positions: list of "LONG" Stock objects
-    # long_positions: list of "SHORT" Stock objects
+    # short_positions: list of "SHORT" Stock objects
     # margin: Boolean
     # margin_value: float (0 <= x)
     def __init__(self, ticker, long_positions, short_positions, margin, margin_value = 0.2):

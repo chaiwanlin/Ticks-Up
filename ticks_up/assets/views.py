@@ -92,11 +92,17 @@ def view_portfolio(request, portfolio_id):
     
     for t in tickers:
         try:
-            stock = stock_positions.get(ticker=t)
-            stock_pos = [make_stock(stock)]
+            stock_position = make_stock(stock_positions.get(ticker=t))
+            if portfolio.margin:
+                stock_pos = StockPos(t.name, [stock_position], [], True, portfolio.margin)
+            else:
+                stock_pos = StockPos(t.name, [stock_position], [], False)
         except StockPosition.DoesNotExist:
             stock = StockPosition.objects.none()
-            stock_pos = []
+            if portfolio.margin:
+                stock_pos = StockPos(t.name, [], [], True, portfolio.margin)
+            else:
+                stock_pos = StockPos(t.name, [], [], False)
 
         options = option_positions.filter(ticker=t)
         positions[t.name] = (stock, options)
@@ -198,32 +204,6 @@ def view_portfolio(request, portfolio_id):
         )
 
         print(stock_pos, spread_list, option_lists)
-
-    # # Portfolio sorting
-    # stock_list = []
-    # for stock_pos in stock_positions:
-    #     stock_list.append(make_stock(stock_pos))
-    #
-    # option_list = []
-    # for option_pos in option_positions:
-    #     option_list.append(make_option(option_pos))
-    #
-    # spread_list = []
-    # for vs in vertical_spreads:
-    #     spread_list.append(make_vertical_spread(vs))
-    #
-    # # for bs in butterfly_spreads:
-    # #     spread_list.append(Condor(bs.types,
-    # #                               make_vertical_spread(bs.bull_spread),
-    # #                               make_vertical_spread(bs.bear_spread)))
-    #
-    # for c in collars:
-    #     spread_list.append(Collar(make_stock(c.stock_position),
-    #                               make_option(c.long_put),
-    #                               make_option(c.short_call)))
-    #
-    # for pp in protective_puts:
-    #     spread_list.append(HedgedStock(make_stock(pp.stock_position), make_option(c.long_put)))
 
 
     return render(request, "assets/view_portfolio.html", {
