@@ -45,7 +45,7 @@ class Industry:
             #     EC.presence_of_element_located((By.CSS_SELECTOR, 'a[class="tv-screener__symbol apply-common-tooltip"]'))
             # ).click()
 
-            driver.get("https://www.tradingview.com/symbols/{ticker}/") 
+            driver.get(f"https://www.tradingview.com/symbols/{ticker}/") 
 
             lst = driver.find_elements_by_class_name("tv-widget-description__value")
             self.sector = lst[0].text
@@ -292,5 +292,5 @@ class Industry:
 # print(Industry("AAPL").get_k_closest_same_sector(5, "Overview", MKT_CAP))
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
-# print(Industry("hehexd"))
+print(Industry("pltr"))
 

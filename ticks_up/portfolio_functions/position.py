@@ -87,40 +87,40 @@ class OptionPosition:
         self.short_PL = 0
 
         for e in self.long_calls:
-            self.capital_invested += e.cost
-            self.value += e.value
+            self.capital_invested += e.lot_cost
+            self.value += e.lot_value
 
         for e in self.long_puts:
-            self.capital_invested += e.cost   
-            self.value += e.value
+            self.capital_invested += e.lot_cost   
+            self.value += e.lot_value
 
         for e in self.spreads:
             if e.type == CREDIT:
                 self.capital_collateral += e.risk 
-                self.cost_to_cover += e.value
-                self.short_PL += e.cost - e.value
+                self.cost_to_cover += e.lot_value
+                self.short_PL += e.lot_cost - e.value
 
             if e.type == DEBIT:
-                self.capital_invested += e.cost 
-                self.value += e.value
+                self.capital_invested += e.lot_cost
+                self.value += e.lot_value
         
         if margin:
             for e in self.short_calls:
                 otm = e.strike - price if e.strike - price else 0
                 self.capital_collateral += max(0.2 * price - otm, 0.1 * price) * 100
-                self.cost_to_cover += e.value
-                self.short_PL += e.cost - e.value
+                self.cost_to_cover += e.lot_value
+                self.short_PL += (e.cost - e.value) * 100
 
             for e in self.short_puts:
                 otm = e.strike - price if e.strike - price else 0
                 self.capital_collateral += max(0.2 * price - otm, 0.1 * price) * 100
-                self.cost_to_cover += e.value
-                self.short_PL += e.cost - e.value
+                self.cost_to_cover += e.lot_value
+                self.short_PL += (e.cost - e.value) * 100
         else:
             for e in self.short_puts:
                 self.capital_collateral += e.strike * 100
-                self.cost_to_cover += e.value
-                self.short_PL += e.cost - e.value
+                self.cost_to_cover += e.lot_value
+                self.short_PL += (e.cost - e.value) * 100
 
     def get_option_positions_spread(self):
 
