@@ -22,6 +22,7 @@ def get_driver():
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
     # driver = webdriver.Chrome(PATH)
     return driver
+    
 class Industry:
 
     def __init__(self, ticker):
@@ -35,7 +36,9 @@ class Industry:
         search = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="tv-screener-table__search-query js-search-query tv-screener-table__search-query--without-description"] input[class="tv-screener-table__search-input js-search-input"]'))
         )
-        search.send_keys(ticker + Keys.RETURN)
+        search.send_keys(ticker)
+
+        sleep(2)
 
         search = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, 'a[class="tv-screener__symbol apply-common-tooltip"]'))
@@ -284,4 +287,5 @@ class Industry:
 # print(Industry("AAPL").get_k_closest_same_sector(5, "Overview", MKT_CAP))
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
+# print(Industry("AAPL"))
 

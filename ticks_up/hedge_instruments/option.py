@@ -1,17 +1,19 @@
 import math
 from utils.search import bin_search_closest
-from .instrument import Instrument
-from .stock import Stock
-from .constants import YAHOO_OPTION
+from instrument import Instrument
+from stock import Stock
+from constants import YAHOO_OPTION
 from utils.blackScholes import BlackScholes
 from utils.graphs import draw_graph
 import urllib.request
 import urllib.response
+import urllib.error
 import json
 import datetime
 
 # nearest date problem
 
+# urllib.error.URLError if unconnectable/no such site
 class Option(Instrument):
 
     today = datetime.datetime.now(datetime.timezone.utc)
@@ -20,36 +22,35 @@ class Option(Instrument):
         year = today.year , month = today.month , day = today.day):
 
         epoch = int(datetime.datetime(year, month, day, tzinfo=datetime.timezone.utc).timestamp())
+    
+        try:
+            url = f"{YAHOO_OPTION}{ticker}?date={epoch}"
 
-        url = f"{YAHOO_OPTION}{ticker}?date={epoch}"
-
-        response = urllib.request.urlopen(url)
-        data = json.loads(response.read())
-        result = data["optionChain"]["result"]
-
-        if not result:
-            raise LookupError("invalid ticker :D")
-        else:
+            response = urllib.request.urlopen(url)
+            data = json.loads(response.read())
+            result = data["optionChain"]["result"]            
             data = result[0]
 
             self.expiration = data["expirationDates"]
 
-            # for expiration in data["expirationDates"]:
-            #     date = datetime.fromtimestamp(expiration)
+                # for expiration in data["expirationDates"]:
+                #     date = datetime.fromtimestamp(expiration)
 
-        if epoch not in self.expiration:
-            closest_date = bin_search_closest(epoch, self.expiration)
-            date_before = self.expiration[closest_date[0]]
-            date_after = self.expiration[closest_date[1]]
-            status = closest_date[2]
+            if epoch not in self.expiration:
+                closest_date = bin_search_closest(epoch, self.expiration)
+                date_before = self.expiration[closest_date[0]]
+                date_after = self.expiration[closest_date[1]]
+                status = closest_date[2]
 
-            url = f"{YAHOO_OPTION}{ticker}?date={date_after}"
-            response = urllib.request.urlopen(url)
-            data = json.loads(response.read())["optionChain"]["result"][0]
+                url = f"{YAHOO_OPTION}{ticker}?date={date_after}"
+                response = urllib.request.urlopen(url)
+                data = json.loads(response.read())["optionChain"]["result"][0]
 
-        self.data = data
-        self.options = data["options"][0]
-        self.strikes = data["strikes"]
+            self.data = data
+            self.options = data["options"][0]
+            self.strikes = data["strikes"]
+        except (IndexError, urllib.error.HTTPError):
+            raise LookupError("Invalid ticker")
 
         super().__init__(ticker, Stock(ticker))
 
@@ -73,13 +74,15 @@ class Call(Option):
             self.strikes.append(strike["strike"])
 
     def get_option_for_strike(self, strike_price):
-        try:
-            for strike in self.data:
-                if strike_price == strike["strike"]:
-                    data = strike 
+        found = False
+        for strike in self.data:
+            if strike_price == strike["strike"]:
+                found = True
+                data = strike
+        if found == True:
             return CallOption(self.ticker, self.underlying, data)
-        except UnboundLocalError:
-            print("no availible data")
+        else:
+            raise LookupError("no such strike")        
 
     def get_nearest_day(self, day):
         next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
@@ -235,38 +238,6 @@ class Call(Option):
                     ])
                 }
             }
-
-    def adjust_bull_spread(self, long_call, short_call, short_call_premium, breakeven_point, target_price, net_premium, risk, threshold = 1):
-        
-        max_gain_net_value = -math.inf
-        max_gain_strike = breakeven_point
-        max_gain_premium = breakeven_point
-
-        min_threshold = -threshold
-
-        min_cost_net_value = None
-        min_cost_strike = breakeven_point
-        min_cost_premium = breakeven_point
-
-        for strike in self.data:
-            strike_price = strike["strike"]
-            strike_premium = strike["lastPrice"]
-
-            if strike_price < short_call:
-                net_cost = short_call_premium - strike_premium
-                net_value = breakeven_point - long_call + net_cost
-                max_loss = net_premium + net_cost
-
-                if risk < max_loss:
-                    if net_value > max_gain_net_value:
-                        max_gain_net_value = net_value
-                        max_gain_strike = strike_price
-                        max_gain_premium = strike_premium 
-                    
-                    if min_threshold <= net_value <= threshold and strike_premium < min_cost_premium: 
-                        min_cost_net_value = net_value
-                        min_cost_strike = strike_price
-                        min_cost_premium = strike_premium 
  
     def get_strike_for_breakeven_credit(self, breakeven_point, short_call_strike, short_call_premium, risk = math.inf):
         net_breakeven_value = short_call_premium - (breakeven_point - short_call_strike)
@@ -372,10 +343,11 @@ class CallOption:
         self.bid = data["bid"]
         self.ask = data["ask"]
         self.implied_volatility = data["impliedVolatility"]
-        expiry = ((data["expiration"] - now)  + 75600)/ 31536000
-        self.expiry = expiry
+        self.expiry = data["expiration"]
 
-        self.BandS = BlackScholes(underlying.price, self.strike, self.implied_volatility, underlying.dividend, expiry)
+        expiry_BS = ((data["expiration"] - now) + 75600)/ 31536000
+
+        self.BandS = BlackScholes(underlying.price, self.strike, self.implied_volatility, underlying.dividend, expiry_BS, self.price)
 
     def delta(self):
         return self.BandS.delta()
@@ -416,6 +388,8 @@ class CallOption:
     def get_iv(self):
         return self.implied_volatility
 
+    def get_expiration(self):
+            return datetime.datetime.utcfromtimestamp(self.expiry).strftime('%Y-%m-%d')
 
 class Put(Option):
     today = datetime.datetime.now(datetime.timezone.utc)
@@ -431,13 +405,16 @@ class Put(Option):
             self.strikes.append(strike["strike"])
 
     def get_option_for_strike(self, strike_price):
-        try:
-            for strike in self.data:
-                if strike_price == strike["strike"]:
-                    data = strike 
+        found = False
+        for strike in self.data:
+            if strike_price == strike["strike"]:
+                found = True
+                data = strike
+        if found == True:
             return PutOption(self.ticker, self.underlying, data)
-        except UnboundLocalError:
-            print("no availible data")
+        else:
+            raise LookupError("no such strike")
+       
     
     def get_nearest_day(self, day):
         next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
@@ -838,18 +815,21 @@ class PutOption:
         self.underlying = underlying
         self.strike = data["strike"]
         self.price = data["lastPrice"]
+
         try:
             self.volume = data["volume"]
         except KeyError:
             self.volume = None
+
         self.interest = data["openInterest"]
         self.bid = data["bid"]
         self.ask = data["ask"]
         self.implied_volatility = data["impliedVolatility"]
-        expiry = ((data["expiration"] - now) + 75600)/ 31536000
-        self.expiry = expiry
+        
+        self.expiry = data["expiration"]    
+        expiry_BS = ((data["expiration"] - now) + 75600)/ 31536000
 
-        self.BandS = BlackScholes(underlying.price, self.strike, self.implied_volatility, underlying.dividend, expiry)
+        self.BandS = BlackScholes(underlying.price, self.strike, self.implied_volatility, underlying.dividend, expiry_BS, self.price)
 
     def delta(self):
         return self.BandS.delta()
@@ -890,6 +870,10 @@ class PutOption:
     def get_iv(self):
         return self.implied_volatility
 
+    def get_expiration(self):
+        return datetime.datetime.utcfromtimestamp(self.expiry).strftime('%Y-%m-%d')
+
 
 # print(Call("aapl", month = 8, day = 20).get_strike_for_breakeven_credit(120, 110, 24.2, 40))
 # print(Put("aapl", month = 8, day = 20).get_strike_for_breakeven_credit(140, 160, 27.25, 10))
+print(Call("aapl",2021,8,6).get_option_for_strike(180).BandS.iv("CALL"))
