@@ -292,5 +292,5 @@ class Industry:
 # print(Industry("AAPL").get_k_closest_same_sector(5, "Overview", MKT_CAP))
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
-print(Industry("pltr"))
+# print(Industry("pltr"))
 

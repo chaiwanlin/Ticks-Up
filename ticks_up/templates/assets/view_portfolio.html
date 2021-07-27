@@ -371,12 +371,37 @@
 
     <div class="mt-4"></div>
 
-    {% for key, val in portfolio_breakdown.items %}
-        <div class="">
-            <h4>{{ key|header }}</h4>
-            {{ val|safe }}
+    <div class="">
+        <h3>Portfolio Level</h3>
+        <hr class="mb-2">
+        <div class="row mb-5">
+            <div class="col">
+                {{ portfolio_breakdown.portfolio_level.ticker_breakdown_graph|safe }}
+            </div>
+            <div class="col">
+                {{ portfolio_breakdown.portfolio_level.sector_breakdown_graph|safe }}
+            </div>
         </div>
-    {% endfor %}
+        <h3>Sector Level</h3>
+        <hr class="mb-2">
+        {% for sector, sector_dict in portfolio_breakdown.portfolio_level.sector_level.items %}
+            <h4>{{ sector }} Sector</h4>
+            <div class="row">
+                <div class="col">
+                    {{ sector_dict.ticker_breakdown_graph|safe }}
+                </div>
+                <div class="col">
+                    {{ sector_dict.industry_breakdown_graph|safe }}
+                </div>
+            </div>
+            <h4>{{sector}}: Industry Level</h4>
+            {% for industry, industry_dict in sector_dict.industry_level.items %}
+                <h5>{{ industry }} Industry</h5>
+                {{ industry_dict.ticker_breakdown_graph|safe }}
+            {% endfor %}
+        <hr class="my-2">
+        {% endfor %}
+    </div>
 </div>
 
 {% endblock %}
