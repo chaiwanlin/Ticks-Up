@@ -4,9 +4,10 @@ from typing import Sequence
 from statistics import NormalDist
 from bs4 import BeautifulSoup
 import urllib.request as rq
+from scipy.optimize import fsolve
 
 class BlackScholes:
-    def __init__(self, underlying, strike, volatility, dividend, maturity):
+    def __init__(self, underlying, strike, volatility, dividend, maturity, price):
         try:
             request = rq.urlopen("https://www.treasury.gov/resource-center/data-chart-center/interest-rates/pages/textview.aspx?data=yield")
             soup = BeautifulSoup(request.read(), 'html.parser')
@@ -24,6 +25,7 @@ class BlackScholes:
         self.risk_free_rate = risk_free_rate
         self.dividend = dividend
         self.maturity = maturity
+        self.price = price
         self.eqt = (math.e ** (-self.dividend * self.maturity))
         self.ert = (math.e ** (-risk_free_rate  * self.maturity))
         self.normal = NormalDist(0,1)
@@ -71,6 +73,13 @@ class BlackScholes:
             return rho_call / 100
         else:
             return rho_put / 100
+
+    def iv(self, type):
+        if type == "CALL":
+            fn = lambda x : BlackScholes(self.underlying, self.strike, x, self.dividend, self.maturity, self.price).call_price() - self.price
+        else: 
+            fn = lambda x : BlackScholes(self.underlying, self.strike, x, self.dividend, self.maturity, self.price).put_price() - self.price
+        return fsolve(fn, 0, xtol = 1.e-6)
 
 # print(BlackScholes(36.07, 35, 0.4825, 0.01,0,0.0712).delta())
 # print(BlackScholes(36.07, 35, 0.4825, 0.01,0,0.0712).gamma())

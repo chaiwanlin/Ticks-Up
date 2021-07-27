@@ -83,6 +83,7 @@ class OptionPosition:
         self.capital_invested = 0
         self.value = 0
         self.capital_collateral = 0
+        self.value = 0
         self.cost_to_cover = 0
         self.short_PL = 0
 
