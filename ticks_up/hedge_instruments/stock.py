@@ -11,7 +11,7 @@ class Stock(Instrument):
         response = urllib.request.urlopen(url)
         data = json.loads(response.read())
         result = data["quoteSummary"]["result"][0]
-        self.price = result["price"]["regularMarketPrice"]
+        self.price = result["price"]["regularMarketPrice"]["fmt"]
 
         self.dividend = 0
         dividend = result["summaryDetail"]["dividendRate"]
@@ -28,7 +28,7 @@ class Stock(Instrument):
         super().__init__(ticker, self)
 
     def get_price(self):
-        return float(self.price["fmt"])
+        return float(self.price)
 
     def get_exchange(self):
         return self.exchange
