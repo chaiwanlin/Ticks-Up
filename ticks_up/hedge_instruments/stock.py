@@ -11,7 +11,7 @@ class Stock(Instrument):
         response = urllib.request.urlopen(url)
         data = json.loads(response.read())
         result = data["quoteSummary"]["result"][0]
-        self.price = result["price"]["regularMarketPrice"]["fmt"]
+        self.price = float(result["price"]["regularMarketPrice"]["fmt"])
 
         self.dividend = 0
         dividend = result["summaryDetail"]["dividendRate"]

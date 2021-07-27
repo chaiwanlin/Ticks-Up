@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load crispy_forms_tags %}
+{% load assets_extras %}
 
 {% block content %}
 
@@ -369,6 +370,13 @@
     </div>
 
     <div class="mt-4"></div>
+
+    {% for key, val in portfolio_breakdown.items %}
+        <div class="">
+            <h4>{{ key|header }}</h4>
+            {{ val|safe }}
+        </div>
+    {% endfor %}
 </div>
 
 {% endblock %}
