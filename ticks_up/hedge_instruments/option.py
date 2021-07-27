@@ -1,8 +1,9 @@
 import math
 from utils.search import bin_search_closest
-from .instrument import Instrument
-from .stock import Stock
-from .constants import YAHOO_OPTION
+from constants import *
+from instrument import Instrument
+from stock import Stock
+from constants import YAHOO_OPTION
 from utils.blackScholes import BlackScholes
 from utils.graphs import draw_graph
 import urllib.request
@@ -10,6 +11,7 @@ import urllib.response
 import urllib.error
 import json
 import datetime
+
 
 # nearest date problem
 
@@ -59,6 +61,12 @@ class Option(Instrument):
     
     def get_data(self):
         return self.data
+    
+    def get_expirations(self):
+        lst = []
+        for e in self.expiration:
+            lst.append(datetime.datetime.utcfromtimestamp(e).strftime('%Y-%m-%d'))
+        return lst
 
 class Call(Option):
     today = datetime.datetime.now(datetime.timezone.utc)
@@ -347,13 +355,13 @@ class CallOption:
 
         expiry_BS = ((data["expiration"] - now) + 75600)/ 31536000
 
-        self.BandS = BlackScholes(underlying.price, self.strike, self.implied_volatility, underlying.dividend, expiry_BS, self.price)
+        self.BandS = BlackScholes(CALL, underlying.price, self.strike, self.implied_volatility, underlying.dividend, expiry_BS, self.price)
 
     def delta(self):
         return self.BandS.delta()
 
     def theta(self):
-        return self.BandS.theta("CALL")
+        return self.BandS.theta()
 
     def gamma(self):
         return self.BandS.gamma()
@@ -362,7 +370,7 @@ class CallOption:
         return self.BandS.vega()
     
     def rho(self):
-        return self.BandS.rho("CALL")
+        return self.BandS.rho()
 
     def get_ticker(self):
         return self.ticker
@@ -389,7 +397,7 @@ class CallOption:
         return self.implied_volatility
 
     def get_expiration(self):
-            return datetime.datetime.utcfromtimestamp(self.expiry).strftime('%Y-%m-%d')
+        return datetime.datetime.utcfromtimestamp(self.expiry).strftime('%Y-%m-%d')
 
 class Put(Option):
     today = datetime.datetime.now(datetime.timezone.utc)
@@ -419,7 +427,7 @@ class Put(Option):
     def get_nearest_day(self, day):
         next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
         return Put(self.ticker, next_date.year, next_date.month, next_date.day)
-    
+
     def aggregated_iv(self):
         result = bin_search_closest(self.underlying.get_price(), self.strikes)
         itm = self.strikes[result[1]]
@@ -825,17 +833,16 @@ class PutOption:
         self.bid = data["bid"]
         self.ask = data["ask"]
         self.implied_volatility = data["impliedVolatility"]
-        
         self.expiry = data["expiration"]    
         expiry_BS = ((data["expiration"] - now) + 75600)/ 31536000
 
-        self.BandS = BlackScholes(underlying.price, self.strike, self.implied_volatility, underlying.dividend, expiry_BS, self.price)
+        self.BandS = BlackScholes(PUT, underlying.price, self.strike, self.implied_volatility, underlying.dividend, expiry_BS, self.price)
 
     def delta(self):
         return self.BandS.delta()
 
     def theta(self):
-        return self.BandS.theta("PUT")
+        return self.BandS.theta()
 
     def gamma(self):
         return self.BandS.gamma()
@@ -844,7 +851,7 @@ class PutOption:
         return self.BandS.vega()
     
     def rho(self):
-        return self.BandS.rho("PUT")
+        return self.BandS.rho()
 
     def get_ticker(self):
         return self.ticker
@@ -876,4 +883,4 @@ class PutOption:
 
 # print(Call("aapl", month = 8, day = 20).get_strike_for_breakeven_credit(120, 110, 24.2, 40))
 # print(Put("aapl", month = 8, day = 20).get_strike_for_breakeven_credit(140, 160, 27.25, 10))
-# print(Call("aapl",2021,8,6).get_option_for_strike(180).BandS.iv("CALL"))
+# print(Call("YQ",2021,8,6).get_option_for_strike(2.5).BandS.iv())
