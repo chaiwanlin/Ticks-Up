@@ -1,13 +1,13 @@
 from os import PathLike
-from portfolio_constants import PATH
+from .portfolio_constants import PATH
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from industry_constants import *
-from data import Data
+from .industry_constants import *
+from .data import Data
 import os
 
 
@@ -45,7 +45,7 @@ class Industry:
             #     EC.presence_of_element_located((By.CSS_SELECTOR, 'a[class="tv-screener__symbol apply-common-tooltip"]'))
             # ).click()
 
-            driver.get("https://www.tradingview.com/symbols/{ticker}/") 
+            driver.get(f"https://www.tradingview.com/symbols/{ticker}/")
 
             lst = driver.find_elements_by_class_name("tv-widget-description__value")
             self.sector = lst[0].text

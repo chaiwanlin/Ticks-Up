@@ -28,6 +28,7 @@ def user_check(user, portfolio_id):
 
 
 def ticker_check(symbol):
+    print(symbol)
     try:
         ticker = Ticker.objects.get(name=symbol)
     except Ticker.DoesNotExist:
