@@ -1,5 +1,5 @@
-from constants import YAHOO_STOCK
-from instrument import Instrument
+from .constants import YAHOO_STOCK
+from .instrument import Instrument
 import urllib.request
 import urllib.response
 import urllib.error
