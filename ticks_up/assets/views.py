@@ -458,7 +458,7 @@ def edit_option_position(request, portfolio_id, ticker_name, add_or_remove):
                 ticker=ticker,
                 call_or_put=request.POST.get('call_or_put'),
                 long_or_short=request.POST.get('long_or_short'),
-                expiration_date=datetime.strptime(request.POST.get('expiration_date'), '%b. %d, %Y').strftime('%Y-%m-%d'),
+                expiration_date=datetime.datetime.strptime(request.POST.get('expiration_date'), '%b. %d, %Y').strftime('%Y-%m-%d'),
                 strike_price=request.POST.get('strike_price'),
             )
             if add_or_remove == "ADD":
