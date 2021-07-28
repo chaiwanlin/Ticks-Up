@@ -23,7 +23,9 @@ class Option(Instrument):
     def __init__(self, ticker, 
         year = today.year , month = today.month , day = today.day):
 
-        epoch = int(datetime.datetime(year, month, day, tzinfo=datetime.timezone.utc).timestamp())
+        self.expiry = datetime.datetime(year, month, day, tzinfo=datetime.timezone.utc).timestamp()
+
+        epoch = int(self.expiry)
     
         try:
             url = f"{YAHOO_OPTION}{ticker}?date={epoch}"
@@ -43,6 +45,7 @@ class Option(Instrument):
                 date_before = self.expiration[closest_date[0]]
                 date_after = self.expiration[closest_date[1]]
                 status = closest_date[2]
+                self.expiry = date_after
 
                 url = f"{YAHOO_OPTION}{ticker}?date={date_after}"
                 response = urllib.request.urlopen(url)

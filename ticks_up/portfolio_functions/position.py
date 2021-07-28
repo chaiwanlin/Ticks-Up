@@ -99,7 +99,7 @@ class OptionPosition:
             if e.type == CREDIT:
                 self.capital_collateral += e.risk 
                 self.cost_to_cover += e.lot_value
-                self.short_PL += e.lot_cost - e.value
+                self.short_PL += e.lot_cost - e.lot_value
 
             if e.type == DEBIT:
                 self.capital_invested += e.lot_cost
