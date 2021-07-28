@@ -23,6 +23,7 @@ class Option(Instrument):
         year = today.year , month = today.month , day = today.day):
 
         self.expiry = datetime.datetime(year, month, day, tzinfo=datetime.timezone.utc).timestamp()
+        self.expiration_date = datetime.datetime.fromtimestamp(self.expiry).strftime("%Y-%m-%d")
 
         epoch = int(self.expiry)
     
@@ -72,6 +73,7 @@ class Option(Instrument):
     
     def get_expiry(self):
         return datetime.datetime.utcfromtimestamp(self.expiry).strftime('%Y-%m-%d')
+
 
 
 class Call(Option):
@@ -208,10 +210,12 @@ class Call(Option):
             return {
                 "data": {
                     "short_call" : {
+                        "expiration_date": self.expiration_date,
                         "strike_strike" : short_call_strike,
                         "strike_premium" : short_call_premium
                     },
                     "max_gain" : {
+                        "expiration_date": self.expiration_date,
                         "strike_price" : max_gain_strike,
                         "strike_premium" : max_gain_premium,
                         "net_value_at_breakeven" : max_gain_net_value,
@@ -220,6 +224,7 @@ class Call(Option):
                         "max_loss" : max_gain_loss
                     },
                     "min_cost": {
+                        "expiration_date": self.expiration_date,
                         "strike_price" : min_cost_strike,
                         "strike_premium" : min_cost_premium,
                         "net_value_at_breakeven" : min_cost_net_value,
@@ -296,10 +301,12 @@ class Call(Option):
         return {
             "data": {
                 "short_call": {
+                    "expiration_date": self.expiration_date,
                     "strike_strike": short_call_strike,
                     "strike_premium": short_call_premium
                 },
                 "max_gain": {
+                    "expiration_date": self.expiration_date,
                     "strike_price": max_gain_strike,
                     "strike_premium": max_gain_premium,
                     "net_value_at_breakeven": max_gain_net_value,
@@ -308,6 +315,7 @@ class Call(Option):
                     "max_loss": max_gain_loss
                 },
                 "min_loss": {
+                    "expiration_date": self.expiration_date,
                     "strike_price": min_risk_strike,
                     "strike_premium": min_risk_premium,
                     "net_value_at_breakeven": min_risk_net_value,
@@ -405,6 +413,7 @@ class CallOption:
     def get_expiration(self):
         return datetime.datetime.utcfromtimestamp(self.expiry).strftime('%Y-%m-%d')
 
+
 class Put(Option):
     today = datetime.datetime.now(datetime.timezone.utc)
     
@@ -428,7 +437,6 @@ class Put(Option):
             return PutOption(self.ticker, self.underlying, data)
         else:
             raise LookupError("no such strike")
-       
     
     def get_nearest_day(self, day):
         next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
@@ -518,19 +526,20 @@ class Put(Option):
                     min_loss_risk = max_loss
                     min_loss_strike_price = strike_price
                     min_loss_strike_premium = strike_premium
-                    
-            
+
         return {
             "data": {
                 "stock": {
                     "entry_price": entry_point
                 },
                 "min_cost": {
+                    "expiration_date": self.expiration_date,
                     "strike_price": min_cost_strike_price,
                     "strike_premium": min_cost_strike_premium,
                     "risk": min_cost_risk
                 },
                 "min_loss": {
+                    "expiration_date": self.expiration_date,
                     "strike_price": min_loss_strike_price,
                     "strike_premium": min_loss_strike_premium,
                     "risk": min_loss_risk
@@ -597,10 +606,12 @@ class Put(Option):
             return {
                 "data": {
                     "short_put" : {
+                        "expiration_date": self.expiration_date,
                         "strike_strike" : short_put_strike,
                         "strike_premium" : short_put_premium
                     },
                     "max_gain" : {
+                        "expiration_date": self.expiration_date,
                         "strike_price" : max_gain_strike,
                         "strike_premium" : max_gain_premium,
                         "net_value_at_breakeven" : max_gain_net_value,
@@ -609,6 +620,7 @@ class Put(Option):
                         "max_loss" : max_gain_loss,
                     },
                     "min_cost": {
+                        "expiration_date": self.expiration_date,
                         "strike_price" : min_cost_strike,
                         "strike_premium" : min_cost_premium,
                         "net_value_at_breakeven" : min_cost_net_value,
@@ -685,10 +697,12 @@ class Put(Option):
         return {
             "data": {
                 "short_put" : {
+                    "expiration_date": self.expiration_date,
                     "strike_strike" : short_put_strike,
                     "strike_premium" : short_put_premium
                 },
                 "max_gain" : {
+                    "expiration_date": self.expiration_date,
                     "strike_price" : max_gain_strike,
                     "strike_premium" : max_gain_premium,
                     "net_value_at_breakeven" : max_gain_net_value,
@@ -697,6 +711,7 @@ class Put(Option):
                     "max_loss" : max_gain_loss
                 },
                 "min_loss": {
+                    "expiration_date": self.expiration_date,
                     "strike_price" : min_risk_strike,
                     "strike_premium" : min_risk_premium,
                     "net_value_at_breakeven" : min_risk_net_value,
@@ -775,10 +790,12 @@ class Put(Option):
         return {
             "data": {
                 "short_call": {
-                    "strike_strike": short_call_strike,
+                    "expiration_date": self.expiration_date,
+                    "strike_price": short_call_strike,
                     "strike_premium": short_call_premium
                 },
                 "max_gain": {
+                    "expiration_date": self.expiration_date,
                     "strike_price": max_gain_strike,
                     "strike_premium": max_gain_premium,
                     "net_value_at_breakeven": max_gain_net_value,
@@ -788,6 +805,7 @@ class Put(Option):
                     "max_loss": max_gain_loss
                 },
                 "min_loss": {
+                    "expiration_date": self.expiration_date,
                     "strike_price": min_risk_strike,
                     "strike_premium": min_risk_premium,
                     "net_value_at_breakeven": min_risk_net_value,
@@ -821,6 +839,7 @@ class Put(Option):
                 ])
             }
         }
+
 
 class PutOption:
     def __init__(self, ticker, underlying, data):

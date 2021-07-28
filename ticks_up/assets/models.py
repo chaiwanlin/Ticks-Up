@@ -10,7 +10,8 @@ from portfolio_functions.industry import Industry as Classification
 class Portfolio(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
-    margin = models.DecimalField(max_digits=4, decimal_places=2, help_text='Leave blank if unknown', blank=True, null=True)
+    cash = models.DecimalField(max_digits=19, decimal_places=2)
+    margin = models.DecimalField(max_digits=4, decimal_places=2, help_text='Leave blank if not margin account', blank=True, null=True)
     # date_created = models.DateTimeField()     # required? useful to sort
 
     def __str__(self):
@@ -41,7 +42,7 @@ class Industry(models.Model):
 # To store tickers
 class Ticker(models.Model):
     name = models.CharField(max_length=7)
-    portfolio = models.ManyToManyField(Portfolio)
+    portfolio = models.ManyToManyField(Portfolio, blank=True, null=True)
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE)
     industry = models.ForeignKey(Industry, on_delete=models.CASCADE)
 
@@ -91,13 +92,13 @@ class StockPosition(models.Model):
             stock = StockPosition.objects.get(portfolio=self.portfolio, ticker=self.ticker)
 
             # Calculate aggregate
-            stock.total_cost += self.total_cost
-            stock.total_shares += self.total_shares
+            self.total_cost += stock.total_cost
+            self.total_shares += stock.total_shares
 
-            if stock.total_shares < 0:
+            if self.total_shares < 0:
                 # Trying to delete more shares than own, illegal
                 raise ValueError('You cannot sell more shares than you own!')
-            elif stock.total_shares == 0:
+            elif self.total_shares == 0:
                 # Check if there are options for this ticker
                 if self.portfolio.optionposition_set.filter(ticker=self.ticker):
                     # There are options, delete stock position only
@@ -107,7 +108,8 @@ class StockPosition(models.Model):
                     self.portfolio.ticker_set.remove(self.ticker)
             else:
                 # Valid edit, update stock position
-                super(StockPosition, stock).save()
+                stock.delete()
+                super().save(*args, **kwargs)
         except StockPosition.DoesNotExist:
             # Stock position does not exist yet, create
             super().save(*args, **kwargs)
@@ -161,13 +163,13 @@ class OptionPosition(models.Model):
             )
 
             # Calculate aggregate
-            option.total_cost += self.total_cost
-            option.total_contracts += self.total_contracts
+            self.total_cost += option.total_cost
+            self.total_contracts += option.total_contracts
 
-            if option.total_contracts < 0:
+            if self.total_contracts < 0:
                 # Trying to remove more contracts than own, illegal
                 raise ValueError('You cannot sell more contracts than you own!')
-            elif option.total_contracts == 0:
+            elif self.total_contracts == 0:
                 if self.portfolio.stockposition_set.filter(ticker=self.ticker):
                     # There are stock positions, delete option position only
                     option.delete()
@@ -176,7 +178,8 @@ class OptionPosition(models.Model):
                     self.portfolio.ticker_set.remove(self.ticker)
             else:
                 # Valid edit, update option position
-                super(OptionPosition, option).save()
+                option.delete()
+                super().save(*args, **kwargs)
         except OptionPosition.DoesNotExist:
             # Stock position does not exist yet, create
             super().save(*args, **kwargs)

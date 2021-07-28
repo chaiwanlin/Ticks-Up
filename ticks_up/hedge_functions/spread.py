@@ -8,6 +8,7 @@ from portfolio_functions.portfolio_constants import BEAR, BULL, STRADDLE, NEUTRA
 
 # incoperate open interest? alot of outlier data 
 
+
 def bull_credit_spread(ticker, days, lower_bound, target_price, risk):
     puts = Put(ticker).get_nearest_day(days)
     strikes = puts.get_strikes()
@@ -17,6 +18,7 @@ def bull_credit_spread(ticker, days, lower_bound, target_price, risk):
     result = puts.get_strike_for_breakeven_credit(lower_bound, closest_target_price, short_put_premium, risk)
 
     return result
+
 
 def bull_debit_spread(ticker, days, lower_bound, target_price, risk):
     calls = Call(ticker).get_nearest_day(days)
@@ -28,6 +30,7 @@ def bull_debit_spread(ticker, days, lower_bound, target_price, risk):
 
     return result
 
+
 def bear_credit_spread(ticker, days, upper_bound, target_price, risk):
     calls = Call(ticker).get_nearest_day(days)
     strikes = calls.get_strikes()
@@ -37,6 +40,7 @@ def bear_credit_spread(ticker, days, upper_bound, target_price, risk):
     result = calls.get_strike_for_breakeven_credit(upper_bound, closest_target_price, short_call_premium, risk)
 
     return result
+
 
 def bear_debit_spread(ticker, days, upper_bound, target_price, risk):
     puts = Put(ticker).get_nearest_day(days)
@@ -48,10 +52,12 @@ def bear_debit_spread(ticker, days, upper_bound, target_price, risk):
 
     return result
 
+
 def hedge_stock(ticker, entry_price, risk, breakeven_point, days, capped = True, target_price = None):
     result = Put(ticker).get_nearest_day(days).get_hedge_strike(risk, entry_price)
 
     return result
+
 
 def collar(ticker, days, entry_price, lower_bound, target_price, risk):
     calls = Call(ticker).get_nearest_day(days)
@@ -84,8 +90,8 @@ def iron_condor(ticker, days, lower_bound, upper_bound, risk):
     # print("CALL RANGE: [{}] {} - [{}] {}".format(short_call_range_start, call_strikes[short_call_range_start], short_call_range_end, call_strikes[short_call_range_end]))
     # print("PUT RANGE: [{}] {} - [{}] {}".format(short_put_range_start, put_strikes[short_put_range_start], short_put_range_end, put_strikes[short_put_range_end]))
 
-    max_gain = {"max_profit": -math.inf, "max_loss": -math.inf}
-    min_loss = {"max_profit": -math.inf, "max_loss": -math.inf}
+    max_gain = {"expiration_date": calls.expiration_date, "max_profit": -math.inf, "max_loss": -math.inf}
+    min_loss = {"expiration_date": calls.expiration_date, "max_profit": -math.inf, "max_loss": -math.inf}
 
     short_call_index = short_call_range_start
     short_put_index = short_put_range_end
@@ -94,7 +100,7 @@ def iron_condor(ticker, days, lower_bound, upper_bound, risk):
         short_call = call_strikes[short_call_index]
         short_put = put_strikes[short_put_index]
 
-        if (short_call - call_strikes[short_call_range_start] != put_strikes[short_put_range_end] - short_put):
+        if short_call - call_strikes[short_call_range_start] != put_strikes[short_put_range_end] - short_put:
             # print("CALL: {}/{}    |    PUT: {}/{}".format(
             #     short_call,
             #     call_strikes[short_call_range_start],
@@ -102,7 +108,7 @@ def iron_condor(ticker, days, lower_bound, upper_bound, risk):
             #     put_strikes[short_put_range_end]
             # ))
             # Strike diff are different between calls and puts
-            if (short_call - call_strikes[short_call_range_start] < put_strikes[short_put_range_end] - short_put):
+            if short_call - call_strikes[short_call_range_start] < put_strikes[short_put_range_end] - short_put:
                 short_call_index += 1
             else:
                 short_put_index -= 1
@@ -212,6 +218,7 @@ def iron_condor(ticker, days, lower_bound, upper_bound, risk):
                 ])
         }
     }
+
 
 # target price to be treated more like rebound price/highest price it will ever go in their mind
 def adjust_bull_spread(ticker, day, month, year, net_premium, short_leg_strike, long_leg_strike, moneyness, outlook, target_price, risk):
@@ -445,6 +452,7 @@ def adjust_bull_spread(ticker, day, month, year, net_premium, short_leg_strike, 
                     "Wait" : "Wait"
                 }
 
+
 def adjust_bear_spread(ticker, day, month, year, net_premium, short_leg_strike, long_leg_strike, moneyness, outlook, target_price, risk):
     puts = Put(ticker, day, month, year)
     put_strikes = puts.get_strikes
@@ -677,6 +685,7 @@ def adjust_bear_spread(ticker, day, month, year, net_premium, short_leg_strike, 
                     "Wait" : "Wait"
                 }
 
+
 def adjust_collar(ticker, day, month, year, stock_entry, net_premium, put_strike, short_call_strike, outlook, target_price, risk):
     puts = Put(ticker, day, month, year)
     put_strikes = puts.get_strikes
@@ -734,7 +743,8 @@ def adjust_collar(ticker, day, month, year, stock_entry, net_premium, put_strike
                 "max_loss" : roll_up_max_loss
             }
         }
-        
+
+
 def adjust_condor(ticker, day, month, year, credit, short_call_strike, long_call_strike, short_put_strike, long_put_strike, moneyness, outlook, target_price, risk):
     puts = Put(ticker, day, month, year)
     put_strikes = puts.get_strikes
@@ -836,6 +846,7 @@ def adjust_condor(ticker, day, month, year, credit, short_call_strike, long_call
         }  
 
 # print(bull_debit_spread("aapl", 30, 140, 150, 30))
+
 # print(bear_credit_spread("aapl", 30, 130, 120, 80))
-# print(collar("aapl", 30, 120, 130, 150, 20))
+# print(iron_condor("aapl", 30, 135, 155, 20))
 

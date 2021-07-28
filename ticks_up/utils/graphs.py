@@ -175,6 +175,18 @@ def get_y(x, coordinate_list):
     return 0
 
 
+def make_pie(dict, title=""):
+    labels = []
+    values = []
+    for ticker, perc in dict.items():
+        labels.append(ticker)
+        values.append(perc)
+
+    fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+    fig.update_traces(hoverinfo='label+percent')
+    fig.update_layout(title=title)
+    return fig.to_html(full_html=False, default_height=300, default_width=600)
+
 
 def peak_graph(name, lower_bound, upper_bound, short_call, short_put, long_call, long_put):
     x = [long_put, short_put, short_call, long_call]
