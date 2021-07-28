@@ -144,10 +144,10 @@ def view_portfolio(request, portfolio_id):
         'portfolio_level': {
             'ticker_breakdown': user_portfolio.breakdown_by_ticker(),
             'ticker_breakdown_graph': make_pie(user_portfolio.breakdown_by_ticker(), "Ticker Breakdown"),
-            'ticker_average': user_portfolio.average_ticker_weight(),
+            # 'ticker_average': user_portfolio.average_ticker_weight(),
             'sector_breakdown': user_portfolio.breakdown_by_sectors(),
             'sector_breakdown_graph': make_pie(user_portfolio.breakdown_by_sectors(), "Sector Breakdown"),
-            'sector_average': (user_portfolio.average_sector_weight()),
+            # 'sector_average': (user_portfolio.average_sector_weight()),
             'sector_level': {},
         }
     }
@@ -156,10 +156,10 @@ def view_portfolio(request, portfolio_id):
         sector_level[sector.id] = {
             'ticker_breakdown': sector.breakdown_by_ticker(),
             'ticker_breakdown_graph': make_pie(sector.breakdown_by_ticker(), "Ticker Breakdown"),
-            'ticker_average': sector.average_ticker_weight(),
+            # 'ticker_average': sector.average_ticker_weight(),
             'industry_breakdown': sector.breakdown_by_industry(),
             'industry_breakdown_graph': make_pie(sector.breakdown_by_industry(), "Industry Breakdown"),
-            'industry_average': sector.average_industry_weight(),
+            # 'industry_average': sector.average_industry_weight(),
             'industry_level': {}
         }
 
@@ -358,7 +358,6 @@ def edit_cash(request, portfolio_id, add_or_remove):
             portfolio.save()
 
     return redirect(reverse('view_portfolio', args=[portfolio_id]))
-
 
 
 @login_required
