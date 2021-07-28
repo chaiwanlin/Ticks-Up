@@ -422,7 +422,6 @@ class Put(Option):
             return PutOption(self.ticker, self.underlying, data)
         else:
             raise LookupError("no such strike")
-       
     
     def get_nearest_day(self, day):
         next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)

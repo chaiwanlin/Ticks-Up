@@ -7,7 +7,7 @@ from django.http import Http404, HttpResponse
 from django.forms import formset_factory
 from .forms import *
 from .models import *
-from hedge_instruments.stock import Stock
+from hedge_instruments.stock import Stock as StockHedge
 from hedge_functions.spread import hedge_stock, collar
 from utils.graphs import draw_graph, make_pie
 from portfolio_functions.industry import Industry as Classification
@@ -176,6 +176,7 @@ def view_portfolio(request, portfolio_id):
         'portfolio': portfolio,
         'positions': positions,
         'portfolio_breakdown': portfolio_breakdown,
+        'cashform': CashForm,
         'tform': TickerForm,
         'sform': AddStockPositionForm,
         'oform': AddOptionPositionForm,
@@ -340,6 +341,23 @@ def make_vertical_spread(vs):
             make_option(vs.long_leg)
         )
     return vspread
+
+
+@login_required
+def edit_cash(request, portfolio_id, add_or_remove):
+    portfolio = Portfolio.objects.get(id=portfolio_id)
+    if not user_check(request.user, portfolio_id):
+        return redirect(reverse('assets'))
+    if request.method == 'POST':
+        cashform = CashForm(request.POST)
+        if cashform.is_valid():
+            if add_or_remove == 'ADD':
+                portfolio.cash += cashform.cleaned_data['amount']
+            else:
+                portfolio.cash -= cashform.cleaned_data['amount']
+            portfolio.save()
+
+    return redirect(reverse('view_portfolio', args=[portfolio_id]))
 
 
 
@@ -765,7 +783,7 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         return redirect(reverse('view_portfolio', args=[portfolio_id]))
 
     try:
-        stock = Stock(ticker)
+        stock = StockHedge(ticker)
     except LookupError:
         raise Http404("Ticker does not exist")
 
@@ -811,3 +829,46 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         'target_price': target_price,
         'graph': graph,
     })
+
+def add_hedge_stock_position(request, portfolio_id, ticker_name):
+    portfolio = Portfolio.objects.get(id=portfolio_id)
+    ticker = portfolio.ticker_set.get(name=ticker_name)
+    if not user_check(request.user, portfolio_id):
+        return redirect(reverse('view_portfolio', args=[portfolio_id]))
+
+    if request.method == 'POST':
+        quantity = request.POST.get('quantity')
+        strategy = request.POST.get('strategy_name')
+        strategy_type = request.POST.get('data_name')
+
+        if strategy == 'protective_put':
+            try:
+                stock = portfolio.stockposition_set.get(ticker=ticker)
+                total_shares = getattr(stock, 'total_shares')
+                if total_shares <= (quantity * 100):
+                    return Http404()
+            except StockPosition.DoesNotExist:
+                return Http404()
+
+            long_put = OptionPosition(
+                portfolio=portfolio,
+                ticker=ticker,
+                call_or_put='PUT',
+                long_or_short='LONG',
+                expiration_date=expiration_date,
+                strike_price=request.POST.get('strike_price'),
+                total_cost=request.POST.get('strike_premium') * quantity,
+                total_contracts=quantity
+            )
+            long_put.save()
+
+            protective_put = ProtectivePut(
+                portfolio=portfolio,
+                ticker=ticker,
+                stock_position=stock,
+                long_put=long_put,
+            )
+            protective_put.save()
+
+
+    return redirect(reverse('view_portfolio', args=[portfolio_id]))

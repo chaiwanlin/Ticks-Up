@@ -122,6 +122,35 @@
             <div class="col">
                 <table class="table table-striped">
                     <h3>{{ data_name|header }}</h3>
+                    {% if 'min' in data_name or 'max' in data_name %}
+                    <div class="btn-group mb-3" role="group" aria-label="Basic outlined example">
+                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#addHedgePosition">
+                            <i class="bi bi-plus-circle-fill"></i>
+                            Add to portfolio
+                        </button>
+                        <div class="modal fade" id="addHedgePosition" tabindex="-1" aria-labelledby="addHedgePositionLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="addHedgePositionLabel">Add Hedge Position</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                  <form method="post" action="{% url 'add_hedge_stock_position' portfolio.id ticker %}">
+                                      {% csrf_token %}
+                                    <input type="number" name="quantity">
+                                    <input type="hidden" name="strategy_name" value="{{ strategy_name }}">
+                                    <input type="hidden" name="strategy_name" value="{{ strategy_name }}">
+                                    {% for val_name, val in data.items %}
+                                    <input type="hidden" name="{{ val_name }}" value="{{ val }}">
+                                    {% endfor %}
+                                    <button type="submit" class="btn btn-outline-primary">Add</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    {% endif %}
                     <tbody>
                     {% for name, val in data.items %}
                         <tr>
