@@ -12,11 +12,11 @@ class Asset:
         self.cost = cost
         self.value = value
 
-    def get_quantity(self):
-        return self.quantity    
-
     def reduce_quantity(self, n):
-        self.quanity -= n
+        if self.quantity >= n:
+            self.quanity -= n
+        else:
+            raise ValueError(f"asset has {self.quantity} left")
 
 
 class Cash(Asset):

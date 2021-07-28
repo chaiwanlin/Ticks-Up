@@ -20,7 +20,7 @@ class User_Portfolio:
             self.cost_to_cover += e.cost_to_cover
             self.short_PL += e.short_PL
         
-        self.total_value = self.value + self.capital_collateral
+        self.total_value = self.value + self.capital_collateral + self.short_PL
 
     # def add_position(self, instrument, sector, industry, ticker):
     #     found = False
@@ -76,7 +76,7 @@ class Sector_Portfolio:
             self.cost_to_cover += e.cost_to_cover
             self.short_PL += e.short_PL
         
-        self.total_value = self.value + self.capital_collateral
+        self.total_value = self.value + self.capital_collateral + self.short_PL
 
     def breakdown_by_ticker(self):
         dic = {}
@@ -117,7 +117,7 @@ class Industry_Portfolio:
             self.cost_to_cover += e.cost_to_cover
             self.short_PL += e.short_PL
         
-        self.total_value = self.value + self.capital_collateral
+        self.total_value = self.value + self.capital_collateral + self.short_PL
 
     def breakdown_by_ticker(self):
         dic = {}
