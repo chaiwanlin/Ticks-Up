@@ -1,17 +1,17 @@
 import math
 import datetime
+import decimal
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.http import Http404, HttpResponse
-from django.forms import formset_factory
 from .forms import *
 from .models import *
 from hedge_instruments.stock import Stock as StockHedge
 from hedge_functions.spread import hedge_stock, collar
 from utils.graphs import draw_graph, make_pie
 from portfolio_functions.industry import Industry as Classification
-from portfolio_functions.portfolio_instrument import *
+import portfolio_functions.portfolio_instrument as pi
 from portfolio_functions.position import OverallPosition as OverallPos
 from portfolio_functions.position import StockPosition as StockPos
 from portfolio_functions.position import OptionPosition as OptionPos
@@ -207,18 +207,18 @@ def build_overall_pos(portfolio, t):
     spread_list = []
 
     for bs in portfolio.butterflyspread_set.filter(ticker=t):
-        spread = Condor(bs.types,
+        spread = pi.Condor(bs.types,
                         make_vertical_spread(bs.bull_spread),
                         make_vertical_spread(bs.bear_spread))
         spread_list.append(spread)
 
     for c in portfolio.collar_set.filter(ticker=t):
-        spread_list.append(Collar(make_stock(c.stock_position),
+        spread_list.append(pi.Collar(make_stock(c.stock_position),
                                   make_option(c.long_put),
                                   make_option(c.short_call)))
 
     for pp in portfolio.protectiveput_set.filter(ticker=t):
-        spread_list.append(HedgedStock(make_stock(pp.stock_position), make_option(pp.long_put)))
+        spread_list.append(pi.HedgedStock(make_stock(pp.stock_position), make_option(pp.long_put)))
 
     # Check if vertical spread has been used before
     for vs in portfolio.verticalspread_set.filter(ticker=t):
@@ -253,7 +253,7 @@ def build_overall_pos(portfolio, t):
                 break
 
         for pp in portfolio.protectiveput_set.filter(ticker=t):
-            if option == c.long_put:
+            if option == pp.long_put:
                 solo = False
                 break
 
@@ -301,41 +301,41 @@ def build_overall_pos(portfolio, t):
     )
 
 def make_stock(stock_pos):
-    return Stock(stock_pos.ticker.name,
+    return pi.Stock(stock_pos.ticker.name,
                  stock_pos.long_or_short,
                  stock_pos.total_shares,
-                 stock_pos.total_cost)
+                 float(stock_pos.total_cost))
 
 def make_option(option_pos):
     if option_pos.call_or_put == 'CALL':
-        option = Call(
+        option = pi.Call(
             option_pos.ticker.name,
             option_pos.long_or_short,
             option_pos.total_contracts,
-            option_pos.total_cost,
-            option_pos.strike_price,
+            float(option_pos.total_cost),
+            float(option_pos.strike_price),
             option_pos.expiration_date
         )
     else:
-        option = Put(
+        option = pi.Put(
             option_pos.ticker.name,
             option_pos.long_or_short,
             option_pos.total_contracts,
-            option_pos.total_cost,
-            option_pos.strike_price,
+            float(option_pos.total_cost),
+            float(option_pos.strike_price),
             option_pos.expiration_date
         )
     return option
 
 def make_vertical_spread(vs):
     if vs.types == 'BULL':
-        vspread = Bull(
+        vspread = pi.Bull(
             vs.credit_or_debit,
             make_option(vs.short_leg),
             make_option(vs.long_leg)
         )
     else:
-        vspread = Bear(
+        vspread = pi.Bear(
             vs.credit_or_debit,
             make_option(vs.short_leg),
             make_option(vs.long_leg)
@@ -458,7 +458,7 @@ def edit_option_position(request, portfolio_id, ticker_name, add_or_remove):
                 ticker=ticker,
                 call_or_put=request.POST.get('call_or_put'),
                 long_or_short=request.POST.get('long_or_short'),
-                expiration_date=datetime.datetime.strptime(request.POST.get('expiration_date'), '%b. %d, %Y').strftime('%Y-%m-%d'),
+                expiration_date=datetime.strptime(request.POST.get('expiration_date'), '%b. %d, %Y').strftime('%Y-%m-%d'),
                 strike_price=request.POST.get('strike_price'),
             )
             if add_or_remove == "ADD":
@@ -787,6 +787,8 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
     except LookupError:
         raise Http404("Ticker does not exist")
 
+    hedge = {}
+
     if request.method == 'POST':
         form = HedgeStockForm(request.POST)
         if form.is_valid():
@@ -797,7 +799,6 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
             days = form.cleaned_data['days']
             capped = form.cleaned_data['capped']
             target_price = form.cleaned_data['target_price']
-            hedge = {}
             if capped:
                 hedge['protective_put'] = hedge_stock(ticker_name, average_cost, risk, break_point, days, capped,
                                                 target_price)
@@ -814,8 +815,9 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
             graph = draw_graph(price_limit=max_price_limit, coordinate_lists=coordinate_lists)
 
     else:
-        form = HedgeStockForm()
-        hedge = None
+        raise Http404()
+
+    form = HedgeStockForm()
 
     return render(request, "assets/hedge_stock_position.html", {
         'portfolio': portfolio,
@@ -830,6 +832,8 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         'graph': graph,
     })
 
+
+@login_required
 def add_hedge_stock_position(request, portfolio_id, ticker_name):
     portfolio = Portfolio.objects.get(id=portfolio_id)
     ticker = portfolio.ticker_set.get(name=ticker_name)
@@ -837,27 +841,27 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
         return redirect(reverse('view_portfolio', args=[portfolio_id]))
 
     if request.method == 'POST':
-        quantity = request.POST.get('quantity')
+        quantity = int(request.POST.get('quantity'))
         strategy = request.POST.get('strategy_name')
-        strategy_type = request.POST.get('data_name')
+
+        # Verify enough stocks to do stock hedge
+        try:
+            stock = portfolio.stockposition_set.get(ticker=ticker)
+            total_shares = getattr(stock, 'total_shares')
+            if total_shares < (quantity * 100):
+                raise Http404()
+        except StockPosition.DoesNotExist:
+            raise Http404()
 
         if strategy == 'protective_put':
-            try:
-                stock = portfolio.stockposition_set.get(ticker=ticker)
-                total_shares = getattr(stock, 'total_shares')
-                if total_shares <= (quantity * 100):
-                    return Http404()
-            except StockPosition.DoesNotExist:
-                return Http404()
-
             long_put = OptionPosition(
                 portfolio=portfolio,
                 ticker=ticker,
                 call_or_put='PUT',
                 long_or_short='LONG',
-                expiration_date=expiration_date,
-                strike_price=request.POST.get('strike_price'),
-                total_cost=request.POST.get('strike_premium') * quantity,
+                expiration_date=request.POST.get('expiration_date'),
+                strike_price=decimal.Decimal(request.POST.get('strike_price')),
+                total_cost=decimal.Decimal(request.POST.get('strike_premium') * quantity),
                 total_contracts=quantity
             )
             long_put.save()
@@ -870,5 +874,37 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
             )
             protective_put.save()
 
+        elif strategy == 'collar':
+            long_put = OptionPosition(
+                portfolio=portfolio,
+                ticker=ticker,
+                call_or_put='PUT',
+                long_or_short='LONG',
+                expiration_date=request.POST.get('expiration_date'),
+                strike_price=decimal.Decimal(request.POST.get('strike_price')),
+                total_cost=decimal.Decimal(request.POST.get('strike_premium') * quantity),
+                total_contracts=quantity
+            )
+            short_call = OptionPosition(
+                portfolio=portfolio,
+                ticker=ticker,
+                call_or_put='CALL',
+                long_or_short='SHORT',
+                expiration_date=request.POST.get('short_call_expiration_date'),
+                strike_price=decimal.Decimal(request.POST.get('short_call_strike_price')),
+                total_cost=decimal.Decimal(request.POST.get('short_call_strike_premium') * quantity),
+                total_contracts=quantity
+            )
+            long_put.save()
+            short_call.save()
+
+            collar = Collar(
+                portfolio=portfolio,
+                ticker=ticker,
+                stock_position=stock,
+                long_put=long_put,
+                short_call=short_call,
+            )
+            collar.save()
 
     return redirect(reverse('view_portfolio', args=[portfolio_id]))
