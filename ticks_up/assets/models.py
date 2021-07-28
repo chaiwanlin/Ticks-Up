@@ -42,7 +42,7 @@ class Industry(models.Model):
 # To store tickers
 class Ticker(models.Model):
     name = models.CharField(max_length=7)
-    portfolio = models.ManyToManyField(Portfolio, blank=True, null=True)
+    portfolio = models.ManyToManyField(Portfolio)
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE)
     industry = models.ForeignKey(Industry, on_delete=models.CASCADE)
 
