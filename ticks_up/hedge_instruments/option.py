@@ -71,6 +71,10 @@ class Option(Instrument):
         for e in self.expiration:
             lst.append(datetime.datetime.utcfromtimestamp(e).strftime('%Y-%m-%d'))
         return lst
+    
+    def get_expiry(self):
+        return datetime.datetime.utcfromtimestamp(self.expiry).strftime('%Y-%m-%d')
+
 
 
 class Call(Option):
