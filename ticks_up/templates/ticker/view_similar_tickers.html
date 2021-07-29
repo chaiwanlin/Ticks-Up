@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block stylesheet %}
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}
+
+{% load crispy_forms_tags %}
+{% load ticker_extras %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <h1 class="display-6 my-4">Stocks similar to {{ ticker }}</h1>
+    <table class="table table-striped w-50">
+        <tbody>
+        <tr>
+            <th>Indicator</th>
+            <td>
+                <form method="post" action="{% url 'view_similar_tickers' ticker sector_or_industry %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                      <div class="form-group">
+                        <select class="form-select" name="indicator">
+                            <option selected>{{ indicator_name }}</option>
+                          {% for i in indicators %}
+                                <option value="{{ i.0 }}">{{ i.1 }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                        <input type="hidden" name="number" value="{{ k }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <th>Number</th>
+            <td>
+                <form class="w-50" method="post" action="{% url 'view_similar_tickers' ticker sector_or_industry %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input type="hidden" name="indicator" value="{{ indicator }}">
+                        <input class="form-control" type="number" name="number" value="{{ k }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <h4>Coming Soon!</h4>
+<!--    {% for stock in result %}-->
+<!--        {{ stock.data }}-->
+<!--    {% endfor %}-->
+</div>
+
+{% endblock %}

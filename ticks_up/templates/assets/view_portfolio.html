@@ -75,9 +75,9 @@
             <tr>
                 <th scope="col">Symbol</th>
                 <th scope="col">Position</th>
-                <th scope="col">Total cost</th>
+                <th scope="col">Entry Price</th>
                 <th scope="col">Quantity</th>
-                <th scope="col">Cost per quantity</th>
+                <th scope="col">Total Cost</th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -91,9 +91,9 @@
                 </th>
                 {% if pos.0 %}
                 <td>Shares</td>
-                <td>{{ pos.0.total_cost }}</td>
+                <td>{{ pos.0.entry_price }}</td>
                 <td>{{ pos.0.total_shares }}</td>
-                <td>{{ pos.0.average_cost }}</td>
+                <td>{{ pos.0.total_cost }}</td>
                 <td>
                     <button type="button" class="btn btn-warning btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#hedge{{ symbol }}Stock">
                         <i class="bi bi-shield-shaded"></i>
@@ -273,9 +273,9 @@
             <tr class="table-light">
                 <th></th>
                 <td>{{ option }}</td>
-                <td>{{ option.total_cost }}</td>
+                <td>{{ option.entry_price }}</td>
                 <td>{{ option.total_contracts }}</td>
-                <td>{{ option.average_cost }}</td>
+                <td>{{ option.total_cost }}</td>
                 <td></td>
                 <td></td>
                 <td>

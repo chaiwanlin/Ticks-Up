@@ -148,9 +148,9 @@ class Call(Option):
         return (agg_iv, total)
 
     def get_25_delta(self):
-        len = self.strikes.len()
+        length = len(self.strikes)
         lo = 0
-        hi = len - 1
+        hi = length - 1
 
         while lo <= hi:
             mid = (hi + lo) // 2 + lo
@@ -460,9 +460,9 @@ class Put(Option):
         return (agg_iv, total)
 
     def get_25_delta(self):
-        len = self.strikes.len()
+        length = len(self.strikes)
         lo = 0
-        hi = len - 1
+        hi = length - 1
 
         while lo <= hi:
             mid = (hi + lo) // 2 + lo

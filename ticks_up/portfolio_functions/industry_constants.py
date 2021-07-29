@@ -34,7 +34,7 @@ ONE_H_CHG = "change.60"
 
 FOUR_H_CHG = "change.240"
 
-# CHG 
+# CHG
 
 ONE_W_CHG = "change.1W"
 
@@ -141,7 +141,7 @@ TREND = "Trend-Following"
 
 MOV_AVG_RATING = "Recommend.MA"
 
-{
+CATEGORIES = {
     "Overview" : OVERVIEW,
     "Performance" : PERFORMANCE,
     "Valuation" : VALUATION,
@@ -152,8 +152,8 @@ MOV_AVG_RATING = "Recommend.MA"
     "Oscillators" : OSC,
     "Price Trend" : TREND
 }
-# Overview
-{
+
+OVERVIEW_CHOICES = {
     "Last Price" : LAST,
     "Change %" : CHG,
     "Change" : CHG_ABS,
@@ -164,8 +164,8 @@ MOV_AVG_RATING = "Recommend.MA"
     "EPS (TTM)" : EPS_TTM,
     "Number of employees" : EMPLY
 }
-# Perf
-{
+
+PERFORMANCE_CHOICES = {
     "1M Change %" : ONE_M_CHG,
     "5M Change %" : FIVE_M_CHG,
     "15M Change %" : FIFTEEN_M_CHG,
@@ -181,34 +181,32 @@ MOV_AVG_RATING = "Recommend.MA"
     "One Year Beta" : ONE_Y_BETA,
     "Volatility" : VOL
 }
-# valuation
-{
+
+VALUATION_CHOICES = {
     "Market Cap" : MKT_CAP,
     "P/E (TTM)" : PE_TTM,
     "Price/Revenue" : P_REV,
-    "EPS (TTM" : EPS_TTM,
+    "EPS (TTM)" : EPS_TTM,
     "EPS Diluted (FY)" : EPS_DIL_FY,
     "EV/EBITDA" : EV_EBITDA,
     "Enterprise Value" : EV,
     "Shares Outstanding" : SHARES
 }
-# Dividends
-{
+
+DIVIDEND_CHOICES = {
     "Dividend Yield %" : DIV_YIELD,
     "Dividend Paid" : DIV_PAID,
     "Dividend Per Share" : DIV_SHARE
 }
 
-# Margins
-{
+MARGIN_CHOICES = {
     "Gross Margin" : GROSS_MARGIN,
     "Operating Margin" : OPERATING_MARGIN,
     "Pretax Margin" : PRETAX_MARGIN,
     "Net_margin" : NET_MARGIN
 }
 
-# Income Statement
-{
+INCOME_STMT_CHOICES = {
     "EPS (FY)" : EPS_FY,
     "EPS (TTM)" : EPS_TTM,
     "EPS Diluted (TTM)" : EPS_DIL_TTM,
@@ -221,9 +219,7 @@ MOV_AVG_RATING = "Recommend.MA"
     "Annual Income" : INCOME
 }
 
-    # Balance Sheet
-{
-
+BALANCE_SHT_CHOICES = {
     "Current Ratio" : CURR_RATIO,
     "Debt/Equity Ratio" : DEBT_EQUITY,
     "Net Debt" : NET_DEBT,
@@ -233,12 +229,39 @@ MOV_AVG_RATING = "Recommend.MA"
     "Total Current Asset" : CURR_ASSET
 }
 
-# Oscillators
-{
-    "Oscillator Rating" : OSC_RATING
+# OSCILLATOR_CHOICES = {
+#     "Oscillator Rating" : OSC_RATING
+# }
+#
+# TREND_CHOICES = {
+#     "Moving Average Rating" : MOV_AVG_RATING
+# }
+
+CATEGORIES_INDICATORS_DICT = {
+    OVERVIEW : OVERVIEW_CHOICES,
+    PERFORMANCE : PERFORMANCE_CHOICES,
+    VALUATION : VALUATION_CHOICES,
+    DIVIDENDS : DIVIDEND_CHOICES,
+    MARGINS : MARGIN_CHOICES,
+    INCOME_STMT : INCOME_STMT_CHOICES,
+    BALANCE_SHT : BALANCE_SHT_CHOICES,
+    # OSC : OSCILLATOR_CHOICES,
+    # TREND : TREND_CHOICES,
 }
 
-# Trend-Following
-{
-    "Moving Average Rating" : MOV_AVG_RATING
-}
+LIST_OF_INDICATORS_DICT_BY_CAT = [
+    OVERVIEW_CHOICES,
+    PERFORMANCE_CHOICES,
+    VALUATION_CHOICES,
+    DIVIDEND_CHOICES,
+    MARGIN_CHOICES,
+    INCOME_STMT_CHOICES,
+    BALANCE_SHT_CHOICES,
+    # OSCILLATOR_CHOICES,
+    # TREND_CHOICES,
+]
+
+LIST_OF_INDICATORS = []
+for dic in LIST_OF_INDICATORS_DICT_BY_CAT:
+    for key, val in dic.items():
+        LIST_OF_INDICATORS.append((val, key))

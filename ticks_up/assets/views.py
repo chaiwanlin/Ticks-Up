@@ -304,7 +304,7 @@ def make_stock(stock_pos):
     return pi.Stock(stock_pos.ticker.name,
                  stock_pos.long_or_short,
                  stock_pos.total_shares,
-                 float(stock_pos.total_cost))
+                 float(stock_pos.total_cost()))
 
 def make_option(option_pos):
     if option_pos.call_or_put == 'CALL':
@@ -312,7 +312,7 @@ def make_option(option_pos):
             option_pos.ticker.name,
             option_pos.long_or_short,
             option_pos.total_contracts,
-            float(option_pos.total_cost),
+            float(option_pos.total_cost()),
             float(option_pos.strike_price),
             option_pos.expiration_date
         )
@@ -321,7 +321,7 @@ def make_option(option_pos):
             option_pos.ticker.name,
             option_pos.long_or_short,
             option_pos.total_contracts,
-            float(option_pos.total_cost),
+            float(option_pos.total_cost()),
             float(option_pos.strike_price),
             option_pos.expiration_date
         )
@@ -407,7 +407,7 @@ def edit_stock_position(request, portfolio_id, ticker_name, add_or_remove):
                 stock_position = StockPosition(
                     portfolio=portfolio,
                     ticker=ticker,
-                    total_cost=-sform.cleaned_data['total_cost'],
+                    entry_price=-sform.cleaned_data['entry_price'],
                     total_shares=-sform.cleaned_data['total_shares']
                 )
                 stock_position.save()
@@ -477,7 +477,7 @@ def edit_option_position(request, portfolio_id, ticker_name, add_or_remove):
                     long_or_short=option.long_or_short,
                     expiration_date=option.expiration_date,
                     strike_price=option.strike_price,
-                    total_cost=-eoform.cleaned_data['total_cost'],
+                    entry_price=-eoform.cleaned_data['entry_price'],
                     total_contracts=-eoform.cleaned_data['total_contracts'],
                 )
                 option_position.save()
@@ -792,7 +792,7 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         form = HedgeStockForm(request.POST)
         if form.is_valid():
             stock_position = portfolio.stockposition_set.get(ticker=ticker)
-            average_cost = float(stock_position.total_cost / stock_position.total_shares)
+            average_cost = float(stock_position.entry_price)
             risk = form.cleaned_data['risk']
             break_point = form.cleaned_data['break_point']
             days = form.cleaned_data['days']

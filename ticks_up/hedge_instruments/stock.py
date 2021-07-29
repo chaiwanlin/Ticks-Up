@@ -39,4 +39,4 @@ class Stock(Instrument):
     def get_exchange(self):
         return self.exchange
 
-# Stock("^GSPC")
+Stock("S68.SI")
