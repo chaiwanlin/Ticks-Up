@@ -102,12 +102,9 @@ class StockPosition(models.Model):
                 # Trying to delete more shares than own, illegal
                 raise ValueError('You cannot sell more shares than you own!')
             elif self.total_shares == 0:
+                stock.delete()
                 # Check if there are options for this ticker
-                if self.portfolio.optionposition_set.filter(ticker=self.ticker):
-                    # There are options, delete stock position only
-                    stock.delete()
-                else:
-                    # No options, remove ticker from portfolio
+                if not self.portfolio.optionposition_set.filter(ticker=self.ticker):
                     self.portfolio.ticker_set.remove(self.ticker)
             else:
                 # Valid edit, update stock position
@@ -176,11 +173,8 @@ class OptionPosition(models.Model):
                 # Trying to remove more contracts than own, illegal
                 raise ValueError('You cannot sell more contracts than you own!')
             elif self.total_contracts == 0:
-                if self.portfolio.stockposition_set.filter(ticker=self.ticker):
-                    # There are stock positions, delete option position only
-                    option.delete()
-                else:
-                    # No stock, remove ticker from portfolio
+                option.delete()
+                if not self.portfolio.stockposition_set.filter(ticker=self.ticker):
                     self.portfolio.ticker_set.remove(self.ticker)
             else:
                 # Valid edit, update option position
