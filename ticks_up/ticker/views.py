@@ -6,6 +6,8 @@ from hedge_instruments.stock import Stock
 from hedge_functions.hedge_main import historical_volatility, volatility_skew, get_iv, put_call_ratio, range_to_date, hedge_stock
 from hedge_functions import spread
 from utils.graphs import draw_graph
+from assets.models import Ticker
+from portfolio_functions.industry import Industry
 
 
 def home(request):
@@ -15,10 +17,21 @@ def home(request):
 def search_ticker(request):
     if request.method == 'GET':
         ticker = request.GET.get('ticker').upper()
-        try:
+        ticker_set = Ticker.objects.filter(name=ticker)
+        if not ticker_set:
+            try:
+                stock = Stock(ticker)
+                ticker_info = Industry(ticker)
+                sector = ticker_info.get_sector()
+                industry = ticker_info.get_industry()
+            except LookupError:
+                raise Http404("Ticker does not exist")
+        else:
             stock = Stock(ticker)
-        except LookupError:
-            raise Http404("Ticker does not exist")
+            ticker_obj = Ticker.objects.get(name=ticker)
+            sector = ticker_obj.sector.name
+            industry = ticker_obj.industry.name
+
 
         days = request.GET.get('days')
         if not days:
@@ -44,6 +57,8 @@ def search_ticker(request):
         return render(request, "ticker/search_ticker.html", {
             'ticker': ticker,
             'exchange': stock.get_exchange(),
+            'sector': sector,
+            'industry': industry,
             'days': days,
             'ticker_data': ticker_data,
             'option_strategies_form': OptionStrategiesForm,

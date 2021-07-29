@@ -199,7 +199,6 @@ class Bull(Spread):
             max_loss =  short_leg.strike_price - long_leg.strike_price - credit
             long_premium = long_leg.value
             short_premium = short_leg.value
-            print(long_premium)
 
             cost = max_loss
             profit = credit
@@ -309,11 +308,12 @@ class Collar(Spread):
         expiry = long_put.expiry
 
         cost = long_put.cost - short_call.cost
+        print(isinstance(stock.cost, float))
         max_loss = stock.cost - long_put.strike_price + cost
         
         profit = short_call.strike_price - stock.cost - cost
         breakeven = stock.cost + cost
-        value = long_put.value - short_call.cost
+        value = long_put.value - short_call.value
 
         type = DEBIT if cost > 0 else CREDIT
 

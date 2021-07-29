@@ -27,7 +27,7 @@ class StockPosition:
 
     # ticker: string (e.g. "AMC")
     # long_positions: list of "LONG" Stock objects
-    # long_positions: list of "SHORT" Stock objects
+    # short_positions: list of "SHORT" Stock objects
     # margin: Boolean
     # margin_value: float (0 <= x)
     def __init__(self, ticker, long_positions, short_positions, margin = False, margin_value = 0.2):
@@ -81,6 +81,7 @@ class OptionPosition:
         self.get_option_positions_spread()
         
         self.capital_invested = 0
+        self.value = 0
         self.capital_collateral = 0
         self.value = 0
         self.cost_to_cover = 0
@@ -124,10 +125,10 @@ class OptionPosition:
 
     def get_option_positions_spread(self):
 
-        self.short_puts.sort(key = lambda x : x.strike, reverse = True)
-        self.long_puts.sort(key = lambda x : x.strike, reverse = True)
-        self.short_calls.sort(key = lambda x : x.strike)
-        self.long_calls.sort(key = lambda x : x.strike)
+        self.short_puts.sort(key = lambda x : x.strike_price, reverse = True)
+        self.long_puts.sort(key = lambda x : x.strike_price, reverse = True)
+        self.short_calls.sort(key = lambda x : x.strike_price)
+        self.long_calls.sort(key = lambda x : x.strike_price)
 
         short_puts = self.short_puts
         long_puts = self.long_puts

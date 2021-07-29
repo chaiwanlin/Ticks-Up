@@ -1,20 +1,21 @@
 import math
 import datetime
+import decimal
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.http import Http404, HttpResponse
-from django.forms import formset_factory
 from .forms import *
 from .models import *
-from hedge_instruments.stock import Stock
+from hedge_instruments.stock import Stock as StockHedge
 from hedge_functions.spread import hedge_stock, collar
-from utils.graphs import draw_graph
+from utils.graphs import draw_graph, make_pie
 from portfolio_functions.industry import Industry as Classification
-from portfolio_functions.portfolio_instrument import *
+import portfolio_functions.portfolio_instrument as pi
 from portfolio_functions.position import OverallPosition as OverallPos
 from portfolio_functions.position import StockPosition as StockPos
 from portfolio_functions.position import OptionPosition as OptionPos
+from portfolio_functions.user_portfolio import *
 
 
 
@@ -27,17 +28,25 @@ def user_check(user, portfolio_id):
 
 
 def ticker_check(symbol):
+    print(symbol)
     try:
         ticker = Ticker.objects.get(name=symbol)
     except Ticker.DoesNotExist:
         classification = Classification(symbol)
-        print(symbol)
-        sector = Sector(name=classification.get_sector())
-        industry = Industry(name=classification.get_industry(), sector=sector)
-        # sector = Sector(name='Sex')
-        # industry = Industry(name='Nuggets', sector=sector)
-        sector.save()
-        industry.save()
+        sector_name = classification.get_sector()
+        industry_name = classification.get_industry()
+
+        try:
+            sector = Sector.objects.get(name=sector_name)
+        except Sector.DoesNotExist:
+            sector = Sector(name=sector_name)
+            sector.save()
+
+        try:
+            industry = Industry.objects.get(name=industry_name)
+        except Industry.DoesNotExist:
+            industry = Industry(name=industry_name, sector=sector)
+            industry.save()
         ticker = Ticker(name=symbol, sector=sector, industry=industry)
         ticker.save()
     return ticker
@@ -81,154 +90,93 @@ def view_portfolio(request, portfolio_id):
     if not user_check(request.user, portfolio_id):
         return redirect(reverse('assets'))
     portfolio = Portfolio.objects.get(id=portfolio_id)
+    if portfolio.margin:
+        margin = True
+    else:
+        margin = False
     tickers = portfolio.ticker_set.all()
     stock_positions = portfolio.stockposition_set.all()
     option_positions = portfolio.optionposition_set.all()
-    vertical_spreads = portfolio.verticalspread_set.all()
-    butterfly_spreads = portfolio.butterflyspread_set.all()
-    collars = portfolio.collar_set.all()
-    protective_puts = portfolio.protectiveput_set.all()
     positions = {}
-    
+
+    list_of_overall_pos = []
+    industries = {}
+    sectors = {}
+    list_of_sector_portfolios = []
     for t in tickers:
+        # Buid positions for current template
         try:
             stock = stock_positions.get(ticker=t)
-            stock_pos = [make_stock(stock)]
         except StockPosition.DoesNotExist:
             stock = StockPosition.objects.none()
-            stock_pos = []
 
         options = option_positions.filter(ticker=t)
         positions[t.name] = (stock, options)
 
-        spread_list = []
+        # Build User Portfolio
+        overall_pos = build_overall_pos(portfolio, t)
+        list_of_overall_pos.append(overall_pos)
 
-        for bs in butterfly_spreads:
-            spread = Condor(bs.types,
-                            make_vertical_spread(bs.bull_spread),
-                            make_vertical_spread(bs.bear_spread))
-            spread_list.append(spread)
-
-        for c in collars:
-            spread_list.append(Collar(make_stock(c.stock_position),
-                                      make_option(c.long_put),
-                                      make_option(c.short_call)))
-
-        for pp in protective_puts:
-            spread_list.append(HedgedStock(make_stock(pp.stock_position), make_option(c.long_put)))
-
-        # Check if vertical spread has been used before
-        for vs in vertical_spreads:
-            solo = True
-
-            for bs in portfolio.butterflyspread_set.all():
-                if vs == bs.bull_spread or vs == bs.bear_spread:
-                    solo = False
-                    break
-
-            if solo:
-                spread_list.append(make_vertical_spread(vs))
-
-
-        option_lists = {
-            'short_call': [],
-            'long_call': [],
-            'short_put': [],
-            'long_put': []
-        }
-        for option in options:
-            solo = True
-
-            for vs in portfolio.verticalspread_set.all():
-                if option == vs.short_leg or option == vs.long_leg:
-                    solo = False
-                    break
-
-            for c in portfolio.collar_set.all():
-                if option == c.short_call or option == c.long_put:
-                    solo = False
-                    break
-
-            for pp in portfolio.protectiveput_set.all():
-                if option == c.long_put:
-                    solo = False
-                    break
-
-            if solo:
-                op = make_option(option)
-                if option.long_or_short == 'SHORT':
-                    if option.call_or_put == 'CALL':
-                        option_lists['short_call'].append(op)
-                    else:
-                        option_lists['short_put'].append(op)
-                else:
-                    if option.call_or_put == 'CALL':
-                        option_lists['long_call'].append(op)
-                    else:
-                        option_lists['long_put'].append(op)
-
-        if portfolio.margin:
-            option_pos = OptionPos(
-                t.name,
-                option_lists['short_call'],
-                option_lists['long_call'],
-                option_lists['short_put'],
-                option_lists['long_put'],
-                spread_list,
-                True,
-                portfolio.margin
-            )
+        if t.industry.name not in industries:
+            industries[t.industry.name] = [overall_pos]
         else:
-            option_pos = OptionPos(
-                t.name,
-                option_lists['short_call'],
-                option_lists['long_call'],
-                option_lists['short_put'],
-                option_lists['long_put'],
-                spread_list,
-                False
-            )
+            industries[t.industry.name].append(overall_pos)
 
-        overall_pos = OverallPos(
-            t.name,
-            t.sector,
-            t.industry,
-            stock_pos,
-            option_pos,
-        )
+        if t.sector.name not in sectors:
+            sectors[t.sector.name] = [overall_pos]
+        else:
+            sectors[t.sector.name].append(overall_pos)
 
-        print(stock_pos, spread_list, option_lists)
+    for industry, list_of_tickers in industries.items():
+        industries[industry] = Industry_Portfolio(industry, list_of_tickers, margin)
 
-    # # Portfolio sorting
-    # stock_list = []
-    # for stock_pos in stock_positions:
-    #     stock_list.append(make_stock(stock_pos))
-    #
-    # option_list = []
-    # for option_pos in option_positions:
-    #     option_list.append(make_option(option_pos))
-    #
-    # spread_list = []
-    # for vs in vertical_spreads:
-    #     spread_list.append(make_vertical_spread(vs))
-    #
-    # # for bs in butterfly_spreads:
-    # #     spread_list.append(Condor(bs.types,
-    # #                               make_vertical_spread(bs.bull_spread),
-    # #                               make_vertical_spread(bs.bear_spread)))
-    #
-    # for c in collars:
-    #     spread_list.append(Collar(make_stock(c.stock_position),
-    #                               make_option(c.long_put),
-    #                               make_option(c.short_call)))
-    #
-    # for pp in protective_puts:
-    #     spread_list.append(HedgedStock(make_stock(pp.stock_position), make_option(c.long_put)))
+    for sector, list_of_tickers in sectors.items():
+        list_of_industries = []
+        for industry, industry_portfolio in industries.items():
+            if Industry.objects.get(name=industry).sector.name == sector:
+                list_of_industries.append(industry_portfolio)
+
+        list_of_sector_portfolios.append(Sector_Portfolio(sector, list_of_industries, list_of_tickers, margin))
+
+    user_portfolio = User_Portfolio(list_of_overall_pos, portfolio.cash, margin, list_of_sector_portfolios)
+
+    portfolio_breakdown = {
+        'portfolio_level': {
+            'ticker_breakdown': user_portfolio.breakdown_by_ticker(),
+            'ticker_breakdown_graph': make_pie(user_portfolio.breakdown_by_ticker(), "Ticker Breakdown"),
+            'ticker_average': user_portfolio.average_ticker_weight(),
+            'sector_breakdown': user_portfolio.breakdown_by_sectors(),
+            'sector_breakdown_graph': make_pie(user_portfolio.breakdown_by_sectors(), "Sector Breakdown"),
+            'sector_average': (user_portfolio.average_sector_weight()),
+            'sector_level': {},
+        }
+    }
+    sector_level = portfolio_breakdown['portfolio_level']['sector_level']
+    for sector in user_portfolio.sectors:
+        sector_level[sector.id] = {
+            'ticker_breakdown': sector.breakdown_by_ticker(),
+            'ticker_breakdown_graph': make_pie(sector.breakdown_by_ticker(), "Ticker Breakdown"),
+            'ticker_average': sector.average_ticker_weight(),
+            'industry_breakdown': sector.breakdown_by_industry(),
+            'industry_breakdown_graph': make_pie(sector.breakdown_by_industry(), "Industry Breakdown"),
+            'industry_average': sector.average_industry_weight(),
+            'industry_level': {}
+        }
+
+        industry_level = sector_level[sector.id]['industry_level']
+        for industry in sector.industries:
+            industry_level[industry.id] = {
+                # 'ticker_breakdown': industry.breakdown_by_ticker(),
+                'ticker_breakdown_graph': make_pie(industry.breakdown_by_ticker(), "Ticker Breakdown"),
+                # 'ticker_average': industry.average_ticker_weight(),
+            }
 
 
     return render(request, "assets/view_portfolio.html", {
         'portfolio': portfolio,
         'positions': positions,
+        'portfolio_breakdown': portfolio_breakdown,
+        'cashform': CashForm,
         'tform': TickerForm,
         'sform': AddStockPositionForm,
         'oform': AddOptionPositionForm,
@@ -242,48 +190,174 @@ def view_portfolio(request, portfolio_id):
         'eoform': EditOptionPositionForm,
     })
 
+def build_overall_pos(portfolio, t):
+    try:
+        stock_position = make_stock(portfolio.stockposition_set.get(ticker=t))
+        if portfolio.margin:
+            stock_pos = StockPos(t.name, [stock_position], [], True, portfolio.margin)
+        else:
+            stock_pos = StockPos(t.name, [stock_position], [], False)
+    except StockPosition.DoesNotExist:
+        stock = StockPosition.objects.none()
+        if portfolio.margin:
+            stock_pos = StockPos(t.name, [], [], True, portfolio.margin)
+        else:
+            stock_pos = StockPos(t.name, [], [], False)
+
+    spread_list = []
+
+    for bs in portfolio.butterflyspread_set.filter(ticker=t):
+        spread = pi.Condor(bs.types,
+                        make_vertical_spread(bs.bull_spread),
+                        make_vertical_spread(bs.bear_spread))
+        spread_list.append(spread)
+
+    for c in portfolio.collar_set.filter(ticker=t):
+        spread_list.append(pi.Collar(make_stock(c.stock_position),
+                                  make_option(c.long_put),
+                                  make_option(c.short_call)))
+
+    for pp in portfolio.protectiveput_set.filter(ticker=t):
+        spread_list.append(pi.HedgedStock(make_stock(pp.stock_position), make_option(pp.long_put)))
+
+    # Check if vertical spread has been used before
+    for vs in portfolio.verticalspread_set.filter(ticker=t):
+        solo = True
+
+        for bs in portfolio.butterflyspread_set.filter(ticker=t):
+            if vs == bs.bull_spread or vs == bs.bear_spread:
+                solo = False
+                break
+
+        if solo:
+            spread_list.append(make_vertical_spread(vs))
+
+
+    option_lists = {
+        'short_call': [],
+        'long_call': [],
+        'short_put': [],
+        'long_put': []
+    }
+    for option in portfolio.optionposition_set.filter(ticker=t):
+        solo = True
+
+        for vs in portfolio.verticalspread_set.filter(ticker=t):
+            if option == vs.short_leg or option == vs.long_leg:
+                solo = False
+                break
+
+        for c in portfolio.collar_set.filter(ticker=t):
+            if option == c.short_call or option == c.long_put:
+                solo = False
+                break
+
+        for pp in portfolio.protectiveput_set.filter(ticker=t):
+            if option == pp.long_put:
+                solo = False
+                break
+
+        if solo:
+            op = make_option(option)
+            if option.long_or_short == 'SHORT':
+                if option.call_or_put == 'CALL':
+                    option_lists['short_call'].append(op)
+                else:
+                    option_lists['short_put'].append(op)
+            else:
+                if option.call_or_put == 'CALL':
+                    option_lists['long_call'].append(op)
+                else:
+                    option_lists['long_put'].append(op)
+
+    if portfolio.margin:
+        option_pos = OptionPos(
+            t.name,
+            option_lists['short_call'],
+            option_lists['long_call'],
+            option_lists['short_put'],
+            option_lists['long_put'],
+            spread_list,
+            True,
+            portfolio.margin
+        )
+    else:
+        option_pos = OptionPos(
+            t.name,
+            option_lists['short_call'],
+            option_lists['long_call'],
+            option_lists['short_put'],
+            option_lists['long_put'],
+            spread_list,
+            False
+        )
+
+    return OverallPos(
+        t.name,
+        stock_pos,
+        option_pos,
+        t.sector.name,
+        t.industry.name,
+    )
 
 def make_stock(stock_pos):
-    return Stock(stock_pos.ticker.name,
+    return pi.Stock(stock_pos.ticker.name,
                  stock_pos.long_or_short,
                  stock_pos.total_shares,
-                 stock_pos.total_cost)
+                 float(stock_pos.total_cost))
 
 def make_option(option_pos):
     if option_pos.call_or_put == 'CALL':
-        option = Call(
+        option = pi.Call(
             option_pos.ticker.name,
             option_pos.long_or_short,
             option_pos.total_contracts,
-            option_pos.total_cost,
-            option_pos.strike_price,
+            float(option_pos.total_cost),
+            float(option_pos.strike_price),
             option_pos.expiration_date
         )
     else:
-        option = Put(
+        option = pi.Put(
             option_pos.ticker.name,
             option_pos.long_or_short,
             option_pos.total_contracts,
-            option_pos.total_cost,
-            option_pos.strike_price,
+            float(option_pos.total_cost),
+            float(option_pos.strike_price),
             option_pos.expiration_date
         )
     return option
 
 def make_vertical_spread(vs):
     if vs.types == 'BULL':
-        vspread = Bull(
+        vspread = pi.Bull(
             vs.credit_or_debit,
             make_option(vs.short_leg),
             make_option(vs.long_leg)
         )
     else:
-        vspread = Bear(
+        vspread = pi.Bear(
             vs.credit_or_debit,
             make_option(vs.short_leg),
             make_option(vs.long_leg)
         )
     return vspread
+
+
+@login_required
+def edit_cash(request, portfolio_id, add_or_remove):
+    portfolio = Portfolio.objects.get(id=portfolio_id)
+    if not user_check(request.user, portfolio_id):
+        return redirect(reverse('assets'))
+    if request.method == 'POST':
+        cashform = CashForm(request.POST)
+        if cashform.is_valid():
+            if add_or_remove == 'ADD':
+                portfolio.cash += cashform.cleaned_data['amount']
+            else:
+                portfolio.cash -= cashform.cleaned_data['amount']
+            portfolio.save()
+
+    return redirect(reverse('view_portfolio', args=[portfolio_id]))
 
 
 
@@ -380,7 +454,6 @@ def edit_option_position(request, portfolio_id, ticker_name, add_or_remove):
         if eoform.is_valid():
             portfolio = Portfolio.objects.get(id=portfolio_id)
             ticker = portfolio.ticker_set.get(name=ticker_name)
-            print(request.POST.get('strike_price'))
             option = portfolio.optionposition_set.get(
                 ticker=ticker,
                 call_or_put=request.POST.get('call_or_put'),
@@ -710,9 +783,11 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         return redirect(reverse('view_portfolio', args=[portfolio_id]))
 
     try:
-        stock = Stock(ticker)
+        stock = StockHedge(ticker)
     except LookupError:
         raise Http404("Ticker does not exist")
+
+    hedge = {}
 
     if request.method == 'POST':
         form = HedgeStockForm(request.POST)
@@ -724,7 +799,6 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
             days = form.cleaned_data['days']
             capped = form.cleaned_data['capped']
             target_price = form.cleaned_data['target_price']
-            hedge = {}
             if capped:
                 hedge['protective_put'] = hedge_stock(ticker_name, average_cost, risk, break_point, days, capped,
                                                 target_price)
@@ -741,8 +815,9 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
             graph = draw_graph(price_limit=max_price_limit, coordinate_lists=coordinate_lists)
 
     else:
-        form = HedgeStockForm()
-        hedge = None
+        raise Http404()
+
+    form = HedgeStockForm()
 
     return render(request, "assets/hedge_stock_position.html", {
         'portfolio': portfolio,
@@ -756,3 +831,80 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         'target_price': target_price,
         'graph': graph,
     })
+
+
+@login_required
+def add_hedge_stock_position(request, portfolio_id, ticker_name):
+    portfolio = Portfolio.objects.get(id=portfolio_id)
+    ticker = portfolio.ticker_set.get(name=ticker_name)
+    if not user_check(request.user, portfolio_id):
+        return redirect(reverse('view_portfolio', args=[portfolio_id]))
+
+    if request.method == 'POST':
+        quantity = int(request.POST.get('quantity'))
+        strategy = request.POST.get('strategy_name')
+
+        # Verify enough stocks to do stock hedge
+        try:
+            stock = portfolio.stockposition_set.get(ticker=ticker)
+            total_shares = getattr(stock, 'total_shares')
+            if total_shares < (quantity * 100):
+                raise Http404()
+        except StockPosition.DoesNotExist:
+            raise Http404()
+
+        if strategy == 'protective_put':
+            long_put = OptionPosition(
+                portfolio=portfolio,
+                ticker=ticker,
+                call_or_put='PUT',
+                long_or_short='LONG',
+                expiration_date=request.POST.get('expiration_date'),
+                strike_price=decimal.Decimal(request.POST.get('strike_price')),
+                total_cost=decimal.Decimal(request.POST.get('strike_premium') * quantity),
+                total_contracts=quantity
+            )
+            long_put.save()
+
+            protective_put = ProtectivePut(
+                portfolio=portfolio,
+                ticker=ticker,
+                stock_position=stock,
+                long_put=long_put,
+            )
+            protective_put.save()
+
+        elif strategy == 'collar':
+            long_put = OptionPosition(
+                portfolio=portfolio,
+                ticker=ticker,
+                call_or_put='PUT',
+                long_or_short='LONG',
+                expiration_date=request.POST.get('expiration_date'),
+                strike_price=decimal.Decimal(request.POST.get('strike_price')),
+                total_cost=decimal.Decimal(request.POST.get('strike_premium') * quantity),
+                total_contracts=quantity
+            )
+            short_call = OptionPosition(
+                portfolio=portfolio,
+                ticker=ticker,
+                call_or_put='CALL',
+                long_or_short='SHORT',
+                expiration_date=request.POST.get('short_call_expiration_date'),
+                strike_price=decimal.Decimal(request.POST.get('short_call_strike_price')),
+                total_cost=decimal.Decimal(request.POST.get('short_call_strike_premium') * quantity),
+                total_contracts=quantity
+            )
+            long_put.save()
+            short_call.save()
+
+            collar = Collar(
+                portfolio=portfolio,
+                ticker=ticker,
+                stock_position=stock,
+                long_put=long_put,
+                short_call=short_call,
+            )
+            collar.save()
+
+    return redirect(reverse('view_portfolio', args=[portfolio_id]))
