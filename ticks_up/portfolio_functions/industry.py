@@ -1,33 +1,33 @@
 from os import PathLike
-from .portfolio_constants import PATH
+from portfolio_constants import PATH
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from .industry_constants import *
-from .data import Data
+from industry_constants import *
+from data import Data
 import os
 
 
 def get_driver():
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    chrome_options.add_argument("--window-size=1920,1080")
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
-    # driver = webdriver.Chrome(PATH)
+    # chrome_options = webdriver.ChromeOptions()
+    # chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    # chrome_options.add_argument("--window-size=1920,1080")
+    # chrome_options.add_argument("--start-maximized")
+    # chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--disable-dev-shm-usage")
+    # chrome_options.add_argument("--no-sandbox")
+    # driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
+    driver = webdriver.Chrome(PATH)
     return driver
     
 class Industry:
 
     def __init__(self, ticker):
         # PATH = "C:\Program Files (x86)/chromedriver.exe"
-        self.ticker = ticker
+        self.ticker = ticker.upper()
         try: 
 
             driver = get_driver()
@@ -132,8 +132,8 @@ class Industry:
         for tr in body:
             tds = tr.find_elements_by_xpath("./td")
 
-            ticker = tds[6].text
-            value = tds[0].find_element_by_xpath(".//div/a").text
+            ticker = tds[0].find_element_by_xpath(".//div/a").text
+            value = tds[6].text
 
             data = {
                 "Ticker" : ticker,
@@ -246,8 +246,8 @@ class Industry:
         for tr in body:
             tds = tr.find_elements_by_xpath("./td")
 
-            ticker = tds[6].text
-            value = tds[0].find_element_by_xpath(".//div/a").text
+            ticker = tds[0].find_element_by_xpath(".//div/a").text
+            value = tds[6].text
 
             data = {
                 "Ticker" : ticker,
@@ -267,7 +267,7 @@ class Industry:
 
         while k > 0 and lo >=0 and hi <= len:
             if val - result[lo].value <= result[hi] - val:
-                lst.append(result[lo])
+                lst.append(result[lo])  
                 lo -= 1
                 k -= 1
             else:
@@ -289,7 +289,9 @@ class Industry:
         
         return lst
 
-# print(Industry("AAPL").get_k_closest_same_sector(5, "Overview", MKT_CAP))
+result = Industry("AAPL").get_k_closest_same_sector(5, "Overview", MKT_CAP)
+# for i in result:
+#     print i.data
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
 # print(Industry("pltr"))
