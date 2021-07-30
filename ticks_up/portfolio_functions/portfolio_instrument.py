@@ -1,6 +1,6 @@
 from datetime import datetime
 from numpy import short
-from .portfolio_constants import *
+from portfolio_constants import *
 from hedge_instruments.stock import Stock as Stock_Data
 import hedge_instruments.option as op
 import math
@@ -14,7 +14,7 @@ class Asset:
 
     def reduce_quantity(self, n):
         if self.quantity >= n:
-            self.quanity -= n
+            self.quantity -= n
         else:
             raise ValueError(f"asset has {self.quantity} left")
 
@@ -26,22 +26,14 @@ class Cash(Asset):
 
 class Instrument(Asset):
 
-    def __init__(self, position, quantity, cost, value):
+    def __init__(self, position, quantity, cost, value, leveraged_quantity):
         super().__init__(quantity, cost, value)
         self.position = position
-        self.cost = cost
-        self.leveraged_quantity = -math.inf
+        self.leveraged_quantity = leveraged_quantity
         self.risk = None
         self.outlook = None
-        
-    def get_position(self):
-        return self.position
-
-    def get_cost(self):
-        return self.cost
-
-    def get_leveraged_quantity(self):
-        return self.leveraged_quantity
+        self.lot_value = self.leveraged_quantity * value
+        self.lot_cost = self.leveraged_quantity * cost
 
 
 class Stock(Instrument):
@@ -51,28 +43,59 @@ class Stock(Instrument):
     # quantity: float
     # cost: float
     def __init__(self, ticker, position, quantity, cost):
-        value = Stock_Data(ticker).get_price()
-        super().__init__(position, quantity, cost, value)
-        self.leveraged_quantity = quantity
+        if position == LONG or position == SHORT:
+            self.ticker = ticker
+            try:
+                value = Stock_Data(ticker).get_price()
+            except LookupError:
+                value = cost
+            super().__init__(position, quantity, cost, value, quantity)
 
-        if position == LONG:
-            self.outlook = BULL
-            self.risk = cost
-        elif position == SHORT:
-            self.outlook ==  BEAR
-            self.risk = math.inf
+            if position == LONG:
+                self.outlook = BULL
+                self.risk = cost
+            elif position == SHORT:
+                self.outlook ==  BEAR
+                self.risk = math.inf
+        else:
+            raise ValueError("enter a valid position: LONG/SHORT")
 
 
 class Option(Instrument):
 
     def __init__(self, position, quantity, cost, strike_price, expiry, value):
-        super().__init__(position, quantity, cost, value)
+        super().__init__(position, quantity, cost, value, 100 * quantity)
         self.expiry = expiry
-        self.leveraged_quantity = quantity * 100
         self.strike_price = strike_price
-        self.lot_value = value * 100
-        self.lot_cost = cost * 100
+    
+    def get_expiry(self):
+        return self.expiry.strftime('%Y-%m-%d')
 
+class Call(Option):
+
+    def __init__(self, ticker, position, quantity, cost, strike_price, expiry):
+        if position == LONG or position == SHORT:
+            try:
+                calls = op.Call(ticker, expiry.year, expiry.month, expiry.day)
+                value = calls.get_option_for_strike(strike_price).get_price()
+            except LookupError:
+                value = cost
+            super().__init__(position, quantity, cost, strike_price, expiry, value)
+            
+            self.ticker = ticker
+            if position == LONG:
+                self.outlook = BULL
+                self.risk = cost
+            elif position == SHORT:
+                self.outlook ==  BEAR
+                self.risk = math.inf
+        else:
+            raise ValueError("enter a valid position: LONG/SHORT")
+
+    
+    def extract_quantity(self, n):
+        self.reduce_quantity(n)
+        return Call(self.ticker, self.position, n, self.cost, self.strike_price, self.expiry)
 
 class Put(Option):
 
@@ -83,58 +106,40 @@ class Put(Option):
     # strike_price: float
     # expiry: python datetime object
     def __init__(self, ticker, position, quantity, cost, strike_price, expiry):
-        puts = op.Put(ticker, expiry.year, expiry.month, expiry.day)
-        value = puts.get_option_for_strike(strike_price).get_price()
-        super().__init__(position, quantity, cost, strike_price, expiry, value)
+        if position == LONG or position == SHORT:
+            try:
+                puts = op.Put(ticker, expiry.year, expiry.month, expiry.day)
+                value = puts.get_option_for_strike(strike_price).get_price()
+            except LookupError:
+                value = cost
+            
+            super().__init__(position, quantity, cost, strike_price, expiry, value)
 
-        self.ticker = ticker
-        if position == LONG:
-            self.outlook = BEAR
-            self.risk = cost
-        elif position == SHORT:
-            self.outlook ==  BULL
-            self.risk = math.inf
-    
+            self.ticker = ticker
+            if position == LONG:
+                self.outlook = BEAR
+                self.risk = cost
+            elif position == SHORT:
+                self.outlook ==  BULL
+                self.risk = math.inf
+        else:
+            raise ValueError("enter a valid position: LONG/SHORT")
         
-
     def extract_quantity(self, n):
-        self.quantity -= n
-        return self.__init__(self.ticker, self.position, n, self.cost, self.strike_price, self.expiry)
-
-
-class Call(Option):
-
-    def __init__(self, ticker, position, quantity, cost, strike_price, expiry):
-        calls = op.Call(ticker, expiry.year, expiry.month, expiry.day)
-        value = calls.get_option_for_strike(strike_price).get_price()
-        super().__init__(position, quantity, cost, strike_price, expiry, value)
-        
-        self.ticker = ticker
-        if position == LONG:
-            self.outlook = BULL
-            self.risk = cost
-        elif position == SHORT:
-            self.outlook ==  BEAR
-            self.risk = cost
-
-        self.lot_value = value * 100
-        self.lot_cost = cost * 100
-    
-    def extract_quantity(self, n):
-        self.quantity -= n
-        return self.__init__(self.ticker, self.position, n, self.cost, self.strike_price, self.expiry)
+        self.reduce_quantity(n)
+        return Put(self.ticker, self.position, n, self.cost, self.strike_price, self.expiry)
 
 
 class Spread(Instrument):
 
     def __init__(self, type, quantity, cost, profit, value):
-        super().__init__(LONG, quantity, cost, value)
+        if type == DEBIT:
+            position = LONG
+        else:
+            position = SHORT
+        super().__init__(position, quantity, cost, value, 100)
         self.type = type
         self.profit = profit
-        self.leveraged_quantity = quantity * 100
-        self.lot_value = value * 100
-        self.lot_cost = cost * 100
-
 
 class Bear(Spread):
 
@@ -157,6 +162,7 @@ class Bear(Spread):
             # cost to cover
             value = short_premium - long_premium
             risk = max_loss
+
         elif type == DEBIT:
             debit = long_leg.cost - short_leg.cost
             max_profit = long_leg.strike_price - short_leg.strike_price - debit
@@ -170,6 +176,7 @@ class Bear(Spread):
             upper_leg = long_leg.strike_price
             value = long_premium - short_premium
             risk = debit
+
         else:
             raise ValueError("Not valid spread type: Bear")
 
@@ -226,7 +233,6 @@ class Bull(Spread):
         self.lower_bound = lower_leg
         self.upper_bound = upper_leg
 
-
 class Condor(Spread):
 
     # type: # "PUT" or "CALL" or "IRON"
@@ -261,7 +267,6 @@ class Condor(Spread):
         self.bear_spread = bear_spread
         self.bull_spread = bull_spread
 
-
 class Straddle(Spread):
 
     # type: # "PUT" or "CALL" or "IRON"
@@ -294,7 +299,6 @@ class Straddle(Spread):
         self.bear_spread = bear_spread
         self.bull_spread = bull_spread
 
-
 class Collar(Spread):
 
     # stock: Stock class
@@ -321,7 +325,6 @@ class Collar(Spread):
         self.lower_bound = long_put.strike_price
         self.upper_bound = short_call.strike_price
 
-
 class HedgedStock(Spread):
 
     # stock: Stock class
@@ -344,7 +347,6 @@ class HedgedStock(Spread):
         self.breakeven = breakeven
         self.lower_bound = long_put.strike_price
         self.upper_bound = math.inf
-
 
 class CoveredCall(Spread):
 
