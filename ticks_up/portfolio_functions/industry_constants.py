@@ -264,4 +264,4 @@ LIST_OF_INDICATORS_DICT_BY_CAT = [
 LIST_OF_INDICATORS = []
 for dic in LIST_OF_INDICATORS_DICT_BY_CAT:
     for key, val in dic.items():
-        LIST_OF_INDICATORS.append((val, key))
+        LIST_OF_INDICATORS.append((val[0], key))

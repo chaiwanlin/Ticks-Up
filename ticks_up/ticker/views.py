@@ -96,21 +96,23 @@ def view_similar_tickers(request, ticker, sector_or_industry):
         form = ViewSimilarTickersForm(request.POST)
         if form.is_valid():
             ticker_info = Industry(ticker)
-            indicator = form.cleaned_data['indicator']
+            indicator_value = form.cleaned_data['indicator']
             k = form.cleaned_data['number']
 
         else:
             ticker_info = Industry(ticker)
-            indicator = request.POST.get('indicator')
+            indicator_value = request.POST.get('indicator')
             k = request.POST.get('number')
 
         category = None
         indicator_name = None
+        indicator = None
         for cat, indic_dict in CATEGORIES_INDICATORS_DICT.items():
             for indic, val in indic_dict.items():
-                if indicator == val:
+                if indicator_value == val[0]:
                     category = cat
                     indicator_name = indic
+                    indicator = val
 
         if not category:
             raise Http404("Ticker does not exist")
@@ -125,14 +127,14 @@ def view_similar_tickers(request, ticker, sector_or_industry):
             'sector_or_industry': sector_or_industry,
             'form': ViewSimilarTickersForm,
             'indicators': LIST_OF_INDICATORS,
-            'indicator': indicator,
+            'indicator_value': indicator_value,
             'indicator_name': indicator_name,
+            'indicator': indicator,
             'k': k,
             'result': result,
         })
 
     return redirect(reverse('search_ticker'))
-
 
 
 def option_strategies(request, ticker):

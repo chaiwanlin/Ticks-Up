@@ -190,6 +190,7 @@ def view_portfolio(request, portfolio_id):
         'eoform': EditOptionPositionForm,
     })
 
+
 def build_overall_pos(portfolio, t):
     try:
         stock_position = make_stock(portfolio.stockposition_set.get(ticker=t))
@@ -300,11 +301,13 @@ def build_overall_pos(portfolio, t):
         t.industry.name,
     )
 
+
 def make_stock(stock_pos):
     return pi.Stock(stock_pos.ticker.name,
                  stock_pos.long_or_short,
-                 stock_pos.total_shares,
+                 float(stock_pos.total_shares),
                  float(stock_pos.total_cost()))
+
 
 def make_option(option_pos):
     if option_pos.call_or_put == 'CALL':
@@ -326,6 +329,7 @@ def make_option(option_pos):
             option_pos.expiration_date
         )
     return option
+
 
 def make_vertical_spread(vs):
     if vs.types == 'BULL':

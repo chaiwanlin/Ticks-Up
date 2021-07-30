@@ -54,10 +54,35 @@
         </tr>
         </tbody>
     </table>
-    <h4>Coming Soon!</h4>
-<!--    {% for stock in result %}-->
-<!--        {{ stock.data }}-->
-<!--    {% endfor %}-->
+    <hr class="mb-4">
+<!--    <h4>Coming Soon!</h4>-->
+    <div class="d-flex justify-content-center">
+        <table class="table table-dark table-striped w-50">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Symbol</th>
+                <th scope="col">{{ indicator_name }}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for stock in result %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                {% for key, val in stock.data.items %}
+                <td>{{ val }}</td>
+                {% endfor %}
+                {% with symbol=stock.data.Ticker %}
+                <td>
+                    <a href="{% url 'search_ticker' %}?ticker={{ symbol }}" class="btn btn-warning">See more</a>
+                </td>
+                {% endwith %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
 </div>
 
 {% endblock %}

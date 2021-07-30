@@ -8,9 +8,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import *
-from industry_constants import *
-from portfolio_constants import PATH
-from data import Data
+from .industry_constants import *
+from .portfolio_constants import PATH
+from .data import Data
 from utils.modify import *
 import os
 
@@ -358,9 +358,9 @@ class Industry:
 
 
 # result = Industry("AAPL")
-result = Industry("AAPL").get_k_closest_same_industry(5, PERFORMANCE, FOUR_H_CHG)
-for i in result:
-    print(i.data)
+# result = Industry("AAPL").get_k_closest_same_industry(5, PERFORMANCE, FOUR_H_CHG)
+# for i in result:
+#     print(i.data)
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
 # print(Industry("pltr"))
