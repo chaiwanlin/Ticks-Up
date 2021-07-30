@@ -6,15 +6,67 @@
 
 <div class="container-fluid">
     <h1 class="display-3 my-4">${{ ticker }}</h1>
-    <table class="table table-secondary w-25">
+    <table class="table table-secondary w-50">
         <tbody>
         <tr>
             <th scope="row">Sector</th>
             <td>{{ sector }}</td>
+            <td>
+                <button type="button" class="btn btn-warning btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#viewSimilarStockSector">
+                    <i class="bi bi-bar-chart-steps"></i>
+                    Find similar stocks in this sector
+                </button>
+
+                <div class="modal fade" id="viewSimilarStockSector" tabindex="-1" aria-labelledby="viewSimilarStockSectorLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="viewSimilarStockSectorLabel">Find similar stocks in {{ sector }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="post" action="{% url 'view_similar_tickers' ticker 'SECTOR' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ view_similar_tickers_form|crispy }}
+                            </div>
+                            <button type="submit" class="btn btn-outline-primary">Show me</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </td>
         </tr>
         <tr>
             <th scope="row">Industry</th>
             <td>{{ industry }}</td>
+            <td>
+                <button type="button" class="btn btn-warning btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#viewSimilarStockIndustry">
+                    <i class="bi bi-bar-chart-steps"></i>
+                    Find similar stocks in this industry
+                </button>
+
+                <div class="modal fade" id="viewSimilarStockIndustry" tabindex="-1" aria-labelledby="viewSimilarStockIndustryLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="viewSimilarStockIndustryLabel">Find similar stocks in {{ industry }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="post" action="{% url 'view_similar_tickers' ticker 'INDUSTRY' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ view_similar_tickers_form|crispy }}
+                            </div>
+                            <button type="submit" class="btn btn-outline-primary">Show me</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </td>
         </tr>
         </tbody>
     </table>

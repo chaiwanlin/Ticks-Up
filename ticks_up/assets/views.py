@@ -28,7 +28,6 @@ def user_check(user, portfolio_id):
 
 
 def ticker_check(symbol):
-    print(symbol)
     try:
         ticker = Ticker.objects.get(name=symbol)
     except Ticker.DoesNotExist:
@@ -139,38 +138,39 @@ def view_portfolio(request, portfolio_id):
         list_of_sector_portfolios.append(Sector_Portfolio(sector, list_of_industries, list_of_tickers, margin))
 
     user_portfolio = User_Portfolio(list_of_overall_pos, portfolio.cash, margin, list_of_sector_portfolios)
-
-    portfolio_breakdown = {
-        'portfolio_level': {
-            'ticker_breakdown': user_portfolio.breakdown_by_ticker(),
-            'ticker_breakdown_graph': make_pie(user_portfolio.breakdown_by_ticker(), "Ticker Breakdown"),
-            'ticker_average': user_portfolio.average_ticker_weight(),
-            'sector_breakdown': user_portfolio.breakdown_by_sectors(),
-            'sector_breakdown_graph': make_pie(user_portfolio.breakdown_by_sectors(), "Sector Breakdown"),
-            'sector_average': (user_portfolio.average_sector_weight()),
-            'sector_level': {},
+    try:
+        portfolio_breakdown = {
+            'portfolio_level': {
+                'ticker_breakdown': user_portfolio.breakdown_by_ticker(),
+                'ticker_breakdown_graph': make_pie(user_portfolio.breakdown_by_ticker(), "Ticker Breakdown"),
+                # 'ticker_average': user_portfolio.average_ticker_weight(),
+                'sector_breakdown': user_portfolio.breakdown_by_sectors(),
+                'sector_breakdown_graph': make_pie(user_portfolio.breakdown_by_sectors(), "Sector Breakdown"),
+                # 'sector_average': (user_portfolio.average_sector_weight()),
+                'sector_level': {},
+            }
         }
-    }
-    sector_level = portfolio_breakdown['portfolio_level']['sector_level']
-    for sector in user_portfolio.sectors:
-        sector_level[sector.id] = {
-            'ticker_breakdown': sector.breakdown_by_ticker(),
-            'ticker_breakdown_graph': make_pie(sector.breakdown_by_ticker(), "Ticker Breakdown"),
-            'ticker_average': sector.average_ticker_weight(),
-            'industry_breakdown': sector.breakdown_by_industry(),
-            'industry_breakdown_graph': make_pie(sector.breakdown_by_industry(), "Industry Breakdown"),
-            'industry_average': sector.average_industry_weight(),
-            'industry_level': {}
-        }
-
-        industry_level = sector_level[sector.id]['industry_level']
-        for industry in sector.industries:
-            industry_level[industry.id] = {
-                # 'ticker_breakdown': industry.breakdown_by_ticker(),
-                'ticker_breakdown_graph': make_pie(industry.breakdown_by_ticker(), "Ticker Breakdown"),
-                # 'ticker_average': industry.average_ticker_weight(),
+        sector_level = portfolio_breakdown['portfolio_level']['sector_level']
+        for sector in user_portfolio.sectors:
+            sector_level[sector.id] = {
+                'ticker_breakdown': sector.breakdown_by_ticker(),
+                'ticker_breakdown_graph': make_pie(sector.breakdown_by_ticker(), "Ticker Breakdown"),
+                # 'ticker_average': sector.average_ticker_weight(),
+                'industry_breakdown': sector.breakdown_by_industry(),
+                'industry_breakdown_graph': make_pie(sector.breakdown_by_industry(), "Industry Breakdown"),
+                # 'industry_average': sector.average_industry_weight(),
+                'industry_level': {}
             }
 
+            industry_level = sector_level[sector.id]['industry_level']
+            for industry in sector.industries:
+                industry_level[industry.id] = {
+                    # 'ticker_breakdown': industry.breakdown_by_ticker(),
+                    'ticker_breakdown_graph': make_pie(industry.breakdown_by_ticker(), "Ticker Breakdown"),
+                    # 'ticker_average': industry.average_ticker_weight(),
+                }
+    except ZeroDivisionError:
+       portfolio_breakdown = {}
 
     return render(request, "assets/view_portfolio.html", {
         'portfolio': portfolio,
@@ -304,7 +304,7 @@ def make_stock(stock_pos):
     return pi.Stock(stock_pos.ticker.name,
                  stock_pos.long_or_short,
                  stock_pos.total_shares,
-                 float(stock_pos.total_cost))
+                 float(stock_pos.total_cost()))
 
 def make_option(option_pos):
     if option_pos.call_or_put == 'CALL':
@@ -312,7 +312,7 @@ def make_option(option_pos):
             option_pos.ticker.name,
             option_pos.long_or_short,
             option_pos.total_contracts,
-            float(option_pos.total_cost),
+            float(option_pos.total_cost()),
             float(option_pos.strike_price),
             option_pos.expiration_date
         )
@@ -321,7 +321,7 @@ def make_option(option_pos):
             option_pos.ticker.name,
             option_pos.long_or_short,
             option_pos.total_contracts,
-            float(option_pos.total_cost),
+            float(option_pos.total_cost()),
             float(option_pos.strike_price),
             option_pos.expiration_date
         )
@@ -358,7 +358,6 @@ def edit_cash(request, portfolio_id, add_or_remove):
             portfolio.save()
 
     return redirect(reverse('view_portfolio', args=[portfolio_id]))
-
 
 
 @login_required
@@ -408,7 +407,7 @@ def edit_stock_position(request, portfolio_id, ticker_name, add_or_remove):
                 stock_position = StockPosition(
                     portfolio=portfolio,
                     ticker=ticker,
-                    total_cost=-sform.cleaned_data['total_cost'],
+                    entry_price=-sform.cleaned_data['entry_price'],
                     total_shares=-sform.cleaned_data['total_shares']
                 )
                 stock_position.save()
@@ -478,7 +477,7 @@ def edit_option_position(request, portfolio_id, ticker_name, add_or_remove):
                     long_or_short=option.long_or_short,
                     expiration_date=option.expiration_date,
                     strike_price=option.strike_price,
-                    total_cost=-eoform.cleaned_data['total_cost'],
+                    entry_price=-eoform.cleaned_data['entry_price'],
                     total_contracts=-eoform.cleaned_data['total_contracts'],
                 )
                 option_position.save()
@@ -793,7 +792,7 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         form = HedgeStockForm(request.POST)
         if form.is_valid():
             stock_position = portfolio.stockposition_set.get(ticker=ticker)
-            average_cost = float(stock_position.total_cost / stock_position.total_shares)
+            average_cost = float(stock_position.entry_price)
             risk = form.cleaned_data['risk']
             break_point = form.cleaned_data['break_point']
             days = form.cleaned_data['days']

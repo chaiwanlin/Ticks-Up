@@ -63,7 +63,7 @@ class AddOptionPositionForm(forms.ModelForm):
 class EditOptionPositionForm(forms.ModelForm):
     class Meta:
         model = OptionPosition
-        fields = ['total_cost', 'total_contracts']
+        fields = ['entry_price', 'total_contracts']
 
 
 class AddVerticalSpreadForm(forms.ModelForm):

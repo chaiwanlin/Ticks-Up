@@ -138,6 +138,7 @@
                               <div class="modal-body">
                                   <form method="post" action="{% url 'add_hedge_stock_position' portfolio.id ticker %}">
                                       {% csrf_token %}
+                                    <label for="quantity">Quantity: </label>
                                     <input type="number" name="quantity">
                                     <input type="hidden" name="strategy_name" value="{{ strategy_name }}">
                                     {% if 'collar' in strategy_name %}
