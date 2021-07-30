@@ -34,11 +34,7 @@ ONE_H_CHG = "change.60", 4
 
 FOUR_H_CHG = "change.240", 5
 
-<<<<<<< HEAD
 CHG_PERF = CHG, 6
-=======
-# CHG
->>>>>>> e2c0993c107619e2a5a16be28f02483f82c31829
 
 ONE_W_CHG = "change.1W", 7
 
@@ -185,17 +181,10 @@ PERFORMANCE_CHOICES = {
     "One Year Beta" : ONE_Y_BETA,
     "Volatility" : VOL
 }
-<<<<<<< HEAD
-# valuation
-{
-    "Market Cap" : MKTCAP_VAL,
-    "P/E (TTM)" : PE_TTM_VAL,
-=======
 
 VALUATION_CHOICES = {
-    "Market Cap" : MKT_CAP,
-    "P/E (TTM)" : PE_TTM,
->>>>>>> e2c0993c107619e2a5a16be28f02483f82c31829
+    "Market Cap" : MKTCAP_VAL,
+    "P/E (TTM)" : PE_TTM_VAL,
     "Price/Revenue" : P_REV,
     "EPS (TTM)" : EPS_TTM,
     "EPS Diluted (FY)" : EPS_DIL_FY,
@@ -230,13 +219,7 @@ INCOME_STMT_CHOICES = {
     "Annual Income" : INCOME
 }
 
-<<<<<<< HEAD
-# Balance Sheet
-{
-
-=======
 BALANCE_SHT_CHOICES = {
->>>>>>> e2c0993c107619e2a5a16be28f02483f82c31829
     "Current Ratio" : CURR_RATIO,
     "Debt/Equity Ratio" : DEBT_EQUITY,
     "Net Debt" : NET_DEBT,
@@ -246,13 +229,13 @@ BALANCE_SHT_CHOICES = {
     "Total Current Asset" : CURR_ASSET
 }
 
-# OSCILLATOR_CHOICES = {
-#     "Oscillator Rating" : OSC_RATING
-# }
-#
-# TREND_CHOICES = {
-#     "Moving Average Rating" : MOV_AVG_RATING
-# }
+OSCILLATOR_CHOICES = {
+    "Oscillator Rating" : OSC_RATING
+}
+
+TREND_CHOICES = {
+    "Moving Average Rating" : MOV_AVG_RATING
+}
 
 CATEGORIES_INDICATORS_DICT = {
     OVERVIEW : OVERVIEW_CHOICES,
