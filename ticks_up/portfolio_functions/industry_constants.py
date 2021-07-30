@@ -3,143 +3,143 @@
 # Overview
 OVERVIEW = "Overview"
 
-LAST = "close"
+LAST = "close" , 1
 
-CHG = "change"
+CHG = "change", 2
 
-CHG_ABS = "change_abs"
+CHG_ABS = "change_abs", 3
 
-RATING = "Recommend.All"
+RATING = "Recommend.All", 4
 
-VOL = "volume"
+VOL = "volume" , 5
 
-MKT_CAP = "market_cap_basic"
+MKT_CAP = "market_cap_basic", 6
 
-PE_TTM = "price_earnings_ttm"
+PE_TTM = "price_earnings_ttm", 7
 
-EPS_TTM = "earnings_per_share_basic_ttm"
+EPS_TTM = "earnings_per_share_basic_ttm", 8
 
-EMPLY = "number_of_employees"
+EMPLY = "number_of_employees", 9
 
 # Performance
 PERFORMANCE = "Performance"
 
-ONE_M_CHG = "change.1"
+ONE_M_CHG = "change.1", 1
 
-FIVE_M_CHG = "change.5"
+FIVE_M_CHG = "change.5", 2
 
-FIFTEEN_M_CHG = "change.15"
+FIFTEEN_M_CHG = "change.15", 3
 
-ONE_H_CHG = "change.60"
+ONE_H_CHG = "change.60", 4
 
-FOUR_H_CHG = "change.240"
+FOUR_H_CHG = "change.240", 5
 
-# CHG 
+CHG_PERF = CHG, 6
 
-ONE_W_CHG = "change.1W"
+ONE_W_CHG = "change.1W", 7
 
-ONE_M_CHG = "change.1M"
+ONE_M_CHG = "change.1M", 8
 
-THREE_M_CHG = "Perf.3M"
+THREE_M_CHG = "Perf.3M", 9
 
-SIX_M_CHG = "Perf.6M"
+SIX_M_CHG = "Perf.6M", 10
 
-YTD = "Perf.YTD"
+YTD = "Perf.YTD", 11
 
-YEARLY = "Perf.Y" # FY
+YEARLY = "Perf.Y", 12 # FY
 
-ONE_Y_BETA = "beta_1_year"
+ONE_Y_BETA = "beta_1_year", 13
 
-VOL = "Volatility.D"
+VOL = "Volatility.D", 14
 
 # Valuation
 VALUATION = "Valuation"
 
-# MKTCAP
+MKTCAP_VAL = MKT_CAP, 2
 
-# PE_TTM
+PE_TTM_VAL = PE_TTM, 3
 
-P_REV = "price_revenue_ttm"
+P_REV = "price_revenue_ttm", 4
 
-EPS_TTM = "earnings_per_share_basic_ttm"
+EPS_TTM = "earnings_per_share_basic_ttm", 5
 
-EPS_DIL_FY = "last_annual_eps"
+EPS_DIL_FY = "last_annual_eps", 6
 
-EV_EBITDA = "enterprise_value_ebitda_ttm"
+EV_EBITDA = "enterprise_value_ebitda_ttm", 7
 
-EV = "enterprise_value_fq"
+EV = "enterprise_value_fq", 8
 
-SHARES = "total_shares_outstanding_fundamental"
+SHARES = "total_shares_outstanding_fundamental", 9
 
 # Dividends
 DIVIDENDS = "Dividends"
 
-DIV_YIELD = "dividend_yield_recent"
+DIV_YIELD = "dividend_yield_recent", 2
 
-DIV_PAID = "dividends_paid"
+DIV_PAID = "dividends_paid", 3
 
-DIV_SHARE = "dps_common_stock_prim_issue_fy"
+DIV_SHARE = "dps_common_stock_prim_issue_fy", 4
 
 # Margins
 MARGINS = "Margins"
 
-GROSS_MARGIN = "gross_margin"
+GROSS_MARGIN = "gross_margin", 1
 
-OPERATING_MARGIN = "operating_margin"
+OPERATING_MARGIN = "operating_margin", 2
 
-PRETAX_MARGIN = "pre_tax_margin"
+PRETAX_MARGIN = "pre_tax_margin", 3
 
-NET_MARGIN = "after_tax_margin"
+NET_MARGIN = "after_tax_margin", 4
 
 # Income Statement
 INCOME_STMT = "Income Statement"
 
-EPS_FY = "basic_eps_net_income"
+EPS_FY = "basic_eps_net_income", 1
 
-# EPS_TTM
+EPS_TTM_INC  = EPS_TTM, 2
 
-EPS_DIL_TTM = "earnings_per_share_diluted_ttm"
+EPS_DIL_TTM = "earnings_per_share_diluted_ttm", 3
 
-EBITDA = "ebitda"
+EBITDA = "ebitda", 4
 
-GROSS_PROFIT_MRQ = "gross_profit_fq"
+GROSS_PROFIT_MRQ = "gross_profit_fq", 5
 
-GROSS_PROFIT_FY = "gross_profit"
+GROSS_PROFIT_FY = "gross_profit", 6
 
-REVENUE = "total_revenue"
+REVENUE = "total_revenue", 7
 
-# EPS_DIL_FY
+EPS_DIL_FY_INC = EPS_DIL_FY, 8
 
-ANNUAL_REV = "last_annual_revenue"
+ANNUAL_REV = "last_annual_revenue", 9
 
-INCOME = "net_income"
+INCOME = "net_income", 10
 
 # Balance Sheet
 BALANCE_SHT = "Balance Sheet"
 
-CURR_RATIO = "current_ratio"
+CURR_RATIO = "current_ratio", 1
 
-DEBT_EQUITY = "debt_to_equity"
+DEBT_EQUITY = "debt_to_equity", 2
 
-NET_DEBT = "net_debt"
+NET_DEBT = "net_debt", 3
 
-QUICK_RATIO = "quick_ratio"
+QUICK_RATIO = "quick_ratio", 4
 
-ASSET = "total_assets"
+ASSET = "total_assets", 5
 
-DEBT = "total_debt"
+DEBT = "total_debt", 6
 
-CURR_ASSET = "total_current_assets"
+CURR_ASSET = "total_current_assets", 7
 
 # Oscillators
 OSC = "Oscillators"
 
-OSC_RATING = "Recommend.Other"
+OSC_RATING = "Recommend.Other", 1
 
 # Trend-Following
 TREND = "Trend-Following"
 
-MOV_AVG_RATING = "Recommend.MA"
+MOV_AVG_RATING = "Recommend.MA", 1
 
 {
     "Overview" : OVERVIEW,
@@ -171,7 +171,7 @@ MOV_AVG_RATING = "Recommend.MA"
     "15M Change %" : FIFTEEN_M_CHG,
     "1H Change %" : ONE_H_CHG,
     "4H Change %" : FOUR_H_CHG,
-    "Change %" : CHG,
+    "Change %" : CHG_PERF,
     "1W Change" : ONE_W_CHG,
     "1M Change" : ONE_M_CHG,
     "3M Change" : THREE_M_CHG,
@@ -183,8 +183,8 @@ MOV_AVG_RATING = "Recommend.MA"
 }
 # valuation
 {
-    "Market Cap" : MKT_CAP,
-    "P/E (TTM)" : PE_TTM,
+    "Market Cap" : MKTCAP_VAL,
+    "P/E (TTM)" : PE_TTM_VAL,
     "Price/Revenue" : P_REV,
     "EPS (TTM" : EPS_TTM,
     "EPS Diluted (FY)" : EPS_DIL_FY,
@@ -210,18 +210,18 @@ MOV_AVG_RATING = "Recommend.MA"
 # Income Statement
 {
     "EPS (FY)" : EPS_FY,
-    "EPS (TTM)" : EPS_TTM,
+    "EPS (TTM)" : EPS_TTM_INC,
     "EPS Diluted (TTM)" : EPS_DIL_TTM,
     "EBITDA" : EBITDA,
     "Gross Profit (MRQ)" : GROSS_PROFIT_MRQ,
     "Gross Profit (FY)" : GROSS_PROFIT_FY,
     "Revenue" : REVENUE,
-    "EPS Diltuted (FY)" : EPS_DIL_FY,
+    "EPS Diltuted (FY)" : EPS_DIL_FY_INC,
     "Annual Revenue" : ANNUAL_REV,
     "Annual Income" : INCOME
 }
 
-    # Balance Sheet
+# Balance Sheet
 {
 
     "Current Ratio" : CURR_RATIO,
