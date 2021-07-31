@@ -8,9 +8,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import *
-from industry_constants import *
-from portfolio_constants import PATH
-from data import Data
+from .industry_constants import *
+from .portfolio_constants import PATH
+from .data import Data
 from utils.modify import *
 import os
 
