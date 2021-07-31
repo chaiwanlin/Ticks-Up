@@ -9,6 +9,7 @@ from utils.graphs import draw_graph
 from assets.models import Ticker
 from portfolio_functions.industry import Industry
 from portfolio_functions.industry_constants import *
+from background_task import background
 
 
 def home(request):
@@ -86,6 +87,7 @@ def search_ticker(request):
         return redirect(reverse(home))
 
 
+@background()
 def view_similar_tickers(request, ticker, sector_or_industry):
     try:
         stock = Stock(ticker)

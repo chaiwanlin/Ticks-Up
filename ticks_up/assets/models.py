@@ -76,8 +76,8 @@ class StockPosition(models.Model):
     ]
     long_or_short = models.CharField(max_length=5, choices=LONG_OR_SHORT, default='LONG')
 
-    entry_price = models.DecimalField(max_digits=19, decimal_places=2)
-    total_shares = models.DecimalField(max_digits=19, decimal_places=2)
+    entry_price = models.DecimalField(max_digits=19, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    total_shares = models.DecimalField(max_digits=19, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
 
     def __str__(self):
         return "[STOCK] {ticker} | Total Cost: {total_cost} | Total Shares: {total_shares}".format(
@@ -139,7 +139,7 @@ class OptionPosition(models.Model):
 
     expiration_date = models.DateField()
     strike_price = models.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    entry_price = models.DecimalField(max_digits=19, decimal_places=2)
+    entry_price = models.DecimalField(max_digits=19, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
     total_contracts = models.PositiveIntegerField()
 
     def __str__(self):
