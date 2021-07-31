@@ -9,7 +9,7 @@ git pull https://github.com/chaiwanlin/TicksUp.git
 ````
 Then to checkout our latest milestone:
 ````
-git checkout milestone1
+git checkout ms3
 ````
 Next, you will have to install the requirements for the app to run.
 Make sure you are in the main directory.
