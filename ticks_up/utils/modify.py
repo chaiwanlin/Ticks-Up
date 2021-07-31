@@ -28,3 +28,5 @@ def string_to_float(string):
     elif "T" in string:
         string = string.replace("T", "")
         return float(string) * 1000000000000
+
+# def parse_ticker():
