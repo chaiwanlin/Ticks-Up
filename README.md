@@ -31,7 +31,7 @@ PATH = "C:\Program Files (x86)/chromedriver.exe"
 ````
 Default on MacOS:
 ````
-PATH = "'/Users/youruser/Downloads/chromedriver'"
+PATH = "/Users/youruser/Downloads/chromedriver"
 ````
 You are now ready to launch our website.
 Change into the `ticks_up` directory and follow the following commands:
