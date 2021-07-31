@@ -164,10 +164,15 @@ def get_y(x, coordinate_list):
     for i in range(0, len(coordinate_list)):
         if x == coordinate_list[i][0]:
             return coordinate_list[i][1]
+
         elif i == len(coordinate_list) - 1:
+            if coordinate_list[i][0] == coordinate_list[i - 1][0]:
+                return coordinate_list[i][1]
+
             gradient = (coordinate_list[i][1] - coordinate_list[i - 1][1]) / (
-                        coordinate_list[i][0] - coordinate_list[i - 1][0])
+                    coordinate_list[i][0] - coordinate_list[i - 1][0])
             return coordinate_list[i - 1][1] + (gradient * (x - coordinate_list[i - 1][0]))
+
         elif (coordinate_list[i][0] < x < coordinate_list[i + 1][0]) or i == 0 and x <= coordinate_list[i][0]:
             gradient = (coordinate_list[i][1] - coordinate_list[i + 1][1]) / (
                         coordinate_list[i][0] - coordinate_list[i + 1][0])

@@ -77,10 +77,10 @@ class AddVerticalSpreadExtraForm(forms.Form):
     expiration_date = forms.DateField()
     quantity = forms.IntegerField(min_value=1)
 
-    short_leg_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    long_leg_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    short_leg_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    long_leg_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    short_leg_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    long_leg_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    short_leg_premium = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    long_leg_premium = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
 
 
 
@@ -94,25 +94,25 @@ class AddButterflySpreadExtraForm(forms.Form):
     expiration_date = forms.DateField()
     quantity = forms.IntegerField(min_value=1)
 
-    long_put_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    short_put_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    short_call_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    long_call_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    long_put_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    short_put_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    short_call_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    long_call_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
 
-    long_put_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    short_put_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    short_call_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    long_call_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    long_put_premium = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    short_put_premium = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    short_call_premium = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    long_call_premium = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
 
 
 class AddCollarForm(forms.Form):
     expiration_date = forms.DateField()
     quantity = forms.IntegerField(min_value=1)
 
-    long_put_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    short_call_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    long_put_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    short_call_premium = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    long_put_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    short_call_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    long_put_premium = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    short_call_premium = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
 
 
 class AddProtectivePutForm(forms.Form):

@@ -156,7 +156,7 @@ class Bear(Spread):
 
             cost = max_loss
             profit = credit
-            breakeven = short_leg + credit
+            breakeven = short_leg.strike_price + credit
             lower_leg = short_leg.strike_price
             upper_leg = long_leg.strike_price
             # cost to cover
@@ -308,7 +308,6 @@ class Collar(Spread):
         expiry = long_put.expiry
 
         cost = long_put.cost - short_call.cost
-        print(isinstance(stock.cost, float))
         max_loss = stock.cost - long_put.strike_price + cost
         
         profit = short_call.strike_price - stock.cost - cost

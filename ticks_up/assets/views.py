@@ -517,7 +517,7 @@ def add_vertical_spread(request, portfolio_id):
                     long_or_short='SHORT',
                     expiration_date=expiration_date,
                     strike_price=vseform.cleaned_data['short_leg_strike'],
-                    total_cost=vseform.cleaned_data['short_leg_premium'] * quantity,
+                    entry_price=vseform.cleaned_data['short_leg_premium'],
                     total_contracts=quantity
                 )
                 long_leg = OptionPosition(
@@ -527,7 +527,7 @@ def add_vertical_spread(request, portfolio_id):
                     long_or_short='LONG',
                     expiration_date=expiration_date,
                     strike_price=vseform.cleaned_data['long_leg_strike'],
-                    total_cost=vseform.cleaned_data['long_leg_premium'] * quantity,
+                    entry_price=vseform.cleaned_data['long_leg_premium'],
                     total_contracts=quantity
                 )
             else:
@@ -538,7 +538,7 @@ def add_vertical_spread(request, portfolio_id):
                     long_or_short='SHORT',
                     expiration_date=expiration_date,
                     strike_price=vseform.cleaned_data['short_leg_strike'],
-                    total_cost=vseform.cleaned_data['short_leg_premium'] * quantity,
+                    entry_price=vseform.cleaned_data['short_leg_premium'],
                     total_contracts=quantity
                 )
                 long_leg = OptionPosition(
@@ -548,7 +548,7 @@ def add_vertical_spread(request, portfolio_id):
                     long_or_short='LONG',
                     expiration_date=expiration_date,
                     strike_price=vseform.cleaned_data['long_leg_strike'],
-                    total_cost=vseform.cleaned_data['long_leg_premium'] * quantity,
+                    entry_price=vseform.cleaned_data['long_leg_premium'],
                     total_contracts=quantity
                 )
             short_leg.save()
@@ -595,7 +595,7 @@ def add_butterfly_spread(request, portfolio_id):
                 long_or_short='LONG',
                 expiration_date=expiration_date,
                 strike_price=bseform.cleaned_data['long_put_strike'],
-                total_cost=bseform.cleaned_data['long_put_premium'] * quantity,
+                entry_price=bseform.cleaned_data['long_put_premium'],
                 total_contracts=quantity
             )
             short_put = OptionPosition(
@@ -605,7 +605,7 @@ def add_butterfly_spread(request, portfolio_id):
                 long_or_short='SHORT',
                 expiration_date=expiration_date,
                 strike_price=bseform.cleaned_data['short_put_strike'],
-                total_cost=bseform.cleaned_data['short_put_premium'] * quantity,
+                entry_price=bseform.cleaned_data['short_put_premium'],
                 total_contracts=quantity
             )
             short_call = OptionPosition(
@@ -615,7 +615,7 @@ def add_butterfly_spread(request, portfolio_id):
                 long_or_short='SHORT',
                 expiration_date=expiration_date,
                 strike_price=bseform.cleaned_data['short_call_strike'],
-                total_cost=bseform.cleaned_data['short_call_premium'] * quantity,
+                entry_price=bseform.cleaned_data['short_call_premium'],
                 total_contracts=quantity
             )
             long_call = OptionPosition(
@@ -625,7 +625,7 @@ def add_butterfly_spread(request, portfolio_id):
                 long_or_short='LONG',
                 expiration_date=expiration_date,
                 strike_price=bseform.cleaned_data['long_call_strike'],
-                total_cost=bseform.cleaned_data['long_call_premium'] * quantity,
+                entry_price=bseform.cleaned_data['long_call_premium'],
                 total_contracts=quantity
             )
             long_put.save()
@@ -697,7 +697,7 @@ def add_collar(request, portfolio_id, ticker_name):
                 long_or_short='LONG',
                 expiration_date=expiration_date,
                 strike_price=cform.cleaned_data['long_put_strike'],
-                total_cost=cform.cleaned_data['long_put_premium'] * quantity,
+                entry_price=cform.cleaned_data['long_put_premium'],
                 total_contracts=quantity
             )
             short_call = OptionPosition(
@@ -707,7 +707,7 @@ def add_collar(request, portfolio_id, ticker_name):
                 long_or_short='SHORT',
                 expiration_date=expiration_date,
                 strike_price=cform.cleaned_data['short_call_strike'],
-                total_cost=cform.cleaned_data['short_call_premium'] * quantity,
+                entry_price=cform.cleaned_data['short_call_premium'],
                 total_contracts=quantity
             )
             long_put.save()
@@ -758,7 +758,7 @@ def add_protective_put(request, portfolio_id, ticker_name):
                 long_or_short='LONG',
                 expiration_date=expiration_date,
                 strike_price=ppform.cleaned_data['long_put_strike'],
-                total_cost=ppform.cleaned_data['long_put_premium'] * quantity,
+                entry_price=ppform.cleaned_data['long_put_premium'],
                 total_contracts=quantity
             )
             long_put.save()
@@ -864,7 +864,7 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
                 long_or_short='LONG',
                 expiration_date=request.POST.get('expiration_date'),
                 strike_price=decimal.Decimal(request.POST.get('strike_price')),
-                total_cost=decimal.Decimal(request.POST.get('strike_premium') * quantity),
+                entry_price=decimal.Decimal(request.POST.get('strike_premium')),
                 total_contracts=quantity
             )
             long_put.save()
@@ -885,7 +885,7 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
                 long_or_short='LONG',
                 expiration_date=request.POST.get('expiration_date'),
                 strike_price=decimal.Decimal(request.POST.get('strike_price')),
-                total_cost=decimal.Decimal(request.POST.get('strike_premium') * quantity),
+                entry_price=decimal.Decimal(request.POST.get('strike_premium')),
                 total_contracts=quantity
             )
             short_call = OptionPosition(
@@ -895,7 +895,7 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
                 long_or_short='SHORT',
                 expiration_date=request.POST.get('short_call_expiration_date'),
                 strike_price=decimal.Decimal(request.POST.get('short_call_strike_price')),
-                total_cost=decimal.Decimal(request.POST.get('short_call_strike_premium') * quantity),
+                entry_price=decimal.Decimal(request.POST.get('short_call_strike_premium')),
                 total_contracts=quantity
             )
             long_put.save()
