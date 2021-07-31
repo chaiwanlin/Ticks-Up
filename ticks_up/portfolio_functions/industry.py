@@ -23,14 +23,12 @@ def get_driver():
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--no-sandbox")
-    # driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
-    driver = webdriver.Chrome(PATH, options = chrome_options)
+    driver = webdriver.Chrome(CHROMEDRIVER_PATH, options = chrome_options)
     return driver
     
 class Industry:
 
     def __init__(self, ticker):
-        # PATH = "C:\Program Files (x86)/chromedriver.exe"
         self.ticker = ticker.upper()
         try: 
             request = rq.urlopen(f"https://www.tradingview.com/symbols/{ticker}/")

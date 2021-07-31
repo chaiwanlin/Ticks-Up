@@ -306,7 +306,7 @@ def make_stock(stock_pos):
     return pi.Stock(stock_pos.ticker.name,
                  stock_pos.long_or_short,
                  float(stock_pos.total_shares),
-                 float(stock_pos.total_cost()))
+                 float(stock_pos.entry_price))
 
 
 def make_option(option_pos):
@@ -315,7 +315,7 @@ def make_option(option_pos):
             option_pos.ticker.name,
             option_pos.long_or_short,
             option_pos.total_contracts,
-            float(option_pos.total_cost()),
+            float(option_pos.entry_price),
             float(option_pos.strike_price),
             option_pos.expiration_date
         )
@@ -324,7 +324,7 @@ def make_option(option_pos):
             option_pos.ticker.name,
             option_pos.long_or_short,
             option_pos.total_contracts,
-            float(option_pos.total_cost()),
+            float(option_pos.entry_price),
             float(option_pos.strike_price),
             option_pos.expiration_date
         )

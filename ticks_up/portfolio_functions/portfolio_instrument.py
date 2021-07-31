@@ -55,7 +55,7 @@ class Stock(Instrument):
                 self.outlook = BULL
                 self.risk = cost
             elif position == SHORT:
-                self.outlook ==  BEAR
+                self.outlook == BEAR
                 self.risk = math.inf
         else:
             raise ValueError("enter a valid position: LONG/SHORT")

@@ -46,12 +46,12 @@ class StockPosition:
         self.short_PL = 0
 
         for e in self.long_positions:
-            self.capital_invested += e.cost
-            self.value += e.value
+            self.capital_invested += e.lot_cost
+            self.value += e.lot_value
         
         if margin:
             for e in self.short_positions:
-                self.capital_invested += e.cost + margin_value * price
+                self.capital_invested += e.lot_cost + margin_value * price
                 self.cost_to_cover += price
                 self.short_PL += e.cost - price
 
