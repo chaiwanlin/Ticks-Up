@@ -1,3 +1,5 @@
+PATH = "C:\Program Files (x86)/chromedriver.exe"
+
 SHORT = "SHORT"
 
 LONG = "LONG"
@@ -21,8 +23,6 @@ IRON = "IRON"
 STRADDLE = "STRADDLE"
 
 NEUTRAL = "NEUTRAL"
-
-PATH = "C:\Program Files (x86)/chromedriver.exe"
 
 CREDIT = "CREDIT"
 
