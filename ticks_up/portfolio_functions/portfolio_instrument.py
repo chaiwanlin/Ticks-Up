@@ -32,8 +32,11 @@ class Instrument(Asset):
         self.leveraged_quantity = leveraged_quantity
         self.risk = None
         self.outlook = None
-        self.lot_value = self.leveraged_quantity * value
-        self.lot_cost = self.leveraged_quantity * cost
+
+        self.lot_value = self.leveraged_quantity * self.value
+        self.lot_cost = self.leveraged_quantity * self.cost
+        self.lot_risk = self.leveraged_quantity * self.risk
+        self.short_PL = self.leveraged_quantity * (self.cost - self.value)
 
 
 class Stock(Instrument):
@@ -81,8 +84,8 @@ class Call(Option):
             except LookupError:
                 value = cost
             super().__init__(position, quantity, cost, strike_price, expiry, value)
-            
             self.ticker = ticker
+
             if position == LONG:
                 self.outlook = BULL
                 self.risk = cost
@@ -186,7 +189,6 @@ class Bear(Spread):
         self.breakeven = breakeven
         self.lower_bound = lower_leg
         self.upper_bound = upper_leg
-
 
 class Bull(Spread):
 
