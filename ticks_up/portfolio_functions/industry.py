@@ -23,7 +23,7 @@ def get_driver():
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome(CHROMEDRIVER_PATH, options = chrome_options)
+    driver = webdriver.Chrome('/Users/chaiwanlin/Downloads/chromedriver', options = chrome_options)
     return driver
     
 class Industry:

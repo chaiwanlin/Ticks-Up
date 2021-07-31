@@ -138,7 +138,7 @@ class OptionPosition(models.Model):
     long_or_short = models.CharField(max_length=5, choices=LONG_OR_SHORT)
 
     expiration_date = models.DateField()
-    strike_price = models.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
+    strike_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
     entry_price = models.DecimalField(max_digits=19, decimal_places=2)
     total_contracts = models.PositiveIntegerField()
 
@@ -229,9 +229,9 @@ class ButterflySpread(models.Model):
     ticker = models.ForeignKey(Ticker, on_delete=models.CASCADE)
 
     TYPES = [
-        ('IRON CONDOR', 'Iron Condor'),
+        ('CREDIT', 'Iron Condor (Credit)'),
     ]
-    types = models.CharField(max_length=20, choices=TYPES)
+    types = models.CharField(max_length=25, choices=TYPES)
 
     bull_spread = models.OneToOneField(VerticalSpread, on_delete=models.CASCADE, related_name="bull_spread")
     bear_spread = models.OneToOneField(VerticalSpread, on_delete=models.CASCADE, related_name="bear_spread")
