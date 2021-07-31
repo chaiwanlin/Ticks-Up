@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load crispy_forms_tags %}
+{% load assets_extras %}
 
 {% block content %}
 
@@ -8,14 +9,75 @@
     <h1 class="display-6 my-4 text-center">{{ portfolio.name }}</h1>
     <hr class="mb-4">
 
+    <table class="table w-25">
+        <tbody>
+            <tr class="table-secondary">
+                <th scope="row">
+                    Cash
+                </th>
+                <td>
+                    ${{ portfolio.cash }}
+                </td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addCash">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                        <div class="modal fade" id="addCash" tabindex="-1" aria-labelledby="addCashLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="addCashLabel">Add cash to portfolio</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="post" action="{% url 'edit_cash' portfolio_id=portfolio.id add_or_remove='ADD' %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        {{ cashform|crispy }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#removeCash">
+                            <i class="bi bi-dash-lg"></i>
+                        </button>
+                        <div class="modal fade" id="removeCash" tabindex="-1" aria-labelledby="removeCashLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="removeCashLabel">Remove cash</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="post" action="{% url 'edit_cash' portfolio_id=portfolio.id add_or_remove='REMOVE' %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        {{ cashform|crispy }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table">
         <thead>
             <tr>
                 <th scope="col">Symbol</th>
                 <th scope="col">Position</th>
-                <th scope="col">Total cost</th>
+                <th scope="col">Entry Price</th>
                 <th scope="col">Quantity</th>
-                <th scope="col">Cost per quantity</th>
+                <th scope="col">Total Cost</th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -29,9 +91,9 @@
                 </th>
                 {% if pos.0 %}
                 <td>Shares</td>
-                <td>{{ pos.0.total_cost }}</td>
+                <td>{{ pos.0.entry_price }}</td>
                 <td>{{ pos.0.total_shares }}</td>
-                <td>{{ pos.0.average_cost }}</td>
+                <td>{{ pos.0.total_cost }}</td>
                 <td>
                     <button type="button" class="btn btn-warning btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#hedge{{ symbol }}Stock">
                         <i class="bi bi-shield-shaded"></i>
@@ -211,9 +273,9 @@
             <tr class="table-light">
                 <th></th>
                 <td>{{ option }}</td>
-                <td>{{ option.total_cost }}</td>
+                <td>{{ option.entry_price }}</td>
                 <td>{{ option.total_contracts }}</td>
-                <td>{{ option.average_cost }}</td>
+                <td>{{ option.total_cost }}</td>
                 <td></td>
                 <td></td>
                 <td>
@@ -369,6 +431,38 @@
     </div>
 
     <div class="mt-4"></div>
+
+    <div class="">
+        <h3>Portfolio Level</h3>
+        <hr class="mb-2">
+        <div class="row mb-5">
+            <div class="col">
+                {{ portfolio_breakdown.portfolio_level.ticker_breakdown_graph|safe }}
+            </div>
+            <div class="col">
+                {{ portfolio_breakdown.portfolio_level.sector_breakdown_graph|safe }}
+            </div>
+        </div>
+        <h3>Sector Level</h3>
+        <hr class="mb-2">
+        {% for sector, sector_dict in portfolio_breakdown.portfolio_level.sector_level.items %}
+            <h4>{{ sector }} Sector</h4>
+            <div class="row">
+                <div class="col">
+                    {{ sector_dict.ticker_breakdown_graph|safe }}
+                </div>
+                <div class="col">
+                    {{ sector_dict.industry_breakdown_graph|safe }}
+                </div>
+            </div>
+            <h4>{{sector}}: Industry Level</h4>
+            {% for industry, industry_dict in sector_dict.industry_level.items %}
+                <h5>{{ industry }} Industry</h5>
+                {{ industry_dict.ticker_breakdown_graph|safe }}
+            {% endfor %}
+        <hr class="my-2">
+        {% endfor %}
+    </div>
 </div>
 
 {% endblock %}

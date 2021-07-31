@@ -1,56 +1,46 @@
-from os import PathLike
-from portfolio_constants import PATH
+from bs4 import BeautifulSoup
+import urllib.request as rq
+from urllib.error import HTTPError
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from industry_constants import *
-from data import Data
+from selenium.common.exceptions import *
+from .industry_constants import *
+from .portfolio_constants import PATH
+from .data import Data
+from utils.modify import *
 import os
 
 
 def get_driver():
-    # chrome_options = webdriver.ChromeOptions()
+    chrome_options = webdriver.ChromeOptions()
     # chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    # chrome_options.add_argument("--window-size=1920,1080")
-    # chrome_options.add_argument("--start-maximized")
-    # chrome_options.add_argument("--headless")
-    # chrome_options.add_argument("--disable-dev-shm-usage")
-    # chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
     # driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
-    driver = webdriver.Chrome(PATH)
+    driver = webdriver.Chrome(PATH, options = chrome_options)
     return driver
     
 class Industry:
 
     def __init__(self, ticker):
         # PATH = "C:\Program Files (x86)/chromedriver.exe"
-        self.ticker = ticker
+        self.ticker = ticker.upper()
         try: 
+            request = rq.urlopen(f"https://www.tradingview.com/symbols/{ticker}/")
+            soup = BeautifulSoup(request.read(), 'html.parser')
 
-            driver = get_driver()
+            lst = soup.findAll("span", class_ = "tv-widget-description__value") 
 
-            # driver.get("https://www.tradingview.com/markets/stocks-usa/market-movers-large-cap/") 
-
-            # search = WebDriverWait(driver, 20).until(
-            #     EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="tv-screener-table__search-query js-search-query tv-screener-table__search-query--without-description"] input[class="tv-screener-table__search-input js-search-input"]'))
-            # )
-            # search.send_keys(ticker)
-
-            # sleep(2)
-            
-            # search = WebDriverWait(driver, 20).until(
-            #     EC.presence_of_element_located((By.CSS_SELECTOR, 'a[class="tv-screener__symbol apply-common-tooltip"]'))
-            # ).click()
-
-            driver.get("https://www.tradingview.com/symbols/{ticker}/") 
-
-            lst = driver.find_elements_by_class_name("tv-widget-description__value")
             self.sector = lst[0].text
             self.industry = lst[1].text
-        except Exception:
+        except HTTPError:
             raise LookupError("hehexd wrogn ticekr!")
 
     def get_industry(self):
@@ -61,6 +51,7 @@ class Industry:
 
     # category: string choices
     # indicator: string choices
+    @staticmethod
     def get_stocks_same_sector(sector, category, indicator):
         sector = sector.lower().replace(" ", "-")
         driver = get_driver()
@@ -68,31 +59,45 @@ class Industry:
 
         if category != "Overview":
 
-            WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, f'//div[text()="{category}"]'))
-            ).click()
+            driver.find_element_by_xpath(f'//div[text()="{category}"]').click()
+
+            # WebDriverWait(driver, 20).until(
+            #     EC.presence_of_element_located((By.XPATH, f'//div[text()="{category}"]'))
+            # ).click()
 
             sleep(1)
                 
         WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{indicator}"]'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{indicator[0]}"]'))
         ).click()
 
         sleep(1)
 
-        body = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
-        )
+        while(True):
+            try: 
+                driver.find_element_by_class_name("tv-load-more__btn").click()
+                sleep(1)
+            except ElementNotInteractableException:
+                break
+
+        body = driver.find_element_by_css_selector('tbody[class="tv-data-table__tbody"]')
+
+        # body = WebDriverWait(driver, 20).until(
+        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
+        # )
 
         body = body.find_elements_by_xpath("./tr")
         result = []
+        index = indicator[1]
 
         for tr in body:
             tds = tr.find_elements_by_xpath("./td")
+            
+            ticker = tds[0].find_element_by_xpath(".//div/a").text
+            value = tds[index].text
 
-            value = tds[0].find_element_by_xpath(".//div/a").text
             data = {
-                "Ticker" : tds[6].text,
+                "Ticker" : ticker,
                 indicator : value
             }
 
@@ -107,33 +112,50 @@ class Industry:
 
         if category != "Overview":
 
-            WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, f'//div[text()="{category}"]'))
-            ).click()
+            driver.find_element_by_xpath(f'//div[text()="{category}"]').click()
+
+            # WebDriverWait(driver, 20).until(
+            #     EC.presence_of_element_located((By.XPATH, f'//div[text()="{category}"]'))
+            # ).click()
 
             sleep(1)
                 
         WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{indicator}"]'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{indicator[0]}"]'))
         ).click()
 
         sleep(1)
 
-        body = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
-        )
+        while(True):
+            try: 
+                driver.find_element_by_class_name("tv-load-more__btn").click()
+                sleep(1)
+            except ElementNotInteractableException:
+                break
+
+        sleep(2)
+
+        body = driver.find_element_by_css_selector('tbody[class="tv-data-table__tbody"]')
+
+        # body = WebDriverWait(driver, 20).until(
+        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
+        # )
 
         body = body.find_elements_by_xpath("./tr")
         result = []
-        index = 0
+        ticker_index = 0
+        ticker_val = 0
         count = 0
-        val = 0
+        index = indicator[1]
 
         for tr in body:
             tds = tr.find_elements_by_xpath("./td")
 
-            ticker = tds[6].text
-            value = tds[0].find_element_by_xpath(".//div/a").text
+
+
+            ticker = tds[0].find_element_by_xpath(".//div/a").text
+            # print(ticker)
+            value = tds[index].text
 
             data = {
                 "Ticker" : ticker,
@@ -141,18 +163,23 @@ class Industry:
             }
 
             if ticker == self.ticker:
-                index = count
-                val = value
+                ticker_index = count
+                ticker_val = value
 
             result.append(Data(value, data))
             count += 1
         
         len = count - 1
-        lo, hi = index - 1, index + 1
+        lo, hi = ticker_index - 1, ticker_index + 1
         lst = []
+        true_val = string_to_float(ticker_val)
+
 
         while k > 0 and lo >=0 and hi <= len:
-            if val - result[lo].value <= result[hi] - val:
+            true_lo_val = string_to_float(result[lo].value)
+            true_hi_val = string_to_float(result[hi].value)
+
+            if (true_val - true_lo_val) <= (true_hi_val - true_val):
                 lst.append(result[lo])
                 lo -= 1
                 k -= 1
@@ -175,6 +202,9 @@ class Industry:
 
         return lst
 
+
+
+    @staticmethod
     def get_stocks_same_industry(industry, category, indicator):
         industry = industry.lower().replace(" ", "-")
         driver = get_driver()
@@ -182,72 +212,103 @@ class Industry:
 
         if category != "Overview":
 
-            WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, f'//div[text()="{category}"]'))
-            ).click()
+            driver.find_element_by_xpath(f'//div[text()="{category}"]').click()
+
+            # WebDriverWait(driver, 20).until(
+            #     EC.presence_of_element_located((By.XPATH, f'//div[text()="{category}"]'))
+            # ).click()
 
             sleep(1)
-        
+                
         WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{indicator}"]'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{indicator[0]}"]'))
         ).click()
 
         sleep(1)
 
-        body = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
-        )
+        while(True):
+            try: 
+                driver.find_element_by_class_name("tv-load-more__btn").click()
+                sleep(1)
+            except ElementNotInteractableException:
+                break
+
+        body = driver.find_element_by_css_selector('tbody[class="tv-data-table__tbody"]')
+
+        # body = WebDriverWait(driver, 20).until(
+        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
+        # )
 
         body = body.find_elements_by_xpath("./tr")
         result = []
+        index = indicator[1]
 
         for tr in body:
             tds = tr.find_elements_by_xpath("./td")
+            
+            ticker = tds[0].find_element_by_xpath(".//div/a").text
+            value = tds[index].text
 
-            value = tds[0].find_element_by_xpath(".//div/a").text
             data = {
-                "Ticker" : tds[6].text,
+                "Ticker" : ticker,
                 indicator : value
             }
 
             result.append(Data(value, data))
-        
+       
         return result
 
     def get_k_closest_same_industry(self, k, category, indicator):
         industry = self.industry.lower().replace(" ", "-")
         driver = get_driver()
-        driver.get(f"https://www.tradingview.com/markets/stocks-usa/sectorandindustry-sector/{industry}/")
+        driver.get(f"https://www.tradingview.com/markets/stocks-usa/sectorandindustry-industry/{industry}/")
 
         if category != "Overview":
 
-            WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, f'//div[text()="{category}"]'))
-            ).click()
+            driver.find_element_by_xpath(f'//div[text()="{category}"]').click()
+
+            # WebDriverWait(driver, 20).until(
+            #     EC.presence_of_element_located((By.XPATH, f'//div[text()="{category}"]'))
+            # ).click()
 
             sleep(1)
                 
         WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{indicator}"]'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{indicator[0]}"]'))
         ).click()
 
         sleep(1)
 
-        body = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
-        )
+        while(True):
+            try: 
+                driver.find_element_by_class_name("tv-load-more__btn").click()
+                sleep(1)
+            except ElementNotInteractableException:
+                break
+
+        sleep(2)
+
+        body = driver.find_element_by_css_selector('tbody[class="tv-data-table__tbody"]')
+
+        # body = WebDriverWait(driver, 20).until(
+        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
+        # )
 
         body = body.find_elements_by_xpath("./tr")
         result = []
-        index = 0
+        ticker_index = 0
+        ticker_val = 0
         count = 0
-        val = 0
+        index = indicator[1]
 
         for tr in body:
             tds = tr.find_elements_by_xpath("./td")
 
-            ticker = tds[6].text
-            value = tds[0].find_element_by_xpath(".//div/a").text
+
+
+            ticker = tds[0].find_element_by_xpath(".//div/a").text
+            # print(ticker)
+            value = tds[index].text
 
             data = {
                 "Ticker" : ticker,
@@ -255,18 +316,23 @@ class Industry:
             }
 
             if ticker == self.ticker:
-                index = count
-                val = value
+                ticker_index = count
+                ticker_val = value
 
             result.append(Data(value, data))
             count += 1
         
         len = count - 1
-        lo, hi = index - 1, index + 1
+        lo, hi = ticker_index - 1, ticker_index + 1
         lst = []
+        true_val = string_to_float(ticker_val)
+
 
         while k > 0 and lo >=0 and hi <= len:
-            if val - result[lo].value <= result[hi] - val:
+            true_lo_val = string_to_float(result[lo].value)
+            true_hi_val = string_to_float(result[hi].value)
+
+            if (true_val - true_lo_val) <= (true_hi_val - true_val):
                 lst.append(result[lo])
                 lo -= 1
                 k -= 1
@@ -286,11 +352,31 @@ class Industry:
             lst.append(result[hi])
             hi += 1
             k -= 1
-        
+
         return lst
 
-# print(Industry("AAPL").get_k_closest_same_sector(5, "Overview", MKT_CAP))
+
+# result = Industry("AAPL")
+result = Industry("AAPL").get_k_closest_same_industry(5, PERFORMANCE, FOUR_H_CHG)
+for i in result:
+    print(i.data)
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
-# print(Industry("hehexd"))
+# print(Industry("pltr"))
 
+
+# driver = get_driver()
+# driver.get("https://www.tradingview.com/markets/stocks-usa/sectorandindustry-industry/telecommunications-equipment/")
+
+# WebDriverWait(driver, 20).until(
+#             EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{MKT_CAP[0]}"]'))
+#         ).click()
+
+# sleep(1)
+
+# while(True):
+#     try: 
+#         driver.find_element_by_class_name("tv-load-more__btn").click()
+#         sleep(1)
+#     except ElementNotInteractableException:
+#         break

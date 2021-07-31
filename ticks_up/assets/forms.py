@@ -12,6 +12,10 @@ class AddPortfolioForm(forms.ModelForm):
         exclude = ('user',)
 
 
+class CashForm(forms.Form):
+    amount = forms.DecimalField(max_digits=19, decimal_places=2, min_value=0)
+
+
 class TickerForm(forms.ModelForm):
     class Meta:
         model = Ticker
@@ -59,7 +63,7 @@ class AddOptionPositionForm(forms.ModelForm):
 class EditOptionPositionForm(forms.ModelForm):
     class Meta:
         model = OptionPosition
-        fields = ['total_cost', 'total_contracts']
+        fields = ['entry_price', 'total_contracts']
 
 
 class AddVerticalSpreadForm(forms.ModelForm):

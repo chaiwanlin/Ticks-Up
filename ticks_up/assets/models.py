@@ -10,7 +10,8 @@ from portfolio_functions.industry import Industry as Classification
 class Portfolio(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
-    margin = models.DecimalField(max_digits=4, decimal_places=2, help_text='Leave blank if unknown', blank=True, null=True)
+    cash = models.DecimalField(max_digits=19, decimal_places=2)
+    margin = models.DecimalField(max_digits=4, decimal_places=2, help_text='Leave blank if not margin account', blank=True, null=True)
     # date_created = models.DateTimeField()     # required? useful to sort
 
     def __str__(self):
@@ -75,13 +76,13 @@ class StockPosition(models.Model):
     ]
     long_or_short = models.CharField(max_length=5, choices=LONG_OR_SHORT, default='LONG')
 
-    total_cost = models.DecimalField(max_digits=19, decimal_places=2)
+    entry_price = models.DecimalField(max_digits=19, decimal_places=2)
     total_shares = models.DecimalField(max_digits=19, decimal_places=2)
 
     def __str__(self):
         return "[STOCK] {ticker} | Total Cost: {total_cost} | Total Shares: {total_shares}".format(
             ticker=self.ticker,
-            total_cost=self.total_cost,
+            total_cost=self.entry_price,
             total_shares=self.total_shares,
         )
 
@@ -91,29 +92,30 @@ class StockPosition(models.Model):
             stock = StockPosition.objects.get(portfolio=self.portfolio, ticker=self.ticker)
 
             # Calculate aggregate
-            stock.total_cost += self.total_cost
-            stock.total_shares += self.total_shares
+            if self.total_shares > 0:
+                self.entry_price = ((stock.entry_price * stock.total_shares) + (self.entry_price * self.total_shares)) / (self.total_shares + stock.total_shares)
+            else:
+                self.entry_price = stock.entry_price
+            self.total_shares += stock.total_shares
 
-            if stock.total_shares < 0:
+            if self.total_shares < 0:
                 # Trying to delete more shares than own, illegal
                 raise ValueError('You cannot sell more shares than you own!')
-            elif stock.total_shares == 0:
+            elif self.total_shares == 0:
+                stock.delete()
                 # Check if there are options for this ticker
-                if self.portfolio.optionposition_set.filter(ticker=self.ticker):
-                    # There are options, delete stock position only
-                    stock.delete()
-                else:
-                    # No options, remove ticker from portfolio
+                if not self.portfolio.optionposition_set.filter(ticker=self.ticker):
                     self.portfolio.ticker_set.remove(self.ticker)
             else:
                 # Valid edit, update stock position
-                super(StockPosition, stock).save()
+                stock.delete()
+                super().save(*args, **kwargs)
         except StockPosition.DoesNotExist:
             # Stock position does not exist yet, create
             super().save(*args, **kwargs)
 
-    def average_cost(self):
-        return round(self.total_cost / self.total_shares, 4)
+    def total_cost(self):
+        return round(self.entry_price * self.total_shares, 4)
 
 
 # OptionPosition ---|many-to-one|---> Portfolio
@@ -137,7 +139,7 @@ class OptionPosition(models.Model):
 
     expiration_date = models.DateField()
     strike_price = models.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
-    total_cost = models.DecimalField(max_digits=19, decimal_places=2)
+    entry_price = models.DecimalField(max_digits=19, decimal_places=2)
     total_contracts = models.PositiveIntegerField()
 
     def __str__(self):
@@ -161,28 +163,29 @@ class OptionPosition(models.Model):
             )
 
             # Calculate aggregate
-            option.total_cost += self.total_cost
-            option.total_contracts += self.total_contracts
+            if self.total_contracts > 0:
+                self.entry_price = ((option.entry_price * option.total_contracts) + (self.entry_price * self.total_contracts)) / (self.total_contracts + option.total_contracts)
+            else:
+                self.entry_price = option.entry_price
+            self.total_contracts += option.total_contracts
 
-            if option.total_contracts < 0:
+            if self.total_contracts < 0:
                 # Trying to remove more contracts than own, illegal
                 raise ValueError('You cannot sell more contracts than you own!')
-            elif option.total_contracts == 0:
-                if self.portfolio.stockposition_set.filter(ticker=self.ticker):
-                    # There are stock positions, delete option position only
-                    option.delete()
-                else:
-                    # No stock, remove ticker from portfolio
+            elif self.total_contracts == 0:
+                option.delete()
+                if not self.portfolio.stockposition_set.filter(ticker=self.ticker):
                     self.portfolio.ticker_set.remove(self.ticker)
             else:
                 # Valid edit, update option position
-                super(OptionPosition, option).save()
+                option.delete()
+                super().save(*args, **kwargs)
         except OptionPosition.DoesNotExist:
             # Stock position does not exist yet, create
             super().save(*args, **kwargs)
 
-    def average_cost(self):
-        return self.total_cost / self.total_contracts
+    def total_cost(self):
+        return self.entry_price * self.total_contracts
 
 
 # VerticalSpread ---|many-to-one|---> Portfolio

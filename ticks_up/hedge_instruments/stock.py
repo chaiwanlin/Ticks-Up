@@ -1,5 +1,5 @@
-from constants import YAHOO_STOCK
-from instrument import Instrument
+from .constants import YAHOO_STOCK
+from .instrument import Instrument
 import urllib.request
 import urllib.response
 import urllib.error
@@ -15,7 +15,7 @@ class Stock(Instrument):
             data = json.loads(response.read())
             result = data["quoteSummary"]["result"][0]
             
-            self.price = float(result["price"]["regularMarketPrice"]["fmt"])
+            self.price = float(result["price"]["regularMarketPrice"]["fmt"].replace(",", ""))
 
             self.dividend = 0
             dividend = result["summaryDetail"]["dividendRate"]
@@ -38,3 +38,5 @@ class Stock(Instrument):
 
     def get_exchange(self):
         return self.exchange
+
+Stock("S68.SI")

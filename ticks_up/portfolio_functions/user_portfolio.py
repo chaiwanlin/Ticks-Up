@@ -20,7 +20,7 @@ class User_Portfolio:
             self.cost_to_cover += e.cost_to_cover
             self.short_PL += e.short_PL
         
-        self.total_value = self.value + self.capital_collateral
+        self.total_value = self.value + self.capital_collateral + self.short_PL
 
     # def add_position(self, instrument, sector, industry, ticker):
     #     found = False
@@ -38,8 +38,8 @@ class User_Portfolio:
     
     def breakdown_by_ticker(self):
         dic = {}
-        for e in self.sectors:
-            dic[e.id] = e.total_value / self.total_value
+        for e in self.tickers:
+            dic[e.ticker] = e.value / self.total_value
 
         return dic
     
@@ -48,7 +48,7 @@ class User_Portfolio:
 
     def breakdown_by_sectors(self):
         dic = {}
-        for e in self.industries:
+        for e in self.sectors:
             dic[e.id] = e.total_value / self.total_value
 
         return dic
@@ -76,12 +76,12 @@ class Sector_Portfolio:
             self.cost_to_cover += e.cost_to_cover
             self.short_PL += e.short_PL
         
-        self.total_value = self.value + self.capital_collateral
+        self.total_value = self.value + self.capital_collateral + self.short_PL
 
     def breakdown_by_ticker(self):
         dic = {}
         for e in self.tickers:
-            dic[e.id] = e.total_value / self.total_value
+            dic[e.ticker] = e.value / self.total_value
 
         return dic
     
@@ -117,17 +117,14 @@ class Industry_Portfolio:
             self.cost_to_cover += e.cost_to_cover
             self.short_PL += e.short_PL
         
-        self.total_value = self.value + self.capital_collateral
+        self.total_value = self.value + self.capital_collateral + self.short_PL
 
     def breakdown_by_ticker(self):
         dic = {}
         for e in self.tickers:
-            dic[e.id] = e.total_value / self.total_value
+            dic[e.ticker] = e.value / self.total_value
 
         return dic
 
     def average_ticker_weight(self):
-        return 1 / len(self.tickers) 
-
-
-    
+        return 1 / len(self.tickers)
