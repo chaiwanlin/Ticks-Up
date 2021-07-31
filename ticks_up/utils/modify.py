@@ -1,4 +1,3 @@
-
 # value error for convertability
 def string_to_float(string):
     if type(string) is float or type(string) is int:
@@ -29,4 +28,8 @@ def string_to_float(string):
         string = string.replace("T", "")
         return float(string) * 1000000000000
 
-# def parse_ticker():
+# def parse_ticker(string):
+#     if ".SI" in string:
+#         return float(string.strip(".SI"))
+#     elif "^" in string:
+#         return float(string.strip("^"))

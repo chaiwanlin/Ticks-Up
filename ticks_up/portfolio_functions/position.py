@@ -1,5 +1,5 @@
-from .portfolio_constants import BEAR, BULL, LONG, SHORT, STRADDLE, CREDIT, DEBIT, UNKNOWN
-from .portfolio_instrument import Instrument, Stock, Put, Call, Bear, Bull
+from .portfolio_constants import CREDIT, DEBIT, UNKNOWN
+from .portfolio_instrument import Bear, Bull
 from hedge_instruments.stock import Stock as Stock_Data
 
 
@@ -37,8 +37,6 @@ class StockPosition:
         self.margin = margin
         self.margin_amount = margin_value
 
-        price = Stock_Data(ticker).get_price()
-
         self.capital_invested = 0
         self.capital_collateral = 0
         self.value = 0
@@ -46,14 +44,14 @@ class StockPosition:
         self.short_PL = 0
 
         for e in self.long_positions:
-            self.capital_invested += e.cost
-            self.value += e.value
+            self.capital_invested += e.lot_cost
+            self.value += e.lot_value
         
         if margin:
             for e in self.short_positions:
-                self.capital_invested += e.cost + margin_value * price
-                self.cost_to_cover += price
-                self.short_PL += e.cost - price
+                self.capital_collateral += e.lot_cost + margin_value * e.lot_value
+                self.cost_to_cover += e.lot_value
+                self.short_PL += e.short_PL
 
 
 class OptionPosition:
@@ -81,7 +79,6 @@ class OptionPosition:
         self.get_option_positions_spread()
         
         self.capital_invested = 0
-        self.value = 0
         self.capital_collateral = 0
         self.value = 0
         self.cost_to_cover = 0
@@ -97,9 +94,9 @@ class OptionPosition:
 
         for e in self.spreads:
             if e.type == CREDIT:
-                self.capital_collateral += e.risk 
+                self.capital_collateral += e.lot_risk 
                 self.cost_to_cover += e.lot_value
-                self.short_PL += e.lot_cost - e.lot_value
+                self.short_PL += e.short_PL
 
             if e.type == DEBIT:
                 self.capital_invested += e.lot_cost
@@ -108,20 +105,20 @@ class OptionPosition:
         if margin:
             for e in self.short_calls:
                 otm = e.strike - price if e.strike - price else 0
-                self.capital_collateral += max(0.2 * price - otm, 0.1 * price) * 100
+                self.capital_collateral += max(0.2 * (price - otm), 0.1 * price) * e.leveraged_quantity
                 self.cost_to_cover += e.lot_value
-                self.short_PL += (e.cost - e.value) * 100
+                self.short_PL += e.short_PL
 
             for e in self.short_puts:
                 otm = e.strike - price if e.strike - price else 0
-                self.capital_collateral += max(0.2 * price - otm, 0.1 * price) * 100
+                self.capital_collateral += max(0.2 * (price - otm), 0.1 * price) * e.leveraged_quantity
                 self.cost_to_cover += e.lot_value
-                self.short_PL += (e.cost - e.value) * 100
+                self.short_PL += e.short_PL
         else:
             for e in self.short_puts:
-                self.capital_collateral += e.strike * 100
+                self.capital_collateral += e.strike * e.leveraged_quantity
                 self.cost_to_cover += e.lot_value
-                self.short_PL += (e.cost - e.value) * 100
+                self.short_PL += (e.cost - e.value) * e.leveraged_quantity
 
     def get_option_positions_spread(self):
 
