@@ -18,7 +18,6 @@ dashboard==0.0.6
 databases==0.4.3
 dj-database-url==0.5.0
 Django==3.2.3
-django-background-tasks==1.2.5
 django-compat==1.0.15
 django-crispy-forms==1.12.0
 django-heroku==0.3.1
