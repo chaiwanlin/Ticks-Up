@@ -24,6 +24,7 @@ pip install -r requirements.txt
 ````
 Navigate to the file ./TicksUp/ticks_up/portfolio_functions/portfolio_constants.py and change the PATH variable to
 the path to the chromedriver installed
+
 Default on windows:
 ````
 PATH = "C:\Program Files (x86)/chromedriver.exe"
