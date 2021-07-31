@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'widget_tweaks',
+    'background_task',
     'hedge_instruments',
     'hedge_functions',
     'portfolio_functions',
@@ -50,7 +51,6 @@ INSTALLED_APPS = [
     'users',
     'assets',
     'ticker',
-    'background_task',
 ]
 
 MIDDLEWARE = [
