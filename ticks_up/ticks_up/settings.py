@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'users',
     'assets',
     'ticker',
+    'background_task',
 ]
 
 MIDDLEWARE = [
