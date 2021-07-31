@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-vbah^nbo4+d#75j(ho$d+^voev+nq4%juf)06ss&fqkt572$=0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', 'ticks-up.herokuapp.com']
 
@@ -88,13 +88,9 @@ WSGI_APPLICATION = 'ticks_up.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "chaiwanlin",
-        "USER": "",
-        "PASSWORD": "",
-        "HOST": "localhost",
-        "PORT": "",
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'ticks-up',
     }
 }
 

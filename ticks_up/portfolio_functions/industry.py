@@ -17,20 +17,18 @@ import os
 
 def get_driver():
     chrome_options = webdriver.ChromeOptions()
-    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    # chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument("--start-maximized")
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
-    # driver = webdriver.Chrome('/Users/chaiwanlin/Downloads/chromedriver')
+    driver = webdriver.Chrome('/Users/chaiwanlin/Downloads/chromedriver', options = chrome_options)
     return driver
     
 class Industry:
 
     def __init__(self, ticker):
-        # PATH = "C:\Program Files (x86)/chromedriver.exe"
         self.ticker = ticker.upper()
         try: 
             request = rq.urlopen(f"https://www.tradingview.com/symbols/{ticker}/")
@@ -137,10 +135,6 @@ class Industry:
 
         body = driver.find_element_by_css_selector('tbody[class="tv-data-table__tbody"]')
 
-        # body = WebDriverWait(driver, 20).until(
-        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
-        # )
-
         body = body.find_elements_by_xpath("./tr")
         result = []
         ticker_index = 0
@@ -150,8 +144,6 @@ class Industry:
 
         for tr in body:
             tds = tr.find_elements_by_xpath("./td")
-
-
 
             ticker = tds[0].find_element_by_xpath(".//div/a").text
             # print(ticker)
@@ -260,7 +252,6 @@ class Industry:
 
     def get_k_closest_same_industry(self, k, category, indicator):
         industry = self.industry.lower().replace(" ", "-")
-        print(industry)
         driver = get_driver()
         driver.get(f"https://www.tradingview.com/markets/stocks-usa/sectorandindustry-industry/{industry}/")
 
@@ -291,10 +282,6 @@ class Industry:
 
         body = driver.find_element_by_css_selector('tbody[class="tv-data-table__tbody"]')
 
-        # body = WebDriverWait(driver, 20).until(
-        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
-        # )
-
         body = body.find_elements_by_xpath("./tr")
         result = []
         ticker_index = 0
@@ -304,8 +291,6 @@ class Industry:
 
         for tr in body:
             tds = tr.find_elements_by_xpath("./td")
-
-
 
             ticker = tds[0].find_element_by_xpath(".//div/a").text
             # print(ticker)
@@ -366,18 +351,3 @@ class Industry:
 # print(Industry("pltr"))
 
 
-# driver = get_driver()
-# driver.get("https://www.tradingview.com/markets/stocks-usa/sectorandindustry-industry/telecommunications-equipment/")
-
-# WebDriverWait(driver, 20).until(
-#             EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{MKT_CAP[0]}"]'))
-#         ).click()
-
-# sleep(1)
-
-# while(True):
-#     try: 
-#         driver.find_element_by_class_name("tv-load-more__btn").click()
-#         sleep(1)
-#     except ElementNotInteractableException:
-#         break
