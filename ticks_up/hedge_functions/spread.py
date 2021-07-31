@@ -848,5 +848,5 @@ def adjust_condor(ticker, day, month, year, credit, short_call_strike, long_call
 # print(bull_debit_spread("aapl", 30, 140, 150, 30))
 
 # print(bear_credit_spread("aapl", 30, 130, 120, 80))
-# print(iron_condor("aapl", 30, 135, 155, 20))
+# print(iron_condor("aapl", 30, 135, 155, 20)["data"])
 

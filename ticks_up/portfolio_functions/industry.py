@@ -137,10 +137,6 @@ class Industry:
 
         body = driver.find_element_by_css_selector('tbody[class="tv-data-table__tbody"]')
 
-        # body = WebDriverWait(driver, 20).until(
-        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
-        # )
-
         body = body.find_elements_by_xpath("./tr")
         result = []
         ticker_index = 0
@@ -150,8 +146,6 @@ class Industry:
 
         for tr in body:
             tds = tr.find_elements_by_xpath("./td")
-
-
 
             ticker = tds[0].find_element_by_xpath(".//div/a").text
             # print(ticker)
@@ -290,10 +284,6 @@ class Industry:
 
         body = driver.find_element_by_css_selector('tbody[class="tv-data-table__tbody"]')
 
-        # body = WebDriverWait(driver, 20).until(
-        #     EC.presence_of_element_located((By.CSS_SELECTOR, 'tbody[class="tv-data-table__tbody"]'))
-        # )
-
         body = body.find_elements_by_xpath("./tr")
         result = []
         ticker_index = 0
@@ -303,8 +293,6 @@ class Industry:
 
         for tr in body:
             tds = tr.find_elements_by_xpath("./td")
-
-
 
             ticker = tds[0].find_element_by_xpath(".//div/a").text
             # print(ticker)
@@ -357,26 +345,11 @@ class Industry:
 
 
 # result = Industry("AAPL")
-result = Industry("AAPL").get_k_closest_same_industry(5, PERFORMANCE, FOUR_H_CHG)
-for i in result:
-    print(i.data)
+# result = Industry("AAPL").get_k_closest_same_industry(5, PERFORMANCE, FOUR_H_CHG)
+# for i in result:
+#     print(i.data)
 # Industry.get_stocks_same_sector("energy Minerals", "Overview", MKT_CAP)
 # Industry.get_stocks_same_industry("aerospace defense","","")
 # print(Industry("pltr"))
 
 
-# driver = get_driver()
-# driver.get("https://www.tradingview.com/markets/stocks-usa/sectorandindustry-industry/telecommunications-equipment/")
-
-# WebDriverWait(driver, 20).until(
-#             EC.presence_of_element_located((By.CSS_SELECTOR, f'th[data-field="{MKT_CAP[0]}"]'))
-#         ).click()
-
-# sleep(1)
-
-# while(True):
-#     try: 
-#         driver.find_element_by_class_name("tv-load-more__btn").click()
-#         sleep(1)
-#     except ElementNotInteractableException:
-#         break
