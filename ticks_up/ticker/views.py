@@ -151,18 +151,18 @@ def option_strategies(request, ticker):
         if form.is_valid():
             days = form.cleaned_data['days']
             lower_bound = form.cleaned_data['lower_bound']
-            target_price = form.cleaned_data['target_price']
+            upper_bound = form.cleaned_data['upper_bound']
             risk = form.cleaned_data['risk']
-            if target_price > stock.get_price() and lower_bound > stock.get_price():
-                spreads['debit_spread'] = spread.bull_debit_spread(ticker, days, lower_bound, target_price, risk)
-                spreads['credit_spread'] = spread.bull_credit_spread(ticker, days, lower_bound, target_price, risk)
+            if upper_bound > stock.get_price() and lower_bound > stock.get_price():
+                spreads['debit_spread'] = spread.bull_debit_spread(ticker, days, lower_bound, upper_bound, risk)
+                spreads['credit_spread'] = spread.bull_credit_spread(ticker, days, lower_bound, upper_bound, risk)
 
-            elif target_price < stock.get_price() and lower_bound < stock.get_price():
-                spreads['debit_spread'] = spread.bear_debit_spread(ticker, days, lower_bound, target_price, risk)
-                spreads['credit_spread'] = spread.bear_credit_spread(ticker, days, lower_bound, target_price, risk)
+            elif upper_bound < stock.get_price() and lower_bound < stock.get_price():
+                spreads['debit_spread'] = spread.bear_debit_spread(ticker, days, lower_bound, upper_bound, risk)
+                spreads['credit_spread'] = spread.bear_credit_spread(ticker, days, lower_bound, upper_bound, risk)
 
-            elif target_price > stock.get_price() and lower_bound < stock.get_price():
-                spreads['iron_condor'] = spread.iron_condor(ticker, days, lower_bound, target_price, risk)
+            elif upper_bound > stock.get_price() and lower_bound < stock.get_price():
+                spreads['iron_condor'] = spread.iron_condor(ticker, days, lower_bound, upper_bound, risk)
 
             max_price_limit = -math.inf
             coordinate_lists = []
@@ -180,7 +180,7 @@ def option_strategies(request, ticker):
         'form': form,
         'days': days,
         'lower_bound': lower_bound,
-        'target_price': target_price,
+        'upper_bound': upper_bound,
         'risk': risk,
         'spreads': spreads,
         'graph': graph,

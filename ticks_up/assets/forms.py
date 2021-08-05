@@ -29,7 +29,8 @@ class TickerForm(forms.ModelForm):
         try:
             Stock(ticker)
             return ticker.upper()
-        except:     #fill in error
+
+        except LookupError:
             raise ValidationError("Invalid ticker!")
 
 
@@ -63,7 +64,7 @@ class AddOptionPositionForm(forms.ModelForm):
 class EditOptionPositionForm(forms.ModelForm):
     class Meta:
         model = OptionPosition
-        fields = ['entry_price', 'total_contracts']
+        fields = ['average_price', 'total_contracts']
 
 
 class AddVerticalSpreadForm(forms.ModelForm):
@@ -124,8 +125,8 @@ class AddProtectivePutForm(forms.Form):
 
 
 class HedgeStockForm(forms.Form):
-    risk = forms.FloatField(min_value=0, max_value=100)
-    break_point = forms.FloatField(min_value=0)
-    days = forms.IntegerField(min_value=0)
-    capped = forms.BooleanField(initial=True, required=False)
-    target_price = forms.FloatField(min_value=0)
+    days = forms.IntegerField(min_value=0, help_text="Number of days away the options will expire")
+    lower_bound = forms.FloatField(min_value=0, help_text="Expected lower bound of price action by number of days stated above")
+    upper_bound = forms.FloatField(min_value=0, help_text="Expected upper bound of price action by number of days stated above")
+    risk = forms.FloatField(min_value=0, max_value=100, help_text="(Maximum amount you are willing to risk) / 100")
+    capped = forms.BooleanField(initial=True, required=False, help_text="Capped or uncapped profit")

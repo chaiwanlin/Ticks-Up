@@ -76,13 +76,13 @@ class StockPosition(models.Model):
     ]
     long_or_short = models.CharField(max_length=5, choices=LONG_OR_SHORT, default='LONG')
 
-    entry_price = models.DecimalField(max_digits=19, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    average_price = models.DecimalField(max_digits=19, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
     total_shares = models.DecimalField(max_digits=19, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
 
     def __str__(self):
         return "[STOCK] {ticker} | Total Cost: {total_cost} | Total Shares: {total_shares}".format(
             ticker=self.ticker,
-            total_cost=self.entry_price,
+            total_cost=self.average_price,
             total_shares=self.total_shares,
         )
 
@@ -93,9 +93,9 @@ class StockPosition(models.Model):
 
             # Calculate aggregate
             if self.total_shares > 0:
-                self.entry_price = ((stock.entry_price * stock.total_shares) + (self.entry_price * self.total_shares)) / (self.total_shares + stock.total_shares)
+                self.average_price = ((stock.average_price * stock.total_shares) + (self.average_price * self.total_shares)) / (self.total_shares + stock.total_shares)
             else:
-                self.entry_price = stock.entry_price
+                self.average_price = stock.average_price
             self.total_shares += stock.total_shares
 
             if self.total_shares < 0:
@@ -115,7 +115,7 @@ class StockPosition(models.Model):
             super().save(*args, **kwargs)
 
     def total_cost(self):
-        return round(self.entry_price * self.total_shares, 4)
+        return round(self.average_price * self.total_shares, 4)
 
 
 # OptionPosition ---|many-to-one|---> Portfolio
@@ -139,7 +139,7 @@ class OptionPosition(models.Model):
 
     expiration_date = models.DateField()
     strike_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
-    entry_price = models.DecimalField(max_digits=19, decimal_places=2)
+    average_price = models.DecimalField(max_digits=19, decimal_places=2)
     total_contracts = models.PositiveIntegerField()
 
     def __str__(self):
@@ -164,9 +164,9 @@ class OptionPosition(models.Model):
 
             # Calculate aggregate
             if self.total_contracts > 0:
-                self.entry_price = ((option.entry_price * option.total_contracts) + (self.entry_price * self.total_contracts)) / (self.total_contracts + option.total_contracts)
+                self.average_price = ((option.average_price * option.total_contracts) + (self.average_price * self.total_contracts)) / (self.total_contracts + option.total_contracts)
             else:
-                self.entry_price = option.entry_price
+                self.average_price = option.average_price
             self.total_contracts += option.total_contracts
 
             if self.total_contracts < 0:
@@ -185,7 +185,7 @@ class OptionPosition(models.Model):
             super().save(*args, **kwargs)
 
     def total_cost(self):
-        return self.entry_price * self.total_contracts
+        return self.average_price * self.total_contracts
 
 
 # VerticalSpread ---|many-to-one|---> Portfolio

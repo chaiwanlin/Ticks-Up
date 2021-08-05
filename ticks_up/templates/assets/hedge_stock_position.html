@@ -13,10 +13,10 @@
                     {% csrf_token %}
                     <div class="input-group input-group-sm">
                         <input class="form-control" type="number" name="days" value="{{ days }}">
-                        <input type="hidden" name="break_point" value="{{ break_point }}">
-                        <input type="hidden" name="target_price" value="{{ target_price }}">
-                        <input type="hidden" name="capped" value="{{ capped }}">
+                        <input type="hidden" name="lower_bound" value="{{ lower_bound }}">
+                        <input type="hidden" name="upper_bound" value="{{ upper_bound }}">
                         <input type="hidden" name="risk" value="{{ risk }}">
+                        <input type="hidden" name="capped" value="{{ capped }}">
                         <button class="btn btn-outline-warning btn-sm" type="submit">
                             Change
                         </button>
@@ -30,11 +30,11 @@
                 <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
                     {% csrf_token %}
                     <div class="input-group input-group-sm">
-                        <input class="form-control" type="number" name="break_point" value="{{ break_point }}">
+                        <input class="form-control" type="number" name="lower_bound" value="{{ lower_bound }}">
                         <input type="hidden" name="days" value="{{ days }}">
-                        <input type="hidden" name="target_price" value="{{ target_price }}">
-                        <input type="hidden" name="capped" value="{{ capped }}">
+                        <input type="hidden" name="upper_bound" value="{{ upper_bound }}">
                         <input type="hidden" name="risk" value="{{ risk }}">
+                        <input type="hidden" name="capped" value="{{ capped }}">
                         <button class="btn btn-outline-warning btn-sm" type="submit">
                             Change
                         </button>
@@ -48,11 +48,29 @@
                 <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
                     {% csrf_token %}
                     <div class="input-group input-group-sm">
-                        <input class="form-control" type="number" name="target_price" value="{{ target_price }}">
+                        <input class="form-control" type="number" name="upper_bound" value="{{ upper_bound }}">
                         <input type="hidden" name="days" value="{{ days }}">
-                        <input type="hidden" name="break_point" value="{{ break_point }}">
-                        <input type="hidden" name="capped" value="{{ capped }}">
+                        <input type="hidden" name="lower_bound" value="{{ lower_bound }}">
                         <input type="hidden" name="risk" value="{{ risk }}">
+                        <input type="hidden" name="capped" value="{{ capped }}">
+                        <button class="btn btn-outline-warning btn-sm" type="submit">
+                            Change
+                        </button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <th>Risk</th>
+            <td>
+                <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm">
+                        <input class="form-control" type="number" name="risk" value="{{ risk }}">
+                        <input type="hidden" name="days" value="{{ days }}">
+                        <input type="hidden" name="lower_bound" value="{{ lower_bound }}">
+                        <input type="hidden" name="upper_bound" value="{{ upper_bound }}">
+                        <input type="hidden" name="capped" value="{{ capped }}">
                         <button class="btn btn-outline-warning btn-sm" type="submit">
                             Change
                         </button>
@@ -79,31 +97,13 @@
                         </div>
                         <div class="col d-flex justify-content-end">
                             <input type="hidden" name="days" value="{{ days }}">
-                            <input type="hidden" name="break_point" value="{{ break_point }}">
-                            <input type="hidden" name="target_price" value="{{ target_price }}">
+                            <input type="hidden" name="lower_bound" value="{{ lower_bound }}">
+                            <input type="hidden" name="upper_bound" value="{{ upper_bound }}">
                             <input type="hidden" name="risk" value="{{ risk }}">
                             <button class="btn btn-outline-warning btn-sm" type="submit">
                                 Change
                             </button>
                         </div>
-                    </div>
-                </form>
-            </td>
-        </tr>
-        <tr>
-            <th>Risk</th>
-            <td>
-                <form method="post" action="{% url 'hedge_stock_position' portfolio.id ticker %}">
-                    {% csrf_token %}
-                    <div class="input-group input-group-sm">
-                        <input class="form-control" type="number" name="risk" value="{{ risk }}">
-                        <input type="hidden" name="days" value="{{ days }}">
-                        <input type="hidden" name="break_point" value="{{ break_point }}">
-                        <input type="hidden" name="target_price" value="{{ target_price }}">
-                        <input type="hidden" name="capped" value="{{ capped }}">
-                        <button class="btn btn-outline-warning btn-sm" type="submit">
-                            Change
-                        </button>
                     </div>
                 </form>
             </td>

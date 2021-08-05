@@ -21,7 +21,7 @@
                     <div class="input-group input-group-sm">
                         <input class="form-control" type="number" name="days" value="{{ days }}">
                         <input type="hidden" name="lower_bound" value="{{ lower_bound }}">
-                        <input type="hidden" name="target_price" value="{{ target_price }}">
+                        <input type="hidden" name="upper_bound" value="{{ upper_bound }}">
                         <input type="hidden" name="risk" value="{{ risk }}">
                         <button class="btn btn-outline-warning btn-sm" type="submit">
                             Change
@@ -38,7 +38,7 @@
                     <div class="input-group input-group-sm">
                         <input class="form-control" type="number" name="lower_bound" value="{{ lower_bound }}">
                         <input type="hidden" name="days" value="{{ days }}">
-                        <input type="hidden" name="target_price" value="{{ target_price }}">
+                        <input type="hidden" name="upper_bound" value="{{ upper_bound }}">
                         <input type="hidden" name="risk" value="{{ risk }}">
                         <button class="btn btn-outline-warning btn-sm" type="submit">
                             Change
@@ -53,7 +53,7 @@
                 <form method="post" action="{% url 'option_strategies' ticker %}">
                     {% csrf_token %}
                     <div class="input-group input-group-sm">
-                        <input class="form-control" type="number" name="target_price" value="{{ target_price }}">
+                        <input class="form-control" type="number" name="upper_bound" value="{{ upper_bound }}">
                         <input type="hidden" name="days" value="{{ days }}">
                         <input type="hidden" name="lower_bound" value="{{ lower_bound }}">
                         <input type="hidden" name="risk" value="{{ risk }}">
@@ -73,7 +73,7 @@
                         <input class="form-control" type="number" name="risk" value="{{ risk }}">
                         <input type="hidden" name="days" value="{{ days }}">
                         <input type="hidden" name="lower_bound" value="{{ lower_bound }}">
-                        <input type="hidden" name="target_price" value="{{ target_price }}">
+                        <input type="hidden" name="upper_bound" value="{{ upper_bound }}">
                         <button class="btn btn-outline-warning btn-sm" type="submit">
                             Change
                         </button>
