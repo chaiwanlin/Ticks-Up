@@ -1,0 +1,4 @@
+SSE = ".SS"
+
+HKEX = ".HK"
+

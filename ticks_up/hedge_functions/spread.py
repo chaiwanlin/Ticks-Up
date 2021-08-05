@@ -159,9 +159,13 @@ def iron_condor(ticker, days, lower_bound, upper_bound, risk):
                     max_gain["call_loss"] = call_loss
                     max_gain["put_loss"] = put_loss
                     max_gain["short_call"] = short_call
+                    max_gain["short_call_premium"] = short_call_premium
                     max_gain["short_put"] = short_put
+                    max_gain["short_put_premium"] = short_put_premium
                     max_gain["long_call"] = long_call
+                    max_gain["long_call_premium"] = long_call_premium
                     max_gain["long_put"] = long_put
+                    max_gain["long_put_premium"] = long_put_premium
                     max_gain["call_breakeven"] = call_breakeven
                     max_gain["put_breakeven"] = put_breakeven
                 if max_loss > min_loss["max_loss"]:
@@ -170,9 +174,13 @@ def iron_condor(ticker, days, lower_bound, upper_bound, risk):
                     min_loss["call_loss"] = call_loss
                     min_loss["put_loss"] = put_loss
                     min_loss["short_call"] = short_call
+                    min_loss["short_call_premium"] = short_call_premium
                     min_loss["short_put"] = short_put
+                    min_loss["short_put_premium"] = short_put_premium
                     min_loss["long_call"] = long_call
+                    min_loss["long_call_premium"] = long_call_premium
                     min_loss["long_put"] = long_put
+                    min_loss["long_put_premium"] = long_put_premium
                     min_loss["call_breakeven"] = call_breakeven
                     min_loss["put_breakeven"] = put_breakeven
 
@@ -848,5 +856,5 @@ def adjust_condor(ticker, day, month, year, credit, short_call_strike, long_call
 # print(bull_debit_spread("aapl", 30, 140, 150, 30))
 
 # print(bear_credit_spread("aapl", 30, 130, 120, 80))
-# print(iron_condor("aapl", 30, 135, 155, 20))
+# print(iron_condor("aapl", 30, 135, 155, 20)["data"])
 
