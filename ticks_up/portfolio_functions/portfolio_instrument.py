@@ -26,11 +26,11 @@ class Cash(Asset):
 
 class Instrument(Asset):
 
-    def __init__(self, position, quantity, cost, value, leveraged_quantity):
+    def __init__(self, position, quantity, cost, value, leveraged_quantity, risk):
         super().__init__(quantity, cost, value)
         self.position = position
         self.leveraged_quantity = leveraged_quantity
-        self.risk = None
+        self.risk = risk
         self.outlook = None
 
         self.lot_value = self.leveraged_quantity * self.value
@@ -52,14 +52,17 @@ class Stock(Instrument):
                 value = Stock_Data(ticker).get_price()
             except LookupError:
                 value = cost
-            super().__init__(position, quantity, cost, value, quantity)
 
             if position == LONG:
                 self.outlook = BULL
-                self.risk = cost
+                risk = cost
             elif position == SHORT:
                 self.outlook == BEAR
-                self.risk = math.inf
+                risk = math.inf
+            
+            super().__init__(position, quantity, cost, value, quantity, risk)
+
+            
         else:
             raise ValueError("enter a valid position: LONG/SHORT")
 
@@ -83,15 +86,18 @@ class Call(Option):
                 value = calls.get_option_for_strike(strike_price).get_price()
             except LookupError:
                 value = cost
-            super().__init__(position, quantity, cost, strike_price, expiry, value)
-            self.ticker = ticker
 
             if position == LONG:
                 self.outlook = BULL
-                self.risk = cost
+                risk = cost
             elif position == SHORT:
                 self.outlook ==  BEAR
-                self.risk = math.inf
+                risk = math.inf
+
+            super().__init__(position, quantity, cost, strike_price, expiry, value, risk)
+            self.ticker = ticker
+
+            
         else:
             raise ValueError("enter a valid position: LONG/SHORT")
 
@@ -115,16 +121,18 @@ class Put(Option):
                 value = puts.get_option_for_strike(strike_price).get_price()
             except LookupError:
                 value = cost
-            
-            super().__init__(position, quantity, cost, strike_price, expiry, value)
 
-            self.ticker = ticker
             if position == LONG:
                 self.outlook = BEAR
-                self.risk = cost
+                risk = cost
             elif position == SHORT:
                 self.outlook ==  BULL
-                self.risk = math.inf
+                risk = math.inf
+            
+            super().__init__(position, quantity, cost, strike_price, expiry, value, risk)
+
+            self.ticker = ticker
+
         else:
             raise ValueError("enter a valid position: LONG/SHORT")
         
@@ -135,12 +143,12 @@ class Put(Option):
 
 class Spread(Instrument):
 
-    def __init__(self, type, quantity, cost, profit, value):
+    def __init__(self, type, quantity, cost, profit, value, risk):
         if type == DEBIT:
             position = LONG
         else:
             position = SHORT
-        super().__init__(position, quantity, cost, value, 100)
+        super().__init__(position, quantity, cost, value, 100, risk)
         self.type = type
         self.profit = profit
 
@@ -183,8 +191,7 @@ class Bear(Spread):
         else:
             raise ValueError("Not valid spread type: Bear")
 
-        super().__init__(type, quantity, cost, profit, value)
-        self.risk = risk
+        super().__init__(type, quantity, cost, profit, value, risk)
         self.expiry = expiry
         self.breakeven = breakeven
         self.lower_bound = lower_leg
@@ -228,8 +235,7 @@ class Bull(Spread):
         else:
             raise ValueError("Not valid spread type: Bull")
 
-        super().__init__(type, quantity, cost, profit, value)
-        self.risk = risk
+        super().__init__(type, quantity, cost, profit, value, risk)
         self.expiry = expiry
         self.breakeven = breakeven
         self.lower_bound = lower_leg
@@ -261,8 +267,7 @@ class Condor(Spread):
         else:
             raise ValueError("Condor")
 
-        super().__init__(type, quantity, cost, profit, value)
-        self.risk = max_loss
+        super().__init__(type, quantity, cost, profit, value, max_loss)
         self.expiry = expiry
         self.breakeven_bear = breakeven_bear
         self.breakeven_bull = breakeven_bull
@@ -293,8 +298,7 @@ class Straddle(Spread):
         else:
             raise ValueError("Not valid spread type: Straddle")
 
-        super().__init__(type, quantity, cost, profit, value)
-        self.risk = debit
+        super().__init__(type, quantity, cost, profit, value, debit)
         self.expiry = expiry
         self.breakeven_bear = breakeven_bear
         self.breakeven_bull = breakeven_bull
@@ -318,8 +322,7 @@ class Collar(Spread):
 
         type = DEBIT if cost > 0 else CREDIT
 
-        super().__init__(type, quantity, cost, profit, value)
-        self.risk = max_loss
+        super().__init__(type, quantity, cost, profit, value, max_loss)
         self.expiry = expiry
         self.profit = profit
         self.breakeven = breakeven
@@ -341,8 +344,7 @@ class HedgedStock(Spread):
         breakeven = stock.cost + cost
         value = long_put.value
 
-        super().__init__(DEBIT, quantity, cost, profit, value)
-        self.risk = max_loss
+        super().__init__(DEBIT, quantity, cost, profit, value, max_loss)
         self.expiry = expiry
         self.profit = profit
         self.breakeven = breakeven
@@ -360,11 +362,12 @@ class CoveredCall(Spread):
         cost = short_call.cost
         
         profit = short_call.strike_price - stock.cost + cost
-        breakeven = stock.cost - cost
+        breakeven = stock.price - cost
         value = short_call.value
 
-        super().__init__(CREDIT, quantity, cost, profit, value)
-        self.risk = stock.cost
+        risk = stock.cost - cost
+
+        super().__init__(CREDIT, quantity, cost, profit, value, risk)
         self.expiry = expiry
         self.profit = profit
         self.breakeven = breakeven
