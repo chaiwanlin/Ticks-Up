@@ -28,8 +28,8 @@ def string_to_float(string):
         string = string.replace("T", "")
         return float(string) * 1000000000000
 
-def parse_ticker(string):
-    if ".SI" in string:
-        return float(string.strip(".SI"))
-    elif "^" in string:
-        return float(string.strip("^"))
+# def parse_ticker(string):
+#     if ".SI" in string:
+#         return float(string.strip(".SI"))
+#     elif "^" in string:
+#         return float(string.strip("^"))
