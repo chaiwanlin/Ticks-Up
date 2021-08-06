@@ -349,6 +349,13 @@ class Call(Option):
             }
         }
 
+    def call_valid(ticker, date):
+        exp = Call(ticker).expiration
+        for e in exp:
+            if date == datetime.datetime.fromtimestamp(e, datetime.timezone.utc):
+                return Call(ticker, date.year, date.month, date.day)
+        else:
+            raise LookupError("invalid date")
 
 class CallOption:
     def __init__(self, ticker, underlying, data):
@@ -840,6 +847,13 @@ class Put(Option):
             }
         }
 
+    def put_valid(ticker, date):
+        exp = Put(ticker).expiration
+        for e in exp:
+            if date == datetime.datetime.fromtimestamp(e, datetime.timezone.utc):
+                return Put(ticker, date.year, date.month, date.day)
+        else:
+            raise LookupError("invalid date")
 
 class PutOption:
     def __init__(self, ticker, underlying, data):
