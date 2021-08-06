@@ -69,8 +69,8 @@ class Stock(Instrument):
 
 class Option(Instrument):
 
-    def __init__(self, position, quantity, cost, strike_price, expiry, value):
-        super().__init__(position, quantity, cost, value, 100 * quantity)
+    def __init__(self, position, quantity, cost, strike_price, expiry, value, risk):
+        super().__init__(position, quantity, cost, value, 100 * quantity, risk)
         self.expiry = expiry
         self.strike_price = strike_price
     

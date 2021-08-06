@@ -50,15 +50,6 @@ class AddOptionPositionForm(forms.ModelForm):
 
     # Problem is recognising the ticker without access to ticker form
     # def clean_optionposition(self):
-    #     call_or_put = self.cleaned_data['call_or_put']
-    #     expiration_date = self.cleaned_data['expiration_date']
-    #     strike_price = self.cleaned_data['strike_price']
-    #     try:
-    #         if call_or_put == "CALL":
-    #             Call(ticker)
-    #             return ticker.upper()
-    #     except:  # fill in error
-    #         raise ValidationError("Invalid ticker!")
 
 
 class EditOptionPositionForm(forms.ModelForm):

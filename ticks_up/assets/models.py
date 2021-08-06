@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from decimal import Decimal
+from hedge_instruments.option import Call, Put
 from portfolio_functions.industry import Industry as Classification
 
 
@@ -151,6 +152,22 @@ class OptionPosition(models.Model):
         )
 
     def save(self, *args, **kwargs):
+        # Validate option position (Does not work because Option instrument classes do not validate)
+        try:
+            if self.call_or_put == 'CALL':
+                option_instr = Call(self.ticker.name,
+                                      self.expiration_date.year,
+                                      self.expiration_date.month,
+                                      self.expiration_date.day)
+            else:
+                option_instr = Put(self.ticker.name,
+                                    self.expiration_date.year,
+                                    self.expiration_date.month,
+                                    self.expiration_date.day)
+            option_instr.get_option_for_strike(self.strike_price)
+        except LookupError:
+            raise LookupError("Option position is invalid!")
+
         try:
             # Check if stock position already exists
             option = OptionPosition.objects.get(

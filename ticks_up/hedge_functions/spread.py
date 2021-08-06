@@ -93,32 +93,14 @@ def iron_condor(ticker, days, lower_bound, upper_bound, risk):
     max_gain = {"expiration_date": calls.expiration_date, "max_profit": -math.inf, "max_loss": -math.inf}
     min_loss = {"expiration_date": calls.expiration_date, "max_profit": -math.inf, "max_loss": -math.inf}
 
-    short_call_index = short_call_range_start
-    short_put_index = short_put_range_end
-    # Iterate through each pair of short call and short put starting at most ATM
-    while short_call_index <= short_call_range_end and short_put_index >= short_put_range_start:
-        short_call = call_strikes[short_call_index]
-        short_put = put_strikes[short_put_index]
+    lst_of_bounds = [(short_call_range_start, short_put_range_end), (short_call_range_end, short_put_range_start)]
 
-        if short_call - call_strikes[short_call_range_start] != put_strikes[short_put_range_end] - short_put:
-            # print("CALL: {}/{}    |    PUT: {}/{}".format(
-            #     short_call,
-            #     call_strikes[short_call_range_start],
-            #     short_put,
-            #     put_strikes[short_put_range_end]
-            # ))
-            # Strike diff are different between calls and puts
-            if short_call - call_strikes[short_call_range_start] < put_strikes[short_put_range_end] - short_put:
-                short_call_index += 1
-            else:
-                short_put_index -= 1
+    for count, bounds in enumerate(lst_of_bounds):
+        short_call = call_strikes[bounds[0]]
+        short_put = put_strikes[bounds[1]]
 
         short_call_premium = calls.get_option_for_strike(short_call).get_price()
         short_put_premium = puts.get_option_for_strike(short_put).get_price()
-        # print("[{}] CALL {}: ${}    |    [{}] PUT {}: ${}".format(
-        #     short_call_index, short_call, short_call_premium,
-        #     short_put_index, short_put, short_put_premium
-        # ))
 
         long_call_index = short_call_range_end + 1
         long_put_index = short_put_range_start - 1
@@ -153,44 +135,128 @@ def iron_condor(ticker, days, lower_bound, upper_bound, risk):
                 abs(put_breakeven - lower_bound) <= breakeven_acceptable_range and
                 max_loss > -risk):
                 # Check for max_gain and max_loss
-                if net_premium > max_gain["max_profit"]:
-                    max_gain["max_profit"] = net_premium
-                    max_gain["max_loss"] = max_loss
-                    max_gain["call_loss"] = call_loss
-                    max_gain["put_loss"] = put_loss
-                    max_gain["short_call"] = short_call
-                    max_gain["short_call_premium"] = short_call_premium
-                    max_gain["short_put"] = short_put
-                    max_gain["short_put_premium"] = short_put_premium
-                    max_gain["long_call"] = long_call
-                    max_gain["long_call_premium"] = long_call_premium
-                    max_gain["long_put"] = long_put
-                    max_gain["long_put_premium"] = long_put_premium
-                    max_gain["call_breakeven"] = call_breakeven
-                    max_gain["put_breakeven"] = put_breakeven
-                if max_loss > min_loss["max_loss"]:
-                    min_loss["max_profit"] = net_premium
-                    min_loss["max_loss"] = max_loss
-                    min_loss["call_loss"] = call_loss
-                    min_loss["put_loss"] = put_loss
-                    min_loss["short_call"] = short_call
-                    min_loss["short_call_premium"] = short_call_premium
-                    min_loss["short_put"] = short_put
-                    min_loss["short_put_premium"] = short_put_premium
-                    min_loss["long_call"] = long_call
-                    min_loss["long_call_premium"] = long_call_premium
-                    min_loss["long_put"] = long_put
-                    min_loss["long_put_premium"] = long_put_premium
-                    min_loss["call_breakeven"] = call_breakeven
-                    min_loss["put_breakeven"] = put_breakeven
+                if count == 0:
+                    result_dict = max_gain
+                if count == 1:
+                    result_dict = min_loss
+                result_dict["max_profit"] = net_premium
+                result_dict["max_loss"] = max_loss
+                result_dict["call_loss"] = call_loss
+                result_dict["put_loss"] = put_loss
+                result_dict["short_call"] = short_call
+                result_dict["short_call_premium"] = short_call_premium
+                result_dict["short_put"] = short_put
+                result_dict["short_put_premium"] = short_put_premium
+                result_dict["long_call"] = long_call
+                result_dict["long_call_premium"] = long_call_premium
+                result_dict["long_put"] = long_put
+                result_dict["long_put_premium"] = long_put_premium
+                result_dict["call_breakeven"] = call_breakeven
+                result_dict["put_breakeven"] = put_breakeven
 
             # Update long indexes
             long_call_index += 1
             long_put_index -= 1
 
-        # Update short indexes
-        short_call_index += 1
-        short_put_index -= 1
+
+    # short_call_index = short_call_range_start
+    # short_put_index = short_put_range_end
+    # # Iterate through each pair of short call and short put starting at most ATM
+    # while short_call_index <= short_call_range_end and short_put_index >= short_put_range_start:
+    #     short_call = call_strikes[short_call_index]
+    #     short_put = put_strikes[short_put_index]
+    #
+    #     if short_call - call_strikes[short_call_range_start] != put_strikes[short_put_range_end] - short_put:
+    #         # print("CALL: {}/{}    |    PUT: {}/{}".format(
+    #         #     short_call,
+    #         #     call_strikes[short_call_range_start],
+    #         #     short_put,
+    #         #     put_strikes[short_put_range_end]
+    #         # ))
+    #         # Strike diff are different between calls and puts
+    #         if short_call - call_strikes[short_call_range_start] < put_strikes[short_put_range_end] - short_put:
+    #             short_call_index += 1
+    #         else:
+    #             short_put_index -= 1
+    #
+    #     short_call_premium = calls.get_option_for_strike(short_call).get_price()
+    #     short_put_premium = puts.get_option_for_strike(short_put).get_price()
+    #     # print("[{}] CALL {}: ${}    |    [{}] PUT {}: ${}".format(
+    #     #     short_call_index, short_call, short_call_premium,
+    #     #     short_put_index, short_put, short_put_premium
+    #     # ))
+    #
+    #     long_call_index = short_call_range_end + 1
+    #     long_put_index = short_put_range_start - 1
+    #     while True:
+    #         # Check if index is out of range
+    #         if long_call_index >= len(call_strikes) or long_put_index < 0:
+    #             break
+    #
+    #         long_call = call_strikes[long_call_index]
+    #         long_put = put_strikes[long_put_index]
+    #         # If strike difference does not match, increase interval accordingly
+    #         if long_call - short_call != short_put - long_put:
+    #             if long_call - short_call < short_put - long_put:
+    #                 long_call_index += 1
+    #                 continue
+    #             else:
+    #                 long_put_index -= 1
+    #                 continue
+    #
+    #         # Strike difference matches, calculate
+    #         long_call_premium = calls.get_option_for_strike(long_call).get_price()
+    #         long_put_premium = puts.get_option_for_strike(long_put).get_price()
+    #         net_premium = short_call_premium + short_put_premium - long_call_premium - long_put_premium
+    #         call_breakeven = short_call + net_premium
+    #         put_breakeven = short_put - net_premium
+    #         call_loss = net_premium - (long_call - short_call)
+    #         put_loss = net_premium - (short_put - long_put)
+    #         max_loss = max(call_loss, put_loss)
+    #
+    #         # Check if breakevens and risk is within acceptable range
+    #         if (abs(call_breakeven - upper_bound) <= breakeven_acceptable_range and
+    #             abs(put_breakeven - lower_bound) <= breakeven_acceptable_range and
+    #             max_loss > -risk):
+    #             # Check for max_gain and max_loss
+    #             if net_premium > max_gain["max_profit"]:
+    #                 max_gain["max_profit"] = net_premium
+    #                 max_gain["max_loss"] = max_loss
+    #                 max_gain["call_loss"] = call_loss
+    #                 max_gain["put_loss"] = put_loss
+    #                 max_gain["short_call"] = short_call
+    #                 max_gain["short_call_premium"] = short_call_premium
+    #                 max_gain["short_put"] = short_put
+    #                 max_gain["short_put_premium"] = short_put_premium
+    #                 max_gain["long_call"] = long_call
+    #                 max_gain["long_call_premium"] = long_call_premium
+    #                 max_gain["long_put"] = long_put
+    #                 max_gain["long_put_premium"] = long_put_premium
+    #                 max_gain["call_breakeven"] = call_breakeven
+    #                 max_gain["put_breakeven"] = put_breakeven
+    #             if max_loss > min_loss["max_loss"]:
+    #                 min_loss["max_profit"] = net_premium
+    #                 min_loss["max_loss"] = max_loss
+    #                 min_loss["call_loss"] = call_loss
+    #                 min_loss["put_loss"] = put_loss
+    #                 min_loss["short_call"] = short_call
+    #                 min_loss["short_call_premium"] = short_call_premium
+    #                 min_loss["short_put"] = short_put
+    #                 min_loss["short_put_premium"] = short_put_premium
+    #                 min_loss["long_call"] = long_call
+    #                 min_loss["long_call_premium"] = long_call_premium
+    #                 min_loss["long_put"] = long_put
+    #                 min_loss["long_put_premium"] = long_put_premium
+    #                 min_loss["call_breakeven"] = call_breakeven
+    #                 min_loss["put_breakeven"] = put_breakeven
+    #
+    #         # Update long indexes
+    #         long_call_index += 1
+    #         long_put_index -= 1
+    #
+    #     # Update short indexes
+    #     short_call_index += 1
+    #     short_put_index -= 1
 
     return {
         "data": {"max_gain": max_gain, "min_loss": min_loss},
