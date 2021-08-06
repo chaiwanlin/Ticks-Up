@@ -1,5 +1,5 @@
 # Ticks Up
-Read more about this project at
+Technical documentation:
 
 https://docs.google.com/document/d/1pQ-CcS6LQffKXhaLbfQu2N_Hnn0jDHf4YlEQg1eRbAY/edit?usp=sharing
 
