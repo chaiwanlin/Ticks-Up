@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from decimal import Decimal
 from hedge_instruments.option import Call, Put
+import datetime
 from portfolio_functions.industry import Industry as Classification
 
 
@@ -138,7 +139,7 @@ class OptionPosition(models.Model):
     ]
     long_or_short = models.CharField(max_length=5, choices=LONG_OR_SHORT)
 
-    expiration_date = models.DateField()
+    expiration_date = models.DateField(default=datetime.date.today)
     strike_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
     average_price = models.DecimalField(max_digits=19, decimal_places=2)
     total_contracts = models.PositiveIntegerField()

@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from .models import *
 from hedge_instruments.stock import Stock
 from hedge_instruments.option import *
+import datetime
 from portfolio_functions.industry import Industry as Classification
 
 
@@ -47,6 +48,9 @@ class AddOptionPositionForm(forms.ModelForm):
         labels = {
             'expiration_date': 'Expiration date (YYYY-MM-DD)'
         }
+        widgets = {
+            'expiration_date': forms.widgets.DateInput(attrs={'type': 'date'}),
+        }
 
     # Problem is recognising the ticker without access to ticker form
     # def clean_optionposition(self):
@@ -66,14 +70,13 @@ class AddVerticalSpreadForm(forms.ModelForm):
 
 
 class AddVerticalSpreadExtraForm(forms.Form):
-    expiration_date = forms.DateField()
+    expiration_date = forms.DateField(initial=datetime.date.today, widget=forms.widgets.DateInput(attrs={'type': 'date'}))
     quantity = forms.IntegerField(min_value=1)
 
     short_leg_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
     long_leg_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
     short_leg_premium = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
     long_leg_premium = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
-
 
 
 class AddButterflySpreadForm(forms.ModelForm):
@@ -83,7 +86,7 @@ class AddButterflySpreadForm(forms.ModelForm):
 
 
 class AddButterflySpreadExtraForm(forms.Form):
-    expiration_date = forms.DateField()
+    expiration_date = forms.DateField(initial=datetime.date.today, widget=forms.widgets.DateInput(attrs={'type': 'date'}))
     quantity = forms.IntegerField(min_value=1)
 
     long_put_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
@@ -98,7 +101,7 @@ class AddButterflySpreadExtraForm(forms.Form):
 
 
 class AddCollarForm(forms.Form):
-    expiration_date = forms.DateField()
+    expiration_date = forms.DateField(initial=datetime.date.today, widget=forms.widgets.DateInput(attrs={'type': 'date'}))
     quantity = forms.IntegerField(min_value=1)
 
     long_put_strike = forms.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
@@ -108,7 +111,7 @@ class AddCollarForm(forms.Form):
 
 
 class AddProtectivePutForm(forms.Form):
-    expiration_date = forms.DateField()
+    expiration_date = forms.DateField(initial=datetime.date.today, widget=forms.widgets.DateInput(attrs={'type': 'date'}))
     quantity = forms.IntegerField(min_value=1)
 
     long_put_strike = forms.DecimalField(max_digits=10, decimal_places=1, validators=[MinValueValidator(Decimal('0.01'))])
