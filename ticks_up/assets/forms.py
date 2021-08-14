@@ -45,9 +45,6 @@ class AddOptionPositionForm(forms.ModelForm):
     class Meta:
         model = OptionPosition
         exclude = ('portfolio', 'ticker')
-        labels = {
-            'expiration_date': 'Expiration date (YYYY-MM-DD)'
-        }
         widgets = {
             'expiration_date': forms.widgets.DateInput(attrs={'type': 'date'}),
         }
