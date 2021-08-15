@@ -32,14 +32,14 @@ class Industry:
 
     def __init__(self, ticker):
         self.ticker = ticker.upper()
-        try:
-            f = open('data.json', "r")
-            data = json.load(f)
+        # try:
+        #     f = open('data.json', "r")
+        #     data = json.load(f)
 
-            self.sector = data[0].text
-            self.industry = data[1].text
-        except KeyError:
-            pass
+        #     self.sector = data[0].text
+        #     self.industry = data[1].text
+        # except KeyError:
+        #     pass
         try: 
             request = rq.urlopen(f"https://www.tradingview.com/symbols/{ticker}/")
             soup = BeautifulSoup(request.read(), 'html.parser')
@@ -416,6 +416,30 @@ class Industry:
         with open('./industry.json', 'w') as file:
             json.dump(result, file, indent=4)
 
+    def dict_to_django():
+        f = open('./industry.json')
+        data = json.load(f)
+
+        new_data = []
+        count = 1
+
+        for key in data:
+            new_data.append(
+                {
+                    "model": "ticks_up.ticker",
+                    "pk": count,
+                    "fields": {
+                        "name"
+                        "sector": data[key]["Sector"],
+                        "industry": data[key]["Industry"]
+                    }
+                }
+            )
+
+            
+
+        with open('./industry_django.json', 'w') as file:
+            json.dump(new_data, file, indent=4)
 
 # result = Industry("AAPL")
 # result = Industry("AAPL").get_k_closest_same_sector(5, PERFORMANCE, FOUR_H_CHG)
@@ -428,6 +452,8 @@ class Industry:
 # print(Industry.industry_list())
 
 # Industry.ticker_dict_by_industry()
+
+Industry.dict_to_django()
 
 
 

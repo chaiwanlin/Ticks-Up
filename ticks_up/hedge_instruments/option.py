@@ -11,7 +11,6 @@ import urllib.error
 import json
 import datetime
 
-
 # nearest date problem
 
 # urllib.error.URLError if unconnectable/no such site
@@ -90,13 +89,9 @@ class Call(Option):
             self.strikes.append(strike["strike"])
 
     def get_option_for_strike(self, strike_price):
-        found = False
         for strike in self.data:
             if strike_price == strike["strike"]:
-                found = True
-                data = strike
-        if found == True:
-            return CallOption(self.ticker, self.underlying, data)
+                return CallOption(self.ticker, self.underlying, strike)
         else:
             raise LookupError("no such strike")        
 
@@ -349,11 +344,11 @@ class Call(Option):
             }
         }
 
-    def call_valid(ticker, date):
+    def call_valid(ticker, date, strike):
         exp = Call(ticker).expiration
         for e in exp:
             if date == datetime.datetime.fromtimestamp(e, datetime.timezone.utc):
-                return Call(ticker, date.year, date.month, date.day)
+                return Call(ticker, date.year, date.month, date.day).get_option_for_strike(strike)
         else:
             raise LookupError("invalid date")
 
@@ -847,11 +842,11 @@ class Put(Option):
             }
         }
 
-    def put_valid(ticker, date):
+    def put_valid(ticker, date, strike):
         exp = Put(ticker).expiration
         for e in exp:
             if date == datetime.datetime.fromtimestamp(e, datetime.timezone.utc):
-                return Put(ticker, date.year, date.month, date.day)
+                return Put(ticker, date.year, date.month, date.day).get_option_for_strike(strike)
         else:
             raise LookupError("invalid date")
 
@@ -923,3 +918,4 @@ class PutOption:
 # print(Call("aapl", month = 8, day = 20).get_strike_for_breakeven_credit(120, 110, 24.2, 40))
 # print(Put("aapl", month = 8, day = 20).get_strike_for_breakeven_credit(140, 160, 27.25, 10))
 # print(Call("YQ",2021,8,6).get_option_for_strike(2.5).BandS.iv())
+

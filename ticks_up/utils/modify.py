@@ -40,4 +40,3 @@ def parse_industry(string):
     return string.replace(" & ", "-").replace(": ", "-").replace(" ", "-").replace("/", "-")
 
 
-
