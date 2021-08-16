@@ -30,7 +30,10 @@ def ticker_check(symbol):
     try:
         ticker = Ticker.objects.get(name=symbol)
     except Ticker.DoesNotExist:
-        classification = Classification(symbol)
+        try:
+            classification = Classification(symbol)
+        except LookupError:
+            raise LookupError("Invalid ticker!")
         sector_name = classification.get_sector()
         industry_name = classification.get_industry()
 
@@ -396,7 +399,10 @@ def add_stock_position(request, portfolio_id):
         return redirect(reverse('assets'))
     if request.method == 'POST':
         tform = TickerForm(request.POST)
-        sform = AddStockPositionForm(request.POST)
+        try:
+            sform = AddStockPositionForm(request.POST)
+        except LookupError:
+            raise Http404()
         if tform.is_valid() and sform.is_valid():
             name = tform.cleaned_data['name'].upper()
             ticker = ticker_check(name)
@@ -459,7 +465,10 @@ def add_option_position(request, portfolio_id):
             option_position = oform.save(commit=False)
             option_position.portfolio = portfolio
             option_position.ticker = ticker
-            option_position.save()
+            try:
+                option_position.save()
+            except LookupError:
+                raise Http404("Option position is not valid!")
             return redirect(reverse('view_portfolio', args=[portfolio_id]))
 
     else:
@@ -713,9 +722,9 @@ def add_collar(request, portfolio_id, ticker_name):
                 stock = portfolio.stockposition_set.get(ticker=ticker)
                 total_shares = getattr(stock, 'total_shares')
                 if total_shares <= (quantity * 100):
-                    return Http404()
+                    raise Http404()
             except StockPosition.DoesNotExist:
-                return Http404()
+                raise Http404()
 
             long_put = OptionPosition(
                 portfolio=portfolio,
@@ -775,9 +784,9 @@ def add_protective_put(request, portfolio_id, ticker_name):
                 stock = portfolio.stockposition_set.get(ticker=ticker)
                 total_shares = getattr(stock, 'total_shares')
                 if total_shares <= (quantity * 100):
-                    return Http404()
+                    raise Http404()
             except StockPosition.DoesNotExist:
-                return Http404()
+                raise Http404()
 
             long_put = OptionPosition(
                 portfolio=portfolio,

@@ -590,24 +590,24 @@
                             <td>{{ naked_option.total_cost }}</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}OptionPosition">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ naked_option }}">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ symbol }}OptionPosition" tabindex="-1" aria-labelledby="add{{ symbol }}OptionPositionLabel" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ naked_option }}" tabindex="-1" aria-labelledby="add{{ naked_option }}Label" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ symbol }}OptionPositionLabel">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ naked_option }}Label">Add {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
                                             <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
                                                 {% csrf_token %}
                                                 <div class="mb-3">
-                                                    <input type="hidden" name="call_or_put" value="{{ option.call_or_put }}">
-                                                    <input type="hidden" name="long_or_short" value="{{ option.long_or_short }}">
-                                                    <input type="hidden" name="expiration_date" value="{{ option.expiration_date }}">
-                                                    <input type="hidden" name="strike_price" value="{{ option.strike_price }}">
+                                                    <input type="hidden" name="call_or_put" value="{{ naked_option.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ naked_option.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ naked_option.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ naked_option.strike_price }}">
                                                     {{ eoform|crispy }}
                                                 </div>
                                                 <button type="submit" class="btn btn-outline-primary">Save</button>
@@ -617,24 +617,24 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}OptionPosition">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ naked_option }}">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ symbol }}OptionPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}OptionPositionLabel" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ naked_option }}" tabindex="-1" aria-labelledby="remove{{ naked_option }}Label" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ symbol }}OptionPositionLabel">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ naked_option }}Label">Remove {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
                                             <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
                                                 {% csrf_token %}
                                                 <div class="mb-3">
-                                                    <input type="hidden" name="call_or_put" value="{{ option.call_or_put }}">
-                                                    <input type="hidden" name="long_or_short" value="{{ option.long_or_short }}">
-                                                    <input type="hidden" name="expiration_date" value="{{ option.expiration_date }}">
-                                                    <input type="hidden" name="strike_price" value="{{ option.strike_price }}">
+                                                    <input type="hidden" name="call_or_put" value="{{ naked_option.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ naked_option.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ naked_option.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ naked_option.strike_price }}">
                                                     {{ eoform|crispy }}
                                                 </div>
                                                 <button type="submit" class="btn btn-outline-primary">Save</button>
@@ -652,8 +652,7 @@
                         {% for protective_put in positions.option_positions.protective_puts %}
                         <tr class="table-warning">
                             <th scope="col">PROTECTIVE PUT</th>
-                            <th scope="col">QTY: {{ protective_put.quantity }}</th>
-                            <th scope="col" colspan="4"></th>
+                            <th scope="col" colspan="5"></th>
                         </tr>
                         <tr>
                             <td>{{ protective_put.long_put }}</td>
@@ -661,7 +660,63 @@
                             <td>{{ protective_put.long_put.average_price }}</td>
                             <td>{{ protective_put.long_put.total_contracts }}</td>
                             <td>{{ protective_put.long_put.total_cost }}</td>
-                            <td></td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ protective_put }}">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="add{{ protective_put }}" tabindex="-1" aria-labelledby="add{{ protective_put }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="add{{ protective_put }}Label">Add {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ protective_put.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ protective_put.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ protective_put.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ protective_put.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ protective_put }}">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="remove{{ protective_put }}" tabindex="-1" aria-labelledby="remove{{ protective_put }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="remove{{ protective_put }}Label">Remove {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ protective_put.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ protective_put.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ protective_put.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ protective_put.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     {% endif %}
@@ -669,8 +724,7 @@
                         {% for collar in positions.option_positions.collars %}
                         <tr class="table-warning">
                             <th scope="col">COLLAR</th>
-                            <th scope="col">QTY: {{ collar.quantity }}</th>
-                            <th scope="col" colspan="4"></th>
+                            <th scope="col" colspan="5"></th>
                         </tr>
                         <tr>
                             <td>{{ collar.long_put }}</td>
@@ -678,7 +732,63 @@
                             <td>{{ collar.long_put.average_price }}</td>
                             <td>{{ collar.long_put.total_contracts }}</td>
                             <td>{{ collar.long_put.total_cost }}</td>
-                            <td></td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ collar.long_put }}">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="add{{ collar.long_put }}" tabindex="-1" aria-labelledby="add{{ collar.long_put }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="add{{ collar.long_put }}Label">Add {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ collar.long_put.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ collar.long_put.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ collar.long_put.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ collar.long_put.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ collar.long_put }}">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="remove{{ collar.long_put }}" tabindex="-1" aria-labelledby="remove{{ collar.long_put }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="remove{{ collar.long_put }}Label">Remove {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ collar.long_put.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ collar.long_put.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ collar.long_put.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ collar.long_put.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         <tr>
                             <td>{{ collar.short_call }}</td>
@@ -686,7 +796,63 @@
                             <td>{{ collar.short_call.average_price }}</td>
                             <td>{{ collar.short_call.total_contracts }}</td>
                             <td>{{ collar.short_call.total_cost }}</td>
-                            <td></td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ collar.short_call }}">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="add{{ collar.short_call }}" tabindex="-1" aria-labelledby="add{{ collar.short_call }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="add{{ collar.short_call }}Label">Add {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ collar.short_call.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ collar.short_call.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ collar.short_call.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ collar.short_call.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ collar.short_call }}">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="remove{{ collar.short_call }}" tabindex="-1" aria-labelledby="remove{{ collar.short_call }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="remove{{ collar.short_call }}Label">Remove {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ collar.short_call.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ collar.short_call.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ collar.short_call.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ collar.short_call.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     {% endif %}
@@ -695,8 +861,7 @@
                         <tr class="table-warning">
                             <th scope="col">VERTICAL SPREAD</th>
                             <th scope="col">{{ vertical_spread.types }} ({{ vertical_spread.credit_or_debit }})</th>
-                            <th scope="col">QTY: {{ vertical_spread.quantity }}</th>
-                            <th scope="col" colspan="3"></th>
+                            <th scope="col" colspan="4"></th>
                         </tr>
                         <tr>
                             <td>{{ vertical_spread.short_leg }}</td>
@@ -704,7 +869,63 @@
                             <td>{{ vertical_spread.short_leg.average_price }}</td>
                             <td>{{ vertical_spread.short_leg.total_contracts }}</td>
                             <td>{{ vertical_spread.short_leg.total_cost }}</td>
-                            <td></td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ vertical_spread.short_leg }}">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="add{{ vertical_spread.short_leg }}" tabindex="-1" aria-labelledby="add{{ vertical_spread.short_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="add{{ vertical_spread.short_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ vertical_spread.short_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ vertical_spread.short_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ vertical_spread.short_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ vertical_spread.short_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ vertical_spread.short_leg }}">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="remove{{ vertical_spread.short_leg }}" tabindex="-1" aria-labelledby="remove{{ vertical_spread.short_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="remove{{ vertical_spread.short_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ vertical_spread.short_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ vertical_spread.short_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ vertical_spread.short_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ vertical_spread.short_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         <tr>
                             <td>{{ vertical_spread.long_leg }}</td>
@@ -712,7 +933,63 @@
                             <td>{{ vertical_spread.long_leg.average_price }}</td>
                             <td>{{ vertical_spread.long_leg.total_contracts }}</td>
                             <td>{{ vertical_spread.long_leg.total_cost }}</td>
-                            <td></td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ vertical_spread.long_leg }}">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="add{{ vertical_spread.long_leg }}" tabindex="-1" aria-labelledby="add{{ vertical_spread.long_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="add{{ vertical_spread.long_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ vertical_spread.long_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ vertical_spread.long_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ vertical_spread.long_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ vertical_spread.long_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ vertical_spread.long_leg }}">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="remove{{ vertical_spread.long_leg }}" tabindex="-1" aria-labelledby="remove{{ vertical_spread.long_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="remove{{ vertical_spread.long_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ vertical_spread.long_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ vertical_spread.long_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ vertical_spread.long_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ vertical_spread.long_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     {% endif %}
@@ -721,8 +998,7 @@
                         <tr class="table-warning">
                             <th scope="col">BUTTERFLY SPREAD</th>
                             <th scope="col">{{ butterfly_spread.types }}</th>
-                            <th scope="col">QTY: {{ butterfly_spread.quantity }}</th>
-                            <th scope="col" colspan="3"></th>
+                            <th scope="col" colspan="4"></th>
                         </tr>
                         <tr>
                             <td>{{ butterfly_spread.bull_spread.long_leg }}</td>
@@ -730,7 +1006,63 @@
                             <td>{{ butterfly_spread.bull_spread.long_leg.average_price }}</td>
                             <td>{{ butterfly_spread.bull_spread.long_leg.total_contracts }}</td>
                             <td>{{ butterfly_spread.bull_spread.long_leg.total_cost }}</td>
-                            <td></td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ butterfly_spread.bull_spread.long_leg }}">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="add{{ butterfly_spread.bull_spread.long_leg }}" tabindex="-1" aria-labelledby="add{{ butterfly_spread.bull_spread.long_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="add{{ butterfly_spread.bull_spread.long_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ butterfly_spread.bull_spread.long_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ butterfly_spread.bull_spread.long_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ butterfly_spread.bull_spread.long_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ butterfly_spread.bull_spread.long_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ butterfly_spread.bull_spread.long_leg }}">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="remove{{ butterfly_spread.bull_spread.long_leg }}" tabindex="-1" aria-labelledby="remove{{ butterfly_spread.bull_spread.long_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="remove{{ butterfly_spread.bull_spread.long_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ butterfly_spread.bull_spread.long_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ butterfly_spread.bull_spread.long_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ butterfly_spread.bull_spread.long_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ butterfly_spread.bull_spread.long_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         <tr>
                             <td>{{ butterfly_spread.bull_spread.short_leg }}</td>
@@ -738,7 +1070,63 @@
                             <td>{{ butterfly_spread.bull_spread.short_leg.average_price }}</td>
                             <td>{{ butterfly_spread.bull_spread.short_leg.total_contracts }}</td>
                             <td>{{ butterfly_spread.bull_spread.short_leg.total_cost }}</td>
-                            <td></td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ butterfly_spread.bull_spread.short_leg }}">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="add{{ butterfly_spread.bull_spread.short_leg }}" tabindex="-1" aria-labelledby="add{{ butterfly_spread.bull_spread.short_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="add{{ butterfly_spread.bull_spread.short_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ butterfly_spread.bull_spread.short_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ butterfly_spread.bull_spread.short_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ butterfly_spread.bull_spread.short_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ butterfly_spread.bull_spread.short_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ butterfly_spread.bull_spread.short_leg }}">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="remove{{ butterfly_spread.bull_spread.short_leg }}" tabindex="-1" aria-labelledby="remove{{ butterfly_spread.bull_spread.short_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="remove{{ butterfly_spread.bull_spread.short_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ butterfly_spread.bull_spread.short_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ butterfly_spread.bull_spread.short_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ butterfly_spread.bull_spread.short_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ butterfly_spread.bull_spread.short_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         <tr>
                             <td>{{ butterfly_spread.bear_spread.short_leg }}</td>
@@ -746,7 +1134,63 @@
                             <td>{{ butterfly_spread.bear_spread.short_leg.average_price }}</td>
                             <td>{{ butterfly_spread.bear_spread.short_leg.total_contracts }}</td>
                             <td>{{ butterfly_spread.bear_spread.short_leg.total_cost }}</td>
-                            <td></td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ butterfly_spread.bear_spread.short_leg }}">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="add{{ butterfly_spread.bear_spread.short_leg }}" tabindex="-1" aria-labelledby="add{{ butterfly_spread.bear_spread.short_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="add{{ butterfly_spread.bear_spread.short_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ butterfly_spread.bear_spread.short_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ butterfly_spread.bear_spread.short_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ butterfly_spread.bear_spread.short_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ butterfly_spread.bear_spread.short_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ butterfly_spread.bear_spread.short_leg }}">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="remove{{ butterfly_spread.bear_spread.short_leg }}" tabindex="-1" aria-labelledby="remove{{ butterfly_spread.bear_spread.short_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="remove{{ butterfly_spread.bear_spread.short_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ butterfly_spread.bear_spread.short_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ butterfly_spread.bear_spread.short_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ butterfly_spread.bear_spread.short_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ butterfly_spread.bear_spread.short_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         <tr>
                             <td>{{ butterfly_spread.bear_spread.long_leg }}</td>
@@ -754,7 +1198,63 @@
                             <td>{{ butterfly_spread.bear_spread.long_leg.average_price }}</td>
                             <td>{{ butterfly_spread.bear_spread.long_leg.total_contracts }}</td>
                             <td>{{ butterfly_spread.bear_spread.long_leg.total_cost }}</td>
-                            <td></td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ butterfly_spread.bear_spread.long_leg }}">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="add{{ butterfly_spread.bear_spread.long_leg }}" tabindex="-1" aria-labelledby="add{{ butterfly_spread.bear_spread.long_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="add{{ butterfly_spread.bear_spread.long_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ butterfly_spread.bear_spread.long_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ butterfly_spread.bear_spread.long_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ butterfly_spread.bear_spread.long_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ butterfly_spread.bear_spread.long_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ butterfly_spread.bear_spread.long_leg }}">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="remove{{ butterfly_spread.bear_spread.long_leg }}" tabindex="-1" aria-labelledby="remove{{ butterfly_spread.bear_spread.long_leg }}Label" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="remove{{ butterfly_spread.bear_spread.long_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ butterfly_spread.bear_spread.long_leg.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ butterfly_spread.bear_spread.long_leg.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ butterfly_spread.bear_spread.long_leg.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ butterfly_spread.bear_spread.long_leg.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     {% endif %}

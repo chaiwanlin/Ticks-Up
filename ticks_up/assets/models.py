@@ -152,18 +152,12 @@ class OptionPosition(models.Model):
         )
 
     def save(self, *args, **kwargs):
-        # Validate option position (Does not work because Option instrument classes do not validate)
+        # Validate option position
         try:
             if self.call_or_put == 'CALL':
-                option_instr = Call(self.ticker.name,
-                                      self.expiration_date.year,
-                                      self.expiration_date.month,
-                                      self.expiration_date.day)
+                option_instr = Call.call_valid(self.ticker.name, self.expiration_date, self.strike_price)
             else:
-                option_instr = Put(self.ticker.name,
-                                    self.expiration_date.year,
-                                    self.expiration_date.month,
-                                    self.expiration_date.day)
+                option_instr = Put.put_valid(self.ticker.name, self.expiration_date, self.strike_price)
             option_instr.get_option_for_strike(self.strike_price)
         except LookupError:
             raise LookupError("Option position is invalid!")

@@ -49,9 +49,6 @@ class AddOptionPositionForm(forms.ModelForm):
             'expiration_date': forms.widgets.DateInput(attrs={'type': 'date'}),
         }
 
-    # Problem is recognising the ticker without access to ticker form
-    # def clean_optionposition(self):
-
 
 class EditOptionPositionForm(forms.ModelForm):
     class Meta:

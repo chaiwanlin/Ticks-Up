@@ -453,7 +453,7 @@ class Industry:
 
 # Industry.ticker_dict_by_industry()
 
-Industry.dict_to_django()
+# Industry.dict_to_django()
 
 
 
