@@ -1,0 +1,25 @@
+DONT RUN THIS FILE
+
+from bs4 import BeautifulSoup
+import urllib.request as rq
+import json
+
+# request = rq.urlopen("https://www.onixs.biz/fix-dictionary/4.2/app_c.html")
+# soup = BeautifulSoup(request.read(), 'html.parser')
+
+# lst = soup.findAll("td", class_ = "white")
+
+# data = []
+
+# data.extend(lst[0].findAll("tr"))
+# data.extend(lst[1].findAll("tr"))
+
+# dic = {}
+
+# for e in data:
+#     pair = e.findAll("td")
+#     pair = (pair[0].text, "." + pair[1].text)
+#     dic[pair[0]] = pair[1]
+
+# with open('./index.json', 'w') as file:
+#     json.dump(dic, file, indent=4)

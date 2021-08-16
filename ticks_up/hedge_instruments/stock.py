@@ -4,6 +4,8 @@ import urllib.request
 import urllib.response
 import urllib.error
 import json
+from bs4 import BeautifulSoup 
+import urllib.request as rq
 
 class Stock(Instrument):
 
@@ -39,4 +41,20 @@ class Stock(Instrument):
     def get_exchange(self):
         return self.exchange
 
-Stock("S68.SI")
+    def parse_stock(ticker):
+        ticker = ticker.upper()
+        request = rq.urlopen(f"https://www.tradingview.com/symbols/{ticker}/")
+        soup = BeautifulSoup(request.read(), 'html.parser')
+
+        result = soup.find("span", class_ = "tv-symbol-header__exchange").text.replace(" ", "")
+        
+        try:
+            f = open('index.json', "r")
+            data = json.load(f)
+            result = ticker + data[result]
+            return result
+        except KeyError:
+            raise LookupError("invalid ticker :D")
+
+        
+# Stock("S68.SI")
