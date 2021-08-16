@@ -21,20 +21,15 @@ def search_ticker(request):
         ticker_set = Ticker.objects.filter(name=ticker)
         if not ticker_set:
             try:
-                stock = Stock(ticker)
-            except LookupError:
-                raise Http404("Ticker does not exist")
-
-            try:
+                exchange = Stock.get_stock_exchange(ticker)
                 ticker_info = Industry(ticker)
                 sector = ticker_info.sector
                 industry = ticker_info.industry
             except LookupError:
-                error = "Not Available"
-                sector = error
-                industry = error
+                raise Http404("Ticker does not exist")
+
         else:
-            stock = Stock(ticker)
+            exchange = Stock.get_stock_exchange(ticker)
             ticker_obj = Ticker.objects.get(name=ticker)
             sector = ticker_obj.sector.name
             industry = ticker_obj.industry.name
@@ -47,8 +42,6 @@ def search_ticker(request):
             days = int(days)
 
         ticker_data = {}
-
-        # ticker_data['Historical Volatility'] = "We're working on it..."
 
         try:
             ticker_data['Volatility Skew'] = round(volatility_skew(ticker, days), 4)
@@ -73,7 +66,7 @@ def search_ticker(request):
 
         return render(request, "ticker/search_ticker.html", {
             'ticker': ticker,
-            'exchange': stock.get_exchange(),
+            'exchange': exchange,
             'sector': sector,
             'industry': industry,
             'days': days,

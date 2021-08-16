@@ -198,7 +198,6 @@ class Bear(Spread):
         self.upper_bound = upper_leg
 
 class Bull(Spread):
-
     def __init__(self, type, short_leg, long_leg):
         quantity = short_leg.quantity
         expiry = short_leg.expiry
@@ -330,7 +329,6 @@ class Collar(Spread):
         self.upper_bound = short_call.strike_price
 
 class HedgedStock(Spread):
-
     # stock: Stock class
     # long_put: Put object
     def __init__(self, stock, long_put):
@@ -352,7 +350,6 @@ class HedgedStock(Spread):
         self.upper_bound = math.inf
 
 class CoveredCall(Spread):
-
     # stock: Stock class
     # short_call: Call object
     def __init__(self, stock, short_call):

@@ -22,6 +22,9 @@ class OverallPosition:
         self.cost_to_cover = self.stocks.cost_to_cover + self.options.cost_to_cover
         self.short_PL = self.stocks.short_PL + self.options.short_PL
 
+        self.total_cost = self.capital_invested + self.capital_collateral
+        self.total_value = self.value + self.capital_collateral + self.short_PL
+
 
 class StockPosition:
 
@@ -52,6 +55,9 @@ class StockPosition:
                 self.capital_collateral += e.lot_cost + margin_value * e.lot_value
                 self.cost_to_cover += e.lot_value
                 self.short_PL += e.short_PL
+
+        self.total_cost = self.capital_invested + self.capital_collateral
+        self.total_value = self.value + self.capital_collateral + self.short_PL
 
 
 class OptionPosition:
@@ -120,8 +126,10 @@ class OptionPosition:
                 self.cost_to_cover += e.lot_value
                 self.short_PL += (e.cost - e.value) * e.leveraged_quantity
 
-    def get_option_positions_spread(self):
+        self.total_cost = self.capital_invested + self.capital_collateral
+        self.total_value = self.value + self.capital_collateral + self.short_PL
 
+    def get_option_positions_spread(self):
         self.short_puts.sort(key = lambda x : x.strike_price, reverse = True)
         self.long_puts.sort(key = lambda x : x.strike_price, reverse = True)
         self.short_calls.sort(key = lambda x : x.strike_price)

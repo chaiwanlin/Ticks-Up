@@ -41,20 +41,30 @@ class Stock(Instrument):
     def get_exchange(self):
         return self.exchange
 
-    def parse_stock(ticker):
-        ticker = ticker.upper()
-        request = rq.urlopen(f"https://www.tradingview.com/symbols/{ticker}/")
-        soup = BeautifulSoup(request.read(), 'html.parser')
+    def get_stock_exchange(ticker):
+        try: 
+            ticker = ticker.upper()
+            request = rq.urlopen(f"https://www.tradingview.com/symbols/{ticker}/")
+            soup = BeautifulSoup(request.read(), 'html.parser')
 
-        result = soup.find("span", class_ = "tv-symbol-header__exchange").text.replace(" ", "")
-
+            return soup.find("span", class_ = "tv-symbol-header__exchange").text.replace(" ", "")
+        except Exception:
+            raise LookupError("invalid ticker :D")
+        
+    def parse_stock_for_yahoo(ticker):
         try:
+            result = Stock.get_stock_exchange(ticker)
             f = open('index.json', "r")
             data = json.load(f)
             result = ticker + data[result]
             return result
         except KeyError:
             raise LookupError("invalid ticker :D")
+
+
+
+        
+
 
         
 # Stock("S68.SI")
