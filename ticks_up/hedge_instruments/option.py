@@ -20,6 +20,7 @@ class Option(Instrument):
 
     def __init__(self, ticker, 
         year = today.year , month = today.month , day = today.day):
+        ticker_html = Stock.parse_stock_for_yahoo(ticker)
 
         self.expiry = datetime.datetime(year, month, day, tzinfo=datetime.timezone.utc).timestamp()
         self.expiration_date = datetime.datetime.fromtimestamp(self.expiry).strftime("%Y-%m-%d")
@@ -27,7 +28,7 @@ class Option(Instrument):
         epoch = int(self.expiry)
     
         try:
-            url = f"{YAHOO_OPTION}{ticker}?date={epoch}"
+            url = f"{YAHOO_OPTION}{ticker_html}?date={epoch}"
 
             response = urllib.request.urlopen(url)
             data = json.loads(response.read())
