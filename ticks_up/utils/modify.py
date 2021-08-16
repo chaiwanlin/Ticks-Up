@@ -1,3 +1,5 @@
+import datetime
+
 # value error for convertability
 def string_to_float(string):
     if type(string) is float or type(string) is int:
@@ -40,3 +42,4 @@ def parse_industry(string):
     return string.replace(" & ", "-").replace(": ", "-").replace(" ", "-").replace("/", "-")
 
 
+# print(datetime.datetime(2021, 8, 20, tzinfo=datetime.timezone.utc) == datetime.datetime.fromtimestamp(1629417600, datetime.timezone.utc))

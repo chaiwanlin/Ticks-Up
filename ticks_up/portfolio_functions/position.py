@@ -128,9 +128,8 @@ class OptionPosition:
 
         self.total_cost = self.capital_invested + self.capital_collateral
         self.total_value = self.value + self.capital_collateral + self.short_PL
-        
-    def get_option_positions_spread(self):
 
+    def get_option_positions_spread(self):
         self.short_puts.sort(key = lambda x : x.strike_price, reverse = True)
         self.long_puts.sort(key = lambda x : x.strike_price, reverse = True)
         self.short_calls.sort(key = lambda x : x.strike_price)
