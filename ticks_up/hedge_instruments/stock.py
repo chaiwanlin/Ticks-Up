@@ -11,7 +11,8 @@ class Stock(Instrument):
 
     # urllib.error.URLError if unconnectable/no such site
     def __init__(self, ticker):
-        url = f"{YAHOO_STOCK}{ticker}?modules=price%2CsummaryDetail"
+        ticker_html = Stock.parse_stock_for_yahoo(ticker)
+        url = f"{YAHOO_STOCK}{ticker_html}?modules=price%2CsummaryDetail"
         try:
             response = urllib.request.urlopen(url)
             data = json.loads(response.read())
