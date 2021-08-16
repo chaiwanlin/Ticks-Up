@@ -104,19 +104,19 @@ class OptionPosition:
         
         if margin:
             for e in self.short_calls:
-                otm = e.strike - price if e.strike - price else 0
+                otm = e.strike_price - price if e.strike_price - price else 0
                 self.capital_collateral += max(0.2 * (price - otm), 0.1 * price) * e.leveraged_quantity
                 self.cost_to_cover += e.lot_value
                 self.short_PL += e.short_PL
 
             for e in self.short_puts:
-                otm = e.strike - price if e.strike - price else 0
+                otm = e.strike_price - price if e.strike_price - price else 0
                 self.capital_collateral += max(0.2 * (price - otm), 0.1 * price) * e.leveraged_quantity
                 self.cost_to_cover += e.lot_value
                 self.short_PL += e.short_PL
         else:
             for e in self.short_puts:
-                self.capital_collateral += e.strike * e.leveraged_quantity
+                self.capital_collateral += e.strike_price * e.leveraged_quantity
                 self.cost_to_cover += e.lot_value
                 self.short_PL += (e.cost - e.value) * e.leveraged_quantity
 

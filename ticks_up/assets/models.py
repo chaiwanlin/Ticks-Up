@@ -145,11 +145,10 @@ class OptionPosition(models.Model):
     total_contracts = models.PositiveIntegerField()
 
     def __str__(self):
-        return "{expiration_date} {strike_price}{call_or_put} {long_or_short}".format(
+        return "{expiration_date} {strike_price}{call_or_put}".format(
             strike_price=self.strike_price,
             call_or_put=self.call_or_put,
             expiration_date=self.expiration_date,
-            long_or_short=self.long_or_short,
         )
 
     def save(self, *args, **kwargs):
@@ -229,6 +228,7 @@ class VerticalSpread(models.Model):
 
     short_leg = models.OneToOneField(OptionPosition, on_delete=models.CASCADE, related_name="short_leg")
     long_leg = models.OneToOneField(OptionPosition, on_delete=models.CASCADE, related_name="long_leg")
+    quantity = models.PositiveIntegerField()
 
     def __str__(self):
         return "{types} {credit_or_debit} SPREAD".format(
@@ -253,6 +253,7 @@ class ButterflySpread(models.Model):
 
     bull_spread = models.OneToOneField(VerticalSpread, on_delete=models.CASCADE, related_name="bull_spread")
     bear_spread = models.OneToOneField(VerticalSpread, on_delete=models.CASCADE, related_name="bear_spread")
+    quantity = models.PositiveIntegerField()
 
     def __str__(self):
         return "{types} SPREAD".format(
@@ -274,6 +275,7 @@ class Collar(models.Model):
 
     long_put = models.OneToOneField(OptionPosition, on_delete=models.CASCADE, related_name="long_put")
     short_call = models.OneToOneField(OptionPosition, on_delete=models.CASCADE, related_name="short_call")
+    quantity = models.PositiveIntegerField()
 
     def __str__(self):
         return "COLLAR".format(
@@ -292,6 +294,7 @@ class ProtectivePut(models.Model):
     stock_position = models.OneToOneField(StockPosition, on_delete=models.CASCADE)
 
     long_put = models.OneToOneField(OptionPosition, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
 
     def __str__(self):
         return "ProtectivePut".format(

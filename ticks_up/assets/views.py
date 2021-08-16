@@ -96,6 +96,7 @@ def view_portfolio(request, portfolio_id):
     stock_positions = portfolio.stockposition_set.all()
     option_positions = portfolio.optionposition_set.all()
     positions = {}
+    positions_for_view = {}
 
     list_of_overall_pos = []
     industries = {}
@@ -112,7 +113,9 @@ def view_portfolio(request, portfolio_id):
         positions[t.name] = (stock, options)
 
         # Build User Portfolio
-        overall_pos = build_overall_pos(portfolio, t)
+        build_of_overall_pos = build_overall_pos(portfolio, t)
+        positions_for_view[t.name] = build_of_overall_pos[1]
+        overall_pos = build_of_overall_pos[0]
         list_of_overall_pos.append(overall_pos)
 
         if t.industry.name not in industries:
@@ -174,6 +177,7 @@ def view_portfolio(request, portfolio_id):
     return render(request, "assets/view_portfolio.html", {
         'portfolio': portfolio,
         'positions': positions,
+        'positions_for_view': positions_for_view,
         'portfolio_breakdown': portfolio_breakdown,
         'cashform': CashForm,
         'tform': TickerForm,
@@ -191,8 +195,18 @@ def view_portfolio(request, portfolio_id):
 
 
 def build_overall_pos(portfolio, t):
+    position_for_view = {'stock_position': None,
+                         'option_positions': {
+                             'butterfly_spreads': None,
+                             'collars': None,
+                             'protective_puts': None,
+                             'vertical_spreads': [],
+                             'naked_options': [],
+                         }
+    }
     try:
-        stock_position = make_stock(portfolio.stockposition_set.get(ticker=t))
+        stock = portfolio.stockposition_set.get(ticker=t)
+        stock_position = make_stock(stock)
         if portfolio.margin:
             stock_pos = StockPos(t.name, [stock_position], [], True, portfolio.margin)
         else:
@@ -203,21 +217,28 @@ def build_overall_pos(portfolio, t):
             stock_pos = StockPos(t.name, [], [], True, portfolio.margin)
         else:
             stock_pos = StockPos(t.name, [], [], False)
+    position_for_view['stock_position'] = stock
 
     spread_list = []
 
-    for bs in portfolio.butterflyspread_set.filter(ticker=t):
+    butterfly_spreads = portfolio.butterflyspread_set.filter(ticker=t)
+    position_for_view['option_positions']['butterfly_spreads'] = butterfly_spreads
+    for bs in butterfly_spreads:
         spread = pi.Condor(bs.types,
-                        make_vertical_spread(bs.bull_spread),
-                        make_vertical_spread(bs.bear_spread))
+                           make_vertical_spread(bs.bull_spread),
+                           make_vertical_spread(bs.bear_spread))
         spread_list.append(spread)
 
-    for c in portfolio.collar_set.filter(ticker=t):
+    collars = portfolio.collar_set.filter(ticker=t)
+    position_for_view['option_positions']['collars'] = collars
+    for c in collars:
         spread_list.append(pi.Collar(make_stock(c.stock_position),
-                                  make_option(c.long_put),
-                                  make_option(c.short_call)))
+                                     make_option(c.long_put),
+                                     make_option(c.short_call)))
 
-    for pp in portfolio.protectiveput_set.filter(ticker=t):
+    protective_puts = portfolio.protectiveput_set.filter(ticker=t)
+    position_for_view['option_positions']['protective_puts'] = protective_puts
+    for pp in protective_puts:
         spread_list.append(pi.HedgedStock(make_stock(pp.stock_position), make_option(pp.long_put)))
 
     # Check if vertical spread has been used before
@@ -231,6 +252,7 @@ def build_overall_pos(portfolio, t):
 
         if solo:
             spread_list.append(make_vertical_spread(vs))
+            position_for_view['option_positions']['vertical_spreads'].append(vs)
 
 
     option_lists = {
@@ -269,6 +291,7 @@ def build_overall_pos(portfolio, t):
                     option_lists['long_call'].append(op)
                 else:
                     option_lists['long_put'].append(op)
+            position_for_view['option_positions']['naked_options'].append(option)
 
     if portfolio.margin:
         option_pos = OptionPos(
@@ -292,12 +315,15 @@ def build_overall_pos(portfolio, t):
             False
         )
 
-    return OverallPos(
-        t.name,
-        stock_pos,
-        option_pos,
-        t.sector.name,
-        t.industry.name,
+    return (
+        OverallPos(
+            t.name,
+            stock_pos,
+            option_pos,
+            t.sector.name,
+            t.industry.name,
+        ),
+        position_for_view
     )
 
 
@@ -558,6 +584,7 @@ def add_vertical_spread(request, portfolio_id):
             vs.ticker = ticker
             vs.short_leg = short_leg
             vs.long_leg = long_leg
+            vs.quantity = quantity
             vs.save()
             return redirect(reverse('view_portfolio', args=[portfolio_id]))
 
@@ -656,6 +683,7 @@ def add_butterfly_spread(request, portfolio_id):
             bs.ticker = ticker
             bs.bull_spread = bull_spread
             bs.bear_spread = bear_spread
+            bs.quantity = quantity
             bs.save()
             return redirect(reverse('view_portfolio', args=[portfolio_id]))
 
@@ -718,6 +746,7 @@ def add_collar(request, portfolio_id, ticker_name):
                 stock_position=stock,
                 long_put=long_put,
                 short_call=short_call,
+                quantity=quantity,
             )
             collar.save()
             return redirect(reverse('view_portfolio', args=[portfolio_id]))
@@ -767,6 +796,7 @@ def add_protective_put(request, portfolio_id, ticker_name):
                 ticker=ticker,
                 stock_position=stock,
                 long_put=long_put,
+                quantity=quantity,
             )
             protective_put.save()
             return redirect(reverse('view_portfolio', args=[portfolio_id]))
@@ -873,6 +903,7 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
                 ticker=ticker,
                 stock_position=stock,
                 long_put=long_put,
+                quantity=quantity,
             )
             protective_put.save()
 
@@ -906,6 +937,7 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
                 stock_position=stock,
                 long_put=long_put,
                 short_call=short_call,
+                quantity=quantity,
             )
             collar.save()
 

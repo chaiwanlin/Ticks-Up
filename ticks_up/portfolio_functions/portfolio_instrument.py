@@ -91,7 +91,7 @@ class Call(Option):
                 self.outlook = BULL
                 risk = cost
             elif position == SHORT:
-                self.outlook ==  BEAR
+                self.outlook = BEAR
                 risk = math.inf
 
             super().__init__(position, quantity, cost, strike_price, expiry, value, risk)
@@ -126,7 +126,7 @@ class Put(Option):
                 self.outlook = BEAR
                 risk = cost
             elif position == SHORT:
-                self.outlook ==  BULL
+                self.outlook = BULL
                 risk = math.inf
             
             super().__init__(position, quantity, cost, strike_price, expiry, value, risk)

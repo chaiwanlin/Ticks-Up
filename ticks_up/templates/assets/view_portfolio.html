@@ -70,6 +70,8 @@
             </tr>
         </tbody>
     </table>
+
+    <!--
     <table class="table">
         <thead>
             <tr>
@@ -340,6 +342,428 @@
         {% endfor %}
         <tbody>
     </table>
+    -->
+
+    {% for symbol, positions in positions_for_view.items %}
+        <table class="table">
+            <thead>
+                <tr class="table-primary">
+                    <th scope="col">
+                        <a href="{% url 'search_ticker' %}?ticker={{ symbol }}" class="link-dark">{{ symbol }}</a>
+                    </th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-secondary">
+                    <th scope="col">Shares</th>
+                    <th scope="col">Average Price</th>
+                    <th scope="col">Total Cost</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+                <tr>
+                    {% if positions.stock_position %}
+                    <td>{{ positions.stock_position.total_shares }}</td>
+                    <td>{{ positions.stock_position.average_price }}</td>
+                    <td>{{ positions.stock_position.total_cost }}</td>
+                    <td>
+                        <button type="button" class="btn btn-warning btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#hedge{{ symbol }}Stock">
+                            <i class="bi bi-shield-shaded"></i>
+                            Hedge
+                        </button>
+
+                        <div class="modal fade" id="hedge{{ symbol }}Stock" tabindex="-1" aria-labelledby="hedge{{ symbol }}StockLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="hedge{{ symbol }}StockLabel">Hedge your stocks in {{ symbol }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="post" action="{% url 'hedge_stock_position' portfolio.id symbol %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        {{ hedge_stock_form|crispy }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Hedge</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}HedgePosition">
+                            <i class="bi bi-shield-plus"></i>
+                            Add hedge position
+                        </button>
+
+                        <div class="modal fade" id="add{{ symbol }}HedgePosition" tabindex="-1" aria-labelledby="add{{ symbol }}HedgePositionLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="add{{ symbol }}HedgePosition">Add your hedge position for {{ symbol }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                  <ul class="nav nav-tabs" id="hedgeTab" role="tablist">
+                                      <li class="nav-item" role="presentation">
+                                          <button class="nav-link active" id="collar-tab" data-bs-toggle="tab" data-bs-target="#collar" type="button" role="tab" aria-controls="collar" aria-selected="true">Collar</button>
+                                      </li>
+                                      <li class="nav-item" role="presentation">
+                                          <button class="nav-link" id="protective-put-tab" data-bs-toggle="tab" data-bs-target="#protective-put" type="button" role="tab" aria-controls="protective-put" aria-selected="false">Protective Put</button>
+                                      </li>
+                                  </ul>
+                                  <div class="tab-content" id="hedgeTabContent">
+                                      <div class="tab-pane fade show active" id="collar" role="tabpanel" aria-labelledby="collar-tab">
+                                          <form method="post" action="{% url 'add_collar' portfolio.id symbol %}">
+                                              {% csrf_token %}
+                                              <div class="mb-3">
+                                                  {{ cform|crispy }}
+                                              </div>
+                                              <button type="submit" class="btn btn-outline-primary">Save</button>
+                                          </form>
+                                      </div>
+                                      <div class="tab-pane fade" id="protective-put" role="tabpanel" aria-labelledby="protective-put-tab">
+                                          <form method="post" action="{% url 'add_protective_put' portfolio.id symbol %}">
+                                              {% csrf_token %}
+                                              <div class="mb-3">
+                                                  {{ ppform|crispy }}
+                                              </div>
+                                              <button type="submit" class="btn btn-outline-primary">Save</button>
+                                          </form>
+                                      </div>
+                                  </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </td>
+                    {% else %}
+                    <td colspan="3">-</td>
+                    <td>
+                        <button type="button" class="btn btn-warning btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#hedge{{ symbol }}Stock" disabled>
+                            <i class="bi bi-shield-shaded"></i>
+                            Hedge
+                        </button>
+
+                        <div class="modal fade" id="hedge{{ symbol }}Stock" tabindex="-1" aria-labelledby="hedge{{ symbol }}StockLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="hedge{{ symbol }}StockLabel">Hedge your stocks in {{ symbol }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="post" action="{% url 'hedge_stock_position' portfolio.id symbol %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        {{ hedge_stock_form|crispy }}
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Hedge</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}HedgePosition" disabled>
+                            <i class="bi bi-shield-plus"></i>
+                            Add hedge position
+                        </button>
+
+                        <div class="modal fade" id="add{{ symbol }}HedgePosition" tabindex="-1" aria-labelledby="add{{ symbol }}HedgePositionLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="add{{ symbol }}HedgePosition">Add your hedge position for {{ symbol }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                  <ul class="nav nav-tabs" id="hedgeTab" role="tablist">
+                                      <li class="nav-item" role="presentation">
+                                          <button class="nav-link active" id="collar-tab" data-bs-toggle="tab" data-bs-target="#collar" type="button" role="tab" aria-controls="collar" aria-selected="true">Collar</button>
+                                      </li>
+                                      <li class="nav-item" role="presentation">
+                                          <button class="nav-link" id="protective-put-tab" data-bs-toggle="tab" data-bs-target="#protective-put" type="button" role="tab" aria-controls="protective-put" aria-selected="false">Protective Put</button>
+                                      </li>
+                                  </ul>
+                                  <div class="tab-content" id="hedgeTabContent">
+                                      <div class="tab-pane fade show active" id="collar" role="tabpanel" aria-labelledby="collar-tab">
+                                          <form method="post" action="{% url 'add_collar' portfolio.id symbol %}">
+                                              {% csrf_token %}
+                                              <div class="mb-3">
+                                                  {{ cform|crispy }}
+                                              </div>
+                                              <button type="submit" class="btn btn-outline-primary">Save</button>
+                                          </form>
+                                      </div>
+                                      <div class="tab-pane fade" id="protective-put" role="tabpanel" aria-labelledby="protective-put-tab">
+                                          <form method="post" action="{% url 'add_protective_put' portfolio.id symbol %}">
+                                              {% csrf_token %}
+                                              <div class="mb-3">
+                                                  {{ ppform|crispy }}
+                                              </div>
+                                              <button type="submit" class="btn btn-outline-primary">Save</button>
+                                          </form>
+                                      </div>
+                                  </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </td>
+                    {% endif %}
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Basic outlined example">
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}StockPosition">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                            <div class="modal fade" id="add{{ symbol }}StockPosition" tabindex="-1" aria-labelledby="add{{ symbol }}StockPositionLabel" aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="add{{ symbol }}StockPositionLabel">Add {{ symbol }} stock position</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <form method="post" action="{% url 'edit_stock_position' portfolio_id=portfolio.id ticker_name=symbol add_or_remove='ADD' %}">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            {{ sform|crispy }}
+                                        </div>
+                                        <button type="submit" class="btn btn-outline-primary">Save</button>
+                                    </form>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}StockPosition">
+                                <i class="bi bi-dash-lg"></i>
+                            </button>
+                            <div class="modal fade" id="remove{{ symbol }}StockPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}StockPositionLabel" aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="remove{{ symbol }}StockPositionLabel">Remove {{ symbol }} stock position</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <form method="post" action="{% url 'edit_stock_position' portfolio_id=portfolio.id ticker_name=symbol add_or_remove='REMOVE' %}">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            {{ sform|crispy }}
+                                        </div>
+                                        <button type="submit" class="btn btn-outline-primary">Save</button>
+                                    </form>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="table-secondary">
+                    <th scope="col">Options</th>
+                    <th scope="col">Direction</th>
+                    <th scope="col">Average Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Total Cost</th>
+                    <th scope="col"></th>
+                </tr>
+                {% if positions.option_positions %}
+                    {% if positions.option_positions.naked_options %}
+                        {% for naked_option in positions.option_positions.naked_options %}
+                        <tr>
+                            <td>{{ naked_option }}</td>
+                            <td>{{ naked_option.long_or_short }}</td>
+                            <td>{{ naked_option.average_price }}</td>
+                            <td>{{ naked_option.total_contracts }}</td>
+                            <td>{{ naked_option.total_cost }}</td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}OptionPosition">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="add{{ symbol }}OptionPosition" tabindex="-1" aria-labelledby="add{{ symbol }}OptionPositionLabel" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="add{{ symbol }}OptionPositionLabel">Add {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'ADD' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ option.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ option.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ option.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ option.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}OptionPosition">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <div class="modal fade" id="remove{{ symbol }}OptionPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}OptionPositionLabel" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h5 class="modal-title" id="remove{{ symbol }}OptionPositionLabel">Remove {{ symbol }} option position</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <form method="post" action="{% url 'edit_option_position' portfolio.id symbol 'REMOVE' %}">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <input type="hidden" name="call_or_put" value="{{ option.call_or_put }}">
+                                                    <input type="hidden" name="long_or_short" value="{{ option.long_or_short }}">
+                                                    <input type="hidden" name="expiration_date" value="{{ option.expiration_date }}">
+                                                    <input type="hidden" name="strike_price" value="{{ option.strike_price }}">
+                                                    {{ eoform|crispy }}
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-primary">Save</button>
+                                            </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                    {% if positions.option_positions.protective_puts %}
+                        {% for protective_put in positions.option_positions.protective_puts %}
+                        <tr class="table-warning">
+                            <th scope="col">PROTECTIVE PUT</th>
+                            <th scope="col">QTY: {{ protective_put.quantity }}</th>
+                            <th scope="col" colspan="4"></th>
+                        </tr>
+                        <tr>
+                            <td>{{ protective_put.long_put }}</td>
+                            <td>{{ protective_put.long_put.long_or_short }}</td>
+                            <td>{{ protective_put.long_put.average_price }}</td>
+                            <td>{{ protective_put.long_put.total_contracts }}</td>
+                            <td>{{ protective_put.long_put.total_cost }}</td>
+                            <td></td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                    {% if positions.option_positions.collars %}
+                        {% for collar in positions.option_positions.collars %}
+                        <tr class="table-warning">
+                            <th scope="col">COLLAR</th>
+                            <th scope="col">QTY: {{ collar.quantity }}</th>
+                            <th scope="col" colspan="4"></th>
+                        </tr>
+                        <tr>
+                            <td>{{ collar.long_put }}</td>
+                            <td>{{ collar.long_put.long_or_short }}</td>
+                            <td>{{ collar.long_put.average_price }}</td>
+                            <td>{{ collar.long_put.total_contracts }}</td>
+                            <td>{{ collar.long_put.total_cost }}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>{{ collar.short_call }}</td>
+                            <td>{{ collar.short_call.long_or_short }}</td>
+                            <td>{{ collar.short_call.average_price }}</td>
+                            <td>{{ collar.short_call.total_contracts }}</td>
+                            <td>{{ collar.short_call.total_cost }}</td>
+                            <td></td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                    {% if positions.option_positions.vertical_spreads %}
+                        {% for vertical_spread in positions.option_positions.vertical_spreads %}
+                        <tr class="table-warning">
+                            <th scope="col">VERTICAL SPREAD</th>
+                            <th scope="col">{{ vertical_spread.types }} ({{ vertical_spread.credit_or_debit }})</th>
+                            <th scope="col">QTY: {{ vertical_spread.quantity }}</th>
+                            <th scope="col" colspan="3"></th>
+                        </tr>
+                        <tr>
+                            <td>{{ vertical_spread.short_leg }}</td>
+                            <td>{{ vertical_spread.short_leg.long_or_short }}</td>
+                            <td>{{ vertical_spread.short_leg.average_price }}</td>
+                            <td>{{ vertical_spread.short_leg.total_contracts }}</td>
+                            <td>{{ vertical_spread.short_leg.total_cost }}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>{{ vertical_spread.long_leg }}</td>
+                            <td>{{ vertical_spread.long_leg.long_or_short }}</td>
+                            <td>{{ vertical_spread.long_leg.average_price }}</td>
+                            <td>{{ vertical_spread.long_leg.total_contracts }}</td>
+                            <td>{{ vertical_spread.long_leg.total_cost }}</td>
+                            <td></td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                    {% if positions.option_positions.butterfly_spreads %}
+                        {% for butterfly_spread in positions.option_positions.butterfly_spreads %}
+                        <tr class="table-warning">
+                            <th scope="col">BUTTERFLY SPREAD</th>
+                            <th scope="col">{{ butterfly_spread.types }}</th>
+                            <th scope="col">QTY: {{ butterfly_spread.quantity }}</th>
+                            <th scope="col" colspan="3"></th>
+                        </tr>
+                        <tr>
+                            <td>{{ butterfly_spread.bull_spread.long_leg }}</td>
+                            <td>{{ butterfly_spread.bull_spread.long_leg.long_or_short }}</td>
+                            <td>{{ butterfly_spread.bull_spread.long_leg.average_price }}</td>
+                            <td>{{ butterfly_spread.bull_spread.long_leg.total_contracts }}</td>
+                            <td>{{ butterfly_spread.bull_spread.long_leg.total_cost }}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>{{ butterfly_spread.bull_spread.short_leg }}</td>
+                            <td>{{ butterfly_spread.bull_spread.short_leg.long_or_short }}</td>
+                            <td>{{ butterfly_spread.bull_spread.short_leg.average_price }}</td>
+                            <td>{{ butterfly_spread.bull_spread.short_leg.total_contracts }}</td>
+                            <td>{{ butterfly_spread.bull_spread.short_leg.total_cost }}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>{{ butterfly_spread.bear_spread.short_leg }}</td>
+                            <td>{{ butterfly_spread.bear_spread.short_leg.long_or_short }}</td>
+                            <td>{{ butterfly_spread.bear_spread.short_leg.average_price }}</td>
+                            <td>{{ butterfly_spread.bear_spread.short_leg.total_contracts }}</td>
+                            <td>{{ butterfly_spread.bear_spread.short_leg.total_cost }}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>{{ butterfly_spread.bear_spread.long_leg }}</td>
+                            <td>{{ butterfly_spread.bear_spread.long_leg.long_or_short }}</td>
+                            <td>{{ butterfly_spread.bear_spread.long_leg.average_price }}</td>
+                            <td>{{ butterfly_spread.bear_spread.long_leg.total_contracts }}</td>
+                            <td>{{ butterfly_spread.bear_spread.long_leg.total_cost }}</td>
+                            <td></td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+            </tbody>
+        </table>
+        <hr class="mb-4">
+    {% endfor %}
+
 
     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addStockPosition">
         <i class="bi bi-plus-circle-fill"></i>
