@@ -344,6 +344,7 @@ class Call(Option):
             }
         }
 
+    @staticmethod
     def call_valid(ticker, date, strike):
         exp = Call(ticker).expiration
         for e in exp:
@@ -430,13 +431,10 @@ class Put(Option):
             self.strikes.append(strike["strike"])
 
     def get_option_for_strike(self, strike_price):
-        found = False
         for strike in self.data:
             if strike_price == strike["strike"]:
-                found = True
                 data = strike
-        if found == True:
-            return PutOption(self.ticker, self.underlying, data)
+                return PutOption(self.ticker, self.underlying, data)            
         else:
             raise LookupError("no such strike")
     
@@ -842,6 +840,7 @@ class Put(Option):
             }
         }
 
+    @staticmethod
     def put_valid(ticker, date, strike):
         exp = Put(ticker).expiration
         for e in exp:
