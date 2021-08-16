@@ -23,7 +23,6 @@ class Option(Instrument):
         ticker_html = Stock.parse_stock_for_yahoo(ticker)
 
         self.expiry = datetime.datetime(year, month, day, tzinfo=datetime.timezone.utc).timestamp()
-        self.expiration_date = datetime.datetime.fromtimestamp(self.expiry).strftime("%Y-%m-%d")
 
         epoch = int(self.expiry)
     
@@ -51,6 +50,7 @@ class Option(Instrument):
                 response = urllib.request.urlopen(url)
                 data = json.loads(response.read())["optionChain"]["result"][0]
 
+            self.expiration_date = datetime.datetime.utcfromtimestamp(self.expiry).strftime("%Y-%m-%d")
             self.data = data
             self.options = data["options"][0]
             self.strikes = data["strikes"]
@@ -97,7 +97,7 @@ class Call(Option):
             raise LookupError("no such strike")        
 
     def get_nearest_day(self, day):
-        next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
+        next_date = datetime.datetime.utcfromtimestamp(self.expiry) + datetime.timedelta(days=day)
         return Call(self.ticker, next_date.year, next_date.month, next_date.day)
 
     def get_option_nearest_premium(self, lower_bound, premium):
@@ -440,7 +440,7 @@ class Put(Option):
             raise LookupError("no such strike")
     
     def get_nearest_day(self, day):
-        next_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=day)
+        next_date = datetime.datetime.utcfromtimestamp(self.expiry) + datetime.timedelta(days=day)
         return Put(self.ticker, next_date.year, next_date.month, next_date.day)
 
     def aggregated_iv(self):

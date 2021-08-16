@@ -34,8 +34,8 @@ def ticker_check(symbol):
             classification = Classification(symbol)
         except LookupError:
             raise LookupError("Invalid ticker!")
-        sector_name = classification.get_sector()
-        industry_name = classification.get_industry()
+        sector_name = classification.sector
+        industry_name = classification.industry
 
         try:
             sector = Sector.objects.get(name=sector_name)
@@ -678,7 +678,8 @@ def add_butterfly_spread(request, portfolio_id):
                 types='BULL',
                 credit_or_debit='CREDIT',
                 short_leg=short_put,
-                long_leg=long_put
+                long_leg=long_put,
+                quantity=quantity,
             )
             bear_spread = VerticalSpread(
                 portfolio=portfolio,
@@ -686,7 +687,8 @@ def add_butterfly_spread(request, portfolio_id):
                 types='BEAR',
                 credit_or_debit='CREDIT',
                 short_leg=short_call,
-                long_leg=long_call
+                long_leg=long_call,
+                quantity=quantity,
             )
             bull_spread.save()
             bear_spread.save()
@@ -828,8 +830,8 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
         return redirect(reverse('view_portfolio', args=[portfolio_id]))
 
     try:
-        stock = StockHedge(ticker)
-    except LookupError:
+        stock = StockHedge(ticker_name)
+    except LookupError as e:
         raise Http404("Ticker does not exist")
 
     hedge = {}
@@ -847,7 +849,7 @@ def hedge_stock_position(request, portfolio_id, ticker_name):
             if capped:
                 hedge['protective_put'] = hedge_stock(ticker_name, average_cost, risk, lower_bound, days, capped,
                                                 upper_bound)
-                hedge['collar'] = collar(ticker, days, average_cost, lower_bound, upper_bound, risk)
+                hedge['collar'] = collar(ticker_name, days, average_cost, lower_bound, upper_bound, risk)
             else:
                 hedge['protective_put'] = hedge_stock(ticker_name, average_cost, risk, lower_bound, days, capped,
                                                 upper_bound)
@@ -894,9 +896,9 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
             stock = portfolio.stockposition_set.get(ticker=ticker)
             total_shares = getattr(stock, 'total_shares')
             if total_shares < (quantity * 100):
-                raise Http404()
+                raise Http404("Insufficient stocks")
         except StockPosition.DoesNotExist:
-            raise Http404()
+            raise Http404("No stock position for this ticker")
 
         if strategy == 'protective_put':
             long_put = OptionPosition(
@@ -904,7 +906,7 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
                 ticker=ticker,
                 call_or_put='PUT',
                 long_or_short='LONG',
-                expiration_date=request.POST.get('expiration_date'),
+                expiration_date=datetime.datetime.strptime(request.POST.get('expiration_date'), '%Y-%m-%d'),
                 strike_price=decimal.Decimal(request.POST.get('strike_price')),
                 average_price=decimal.Decimal(request.POST.get('strike_premium')),
                 total_contracts=quantity
@@ -926,7 +928,7 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
                 ticker=ticker,
                 call_or_put='PUT',
                 long_or_short='LONG',
-                expiration_date=request.POST.get('expiration_date'),
+                expiration_date=datetime.datetime.strptime(request.POST.get('expiration_date'), '%Y-%m-%d'),
                 strike_price=decimal.Decimal(request.POST.get('strike_price')),
                 average_price=decimal.Decimal(request.POST.get('strike_premium')),
                 total_contracts=quantity
@@ -936,7 +938,7 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
                 ticker=ticker,
                 call_or_put='CALL',
                 long_or_short='SHORT',
-                expiration_date=request.POST.get('short_call_expiration_date'),
+                expiration_date=datetime.datetime.strptime(request.POST.get('expiration_date'), '%Y-%m-%d'),
                 strike_price=decimal.Decimal(request.POST.get('short_call_strike_price')),
                 average_price=decimal.Decimal(request.POST.get('short_call_strike_premium')),
                 total_contracts=quantity

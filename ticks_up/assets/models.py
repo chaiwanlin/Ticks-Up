@@ -182,7 +182,6 @@ class OptionPosition(models.Model):
                 self.average_price = ((option.average_price * option.total_contracts) + (self.average_price * self.total_contracts)) / (self.total_contracts + option.total_contracts)
             else:
                 self.average_price = option.average_price
-            print(option)
             self.total_contracts += option.total_contracts
 
             if self.total_contracts < 0:
@@ -202,7 +201,7 @@ class OptionPosition(models.Model):
             super().save(*args, **kwargs)
 
     def total_cost(self):
-        return self.average_price * self.total_contracts
+        return self.average_price * self.total_contracts * 100
 
 
 # VerticalSpread ---|many-to-one|---> Portfolio

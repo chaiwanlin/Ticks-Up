@@ -6,6 +6,8 @@ import urllib.error
 import json
 from bs4 import BeautifulSoup 
 import urllib.request as rq
+from pathlib import Path
+import os
 
 class Stock(Instrument):
 
@@ -43,19 +45,20 @@ class Stock(Instrument):
         return self.exchange
 
     def get_stock_exchange(ticker):
-        try: 
+        try:
             ticker = ticker.upper()
             request = rq.urlopen(f"https://www.tradingview.com/symbols/{ticker}/")
             soup = BeautifulSoup(request.read(), 'html.parser')
 
             return soup.find("span", class_ = "tv-symbol-header__exchange").text.replace(" ", "")
-        except Exception:
+        except Exception as e:
+            print(e)
             raise LookupError("invalid ticker :D")
         
     def parse_stock_for_yahoo(ticker):
         try:
             result = Stock.get_stock_exchange(ticker)
-            f = open('index.json', "r")
+            f = open(os.path.join(Path(__file__).resolve().parent.parent, './static/json_files/index.json'), "r")
             data = json.load(f)
             result = ticker + data[result]
             return result

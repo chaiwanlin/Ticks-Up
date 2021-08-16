@@ -40,7 +40,7 @@ class User_Portfolio:
     def breakdown_by_ticker(self):
         dic = {}
         for e in self.tickers:
-            dic[e.ticker] = e.value / self.total_value
+            dic[e.ticker] = e.total_value / self.total_value
 
         return dic
     
@@ -83,7 +83,7 @@ class Sector_Portfolio:
     def breakdown_by_ticker(self):
         dic = {}
         for e in self.tickers:
-            dic[e.ticker] = e.value / self.total_value
+            dic[e.ticker] = e.total_value / self.total_value
 
         return dic
     
@@ -125,7 +125,7 @@ class Industry_Portfolio:
     def breakdown_by_ticker(self):
         dic = {}
         for e in self.tickers:
-            dic[e.ticker] = e.value / self.total_value
+            dic[e.ticker] = e.total_value / self.total_value
 
         return dic
 
