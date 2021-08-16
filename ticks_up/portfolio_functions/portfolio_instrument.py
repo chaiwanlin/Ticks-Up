@@ -25,7 +25,6 @@ class Cash(Asset):
 
 
 class Instrument(Asset):
-
     def __init__(self, position, quantity, cost, value, leveraged_quantity, risk):
         super().__init__(quantity, cost, value)
         self.position = position
@@ -38,9 +37,15 @@ class Instrument(Asset):
         self.lot_risk = self.leveraged_quantity * self.risk
         self.short_PL = self.leveraged_quantity * (self.cost - self.value)
 
+    def p_and_l(self):
+        if self.position == LONG:
+            return self.value - self.cost
+        elif self.position == SHORT:
+            return self.cost - self.value
+        else:
+            raise ValueError("Invalid Position")
 
 class Stock(Instrument):
-
     # ticker: string (e.g. "AMC")
     # position: "LONG" or "SHORT"
     # quantity: float
@@ -49,7 +54,7 @@ class Stock(Instrument):
         if position == LONG or position == SHORT:
             self.ticker = ticker
             try:
-                value = Stock_Data(ticker).get_price()
+                value = Stock_Data(ticker).price
             except LookupError:
                 value = cost
 
@@ -61,8 +66,6 @@ class Stock(Instrument):
                 risk = math.inf
             
             super().__init__(position, quantity, cost, value, quantity, risk)
-
-            
         else:
             raise ValueError("enter a valid position: LONG/SHORT")
 
@@ -96,8 +99,6 @@ class Call(Option):
 
             super().__init__(position, quantity, cost, strike_price, expiry, value, risk)
             self.ticker = ticker
-
-            
         else:
             raise ValueError("enter a valid position: LONG/SHORT")
 
@@ -132,7 +133,6 @@ class Put(Option):
             super().__init__(position, quantity, cost, strike_price, expiry, value, risk)
 
             self.ticker = ticker
-
         else:
             raise ValueError("enter a valid position: LONG/SHORT")
         

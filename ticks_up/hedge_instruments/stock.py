@@ -48,7 +48,6 @@ class Stock(Instrument):
 
         result = soup.find("span", class_ = "tv-symbol-header__exchange").text.replace(" ", "")
         
-
         try:
             f = open('index.json', "r")
             data = json.load(f)
@@ -58,4 +57,4 @@ class Stock(Instrument):
             raise LookupError("invalid ticker :D")
 
         
-Stock("S68.SI")
+# Stock("S68.SI")
