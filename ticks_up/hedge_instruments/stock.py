@@ -47,7 +47,6 @@ class Stock(Instrument):
         soup = BeautifulSoup(request.read(), 'html.parser')
 
         result = soup.find("span", class_ = "tv-symbol-header__exchange").text.replace(" ", "")
-        
 
         try:
             f = open('index.json', "r")

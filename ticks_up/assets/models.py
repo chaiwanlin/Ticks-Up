@@ -4,6 +4,7 @@ from django.core.validators import MinValueValidator
 from decimal import Decimal
 from hedge_instruments.option import Call, Put
 import datetime
+from datetime import timezone
 from portfolio_functions.industry import Industry as Classification
 
 
@@ -154,11 +155,14 @@ class OptionPosition(models.Model):
     def save(self, *args, **kwargs):
         # Validate option position
         try:
+            exp = datetime.datetime(year=self.expiration_date.year,
+                                    month=self.expiration_date.month,
+                                    day=self.expiration_date.day,
+                                    tzinfo=datetime.timezone.utc)
             if self.call_or_put == 'CALL':
-                option_instr = Call.call_valid(self.ticker.name, self.expiration_date, self.strike_price)
+                Call.call_valid(self.ticker.name, exp, self.strike_price)
             else:
-                option_instr = Put.put_valid(self.ticker.name, self.expiration_date, self.strike_price)
-            option_instr.get_option_for_strike(self.strike_price)
+                Put.put_valid(self.ticker.name, exp, self.strike_price)
         except LookupError:
             raise LookupError("Option position is invalid!")
 
@@ -178,6 +182,7 @@ class OptionPosition(models.Model):
                 self.average_price = ((option.average_price * option.total_contracts) + (self.average_price * self.total_contracts)) / (self.total_contracts + option.total_contracts)
             else:
                 self.average_price = option.average_price
+            print(option)
             self.total_contracts += option.total_contracts
 
             if self.total_contracts < 0:
@@ -191,6 +196,7 @@ class OptionPosition(models.Model):
                 # Valid edit, update option position
                 option.delete()
                 super().save(*args, **kwargs)
+
         except OptionPosition.DoesNotExist:
             # Stock position does not exist yet, create
             super().save(*args, **kwargs)

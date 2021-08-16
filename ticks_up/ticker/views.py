@@ -27,8 +27,8 @@ def search_ticker(request):
 
             try:
                 ticker_info = Industry(ticker)
-                sector = ticker_info.get_sector()
-                industry = ticker_info.get_industry()
+                sector = ticker_info.sector
+                industry = ticker_info.industry
             except LookupError:
                 error = "Not Available"
                 sector = error

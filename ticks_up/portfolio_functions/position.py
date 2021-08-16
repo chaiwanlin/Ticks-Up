@@ -145,7 +145,7 @@ class OptionPosition:
                 long_call = long_calls.pop(0)
                 long_empty = False
 
-            if short_call.strike < long_call.strike:
+            if short_call.strike_price < long_call.strike_price:
                 if short_call.quantity < long_call.quantity:
                     n = short_call.quantity
                     extracted_long_call = long_call.extract_quantity(n)
@@ -164,7 +164,7 @@ class OptionPosition:
                     long_empty = True      
                 
                     # bull debit spread
-            elif short_call.strike > long_call.strike:
+            elif short_call.strike_price > long_call.strike_price:
                 if short_call.quantity < long_call.quantity:
                     n = short_call.quantity
                     extracted_long_call = long_call.extract_quantity(n)

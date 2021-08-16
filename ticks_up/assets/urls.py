@@ -17,4 +17,5 @@ urlpatterns = [
     path('<int:portfolio_id>/STOCK-<str:ticker_name>-<str:add_or_remove>', edit_stock_position, name='edit_stock_position'),
     path('<int:portfolio_id>/hedge-<str:ticker_name>-stock-position', hedge_stock_position, name='hedge_stock_position'),
     path('<int:portfolio_id>/add-hedge-<str:ticker_name>-stock-position/', add_hedge_stock_position, name='add_hedge_stock_position'),
+    path('<int:portfolio_id>/<str:ticker_name>-delete-spread/', delete_spread, name='delete_spread'),
 ]

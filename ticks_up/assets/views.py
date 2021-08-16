@@ -498,6 +498,7 @@ def edit_option_position(request, portfolio_id, ticker_name, add_or_remove):
                 expiration_date=datetime.datetime.strptime(request.POST.get('expiration_date'), '%b. %d, %Y').strftime('%Y-%m-%d'),
                 strike_price=request.POST.get('strike_price'),
             )
+
             if add_or_remove == "ADD":
                 option_position = eoform.save(commit=False)
                 option_position.portfolio = option.portfolio
@@ -518,7 +519,10 @@ def edit_option_position(request, portfolio_id, ticker_name, add_or_remove):
                     average_price=-eoform.cleaned_data['average_price'],
                     total_contracts=-eoform.cleaned_data['total_contracts'],
                 )
-                option_position.save()
+                try:
+                    option_position.save()
+                except ValueError:
+                    raise Http404("You cannot sell more contracts than you own!")
 
     return redirect(reverse('view_portfolio', args=[portfolio_id]))
 
@@ -783,7 +787,7 @@ def add_protective_put(request, portfolio_id, ticker_name):
             try:
                 stock = portfolio.stockposition_set.get(ticker=ticker)
                 total_shares = getattr(stock, 'total_shares')
-                if total_shares <= (quantity * 100):
+                if total_shares < (quantity * 100):
                     raise Http404()
             except StockPosition.DoesNotExist:
                 raise Http404()
@@ -951,3 +955,38 @@ def add_hedge_stock_position(request, portfolio_id, ticker_name):
             collar.save()
 
     return redirect(reverse('view_portfolio', args=[portfolio_id]))
+
+
+@login_required
+def delete_spread(request, portfolio_id, ticker_name):
+    portfolio = Portfolio.objects.get(id=portfolio_id)
+    if not user_check(request.user, portfolio_id):
+        return redirect(reverse('assets'))
+    if request.method == 'POST':
+        pk = request.POST.get('pk')
+        spread_type = request.POST.get('spread_type')
+
+        if spread_type == 'PROTECTIVE PUT':
+            spread = portfolio.protectiveput_set.get(pk=pk)
+            spread.long_put.delete()
+        elif spread_type == 'COLLAR':
+            spread = portfolio.collar_set.get(pk=pk)
+            spread.long_put.delete()
+            spread.short_call.delete()
+        elif spread_type == 'VERTICAL SPREAD':
+            spread = portfolio.verticalspread_set.get(pk=pk)
+            spread.short_leg.delete()
+            spread.long_leg.delete()
+        elif spread_type == 'BUTTERFLY SPREAD':
+            spread = portfolio.verticalspread_set.get(pk=pk)
+            spread.bull_spread.long_leg.delete()
+            spread.bull_spread.short_leg.delete()
+            spread.bear_spread.short_leg.delete()
+            spread.bear_spread.long_leg.delete()
+            spread.bull_spread.delete()
+            spread.bear_spread.delete()
+        spread.delete()
+
+        return redirect(reverse('view_portfolio', args=[portfolio_id]))
+
+    return HttpResponse("<h1>You don't belong here</h1>")

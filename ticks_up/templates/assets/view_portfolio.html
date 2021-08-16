@@ -590,14 +590,14 @@
                             <td>{{ naked_option.total_cost }}</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ naked_option }}">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}{{ naked_option.pk }}NakedOptionPosition">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ naked_option }}" tabindex="-1" aria-labelledby="add{{ naked_option }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ symbol }}{{ naked_option.pk }}NakedOptionPosition" tabindex="-1" aria-labelledby="add{{ symbol }}{{ naked_option.pk }}NakedOptionPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ naked_option }}Label">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ symbol }}{{ naked_option.pk }}NakedOptionPositionLabel">Add {{ symbol }} {{ naked_option }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -617,14 +617,14 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ naked_option }}">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}{{ naked_option.pk }}NakedOptionPosition">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ naked_option }}" tabindex="-1" aria-labelledby="remove{{ naked_option }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ symbol }}{{ naked_option.pk }}NakedOptionPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}{{ naked_option.pk }}NakedOptionPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ naked_option }}Label">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ symbol }}{{ naked_option.pk }}NakedOptionPositionLabel">Remove {{ symbol }} {{ naked_option }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -652,7 +652,34 @@
                         {% for protective_put in positions.option_positions.protective_puts %}
                         <tr class="table-warning">
                             <th scope="col">PROTECTIVE PUT</th>
-                            <th scope="col" colspan="5"></th>
+                            <th scope="col" colspan="4"></th>
+                            <th scope="col">
+                                <button type="button" class="btn btn-danger btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#delete{{ protective_put.pk }}ProtectivePut">
+                                    <i class="bi bi-x-square"></i>
+                                    Delete spread
+                                </button>
+
+                                <div class="modal fade" id="delete{{ protective_put.pk }}ProtectivePut" tabindex="-1" aria-labelledby="delete{{ protective_put.pk }}ProtectivePutLabel" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h5 class="modal-title" id="delete{{ protective_put.pk }}ProtectivePutLabel">Delete spread?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <form method="post" action="{% url 'delete_spread' portfolio.id symbol %}">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                                <input type="hidden" name="spread_type" value="PROTECTIVE PUT">
+                                                <input type="hidden" name="pk" value="{{ protective_put.pk }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-outline-primary">Confirm</button>
+                                        </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </th>
                         </tr>
                         <tr>
                             <td>{{ protective_put.long_put }}</td>
@@ -660,16 +687,17 @@
                             <td>{{ protective_put.long_put.average_price }}</td>
                             <td>{{ protective_put.long_put.total_contracts }}</td>
                             <td>{{ protective_put.long_put.total_cost }}</td>
+                            <!--
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ protective_put }}">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}ProtectivePutPosition">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ protective_put }}" tabindex="-1" aria-labelledby="add{{ protective_put }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ symbol }}ProtectivePutPosition" tabindex="-1" aria-labelledby="add{{ symbol }}ProtectivePutPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ protective_put }}Label">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ symbol }}ProtectivePutPositionLabel">Add {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -689,14 +717,14 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ protective_put }}">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}ProtectivePutPosition">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ protective_put }}" tabindex="-1" aria-labelledby="remove{{ protective_put }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ symbol }}ProtectivePutPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}ProtectivePutPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ protective_put }}Label">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ symbol }}ProtectivePutPositionLabel">Remove {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -717,6 +745,8 @@
                                     </div>
                                 </div>
                             </td>
+                            -->
+                            <td></td>
                         </tr>
                         {% endfor %}
                     {% endif %}
@@ -724,7 +754,34 @@
                         {% for collar in positions.option_positions.collars %}
                         <tr class="table-warning">
                             <th scope="col">COLLAR</th>
-                            <th scope="col" colspan="5"></th>
+                            <th scope="col" colspan="4"></th>
+                            <th scope="col">
+                                <button type="button" class="btn btn-danger btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#delete{{ collars.pk }}Collar">
+                                    <i class="bi bi-x-square"></i>
+                                    Delete spread
+                                </button>
+
+                                <div class="modal fade" id="delete{{ collars.pk }}Collar" tabindex="-1" aria-labelledby="delete{{ collars.pk }}CollarLabel" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h5 class="modal-title" id="delete{{ collars.pk }}CollarLabel">Delete spread?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <form method="post" action="{% url 'delete_spread' portfolio.id symbol %}">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                                <input type="hidden" name="spread_type" value="COLLAR">
+                                                <input type="hidden" name="pk" value="{{ collar.pk }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-outline-primary">Confirm</button>
+                                        </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </th>
                         </tr>
                         <tr>
                             <td>{{ collar.long_put }}</td>
@@ -732,16 +789,17 @@
                             <td>{{ collar.long_put.average_price }}</td>
                             <td>{{ collar.long_put.total_contracts }}</td>
                             <td>{{ collar.long_put.total_cost }}</td>
+                            <!--
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ collar.long_put }}">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}CollarLongPutPosition">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ collar.long_put }}" tabindex="-1" aria-labelledby="add{{ collar.long_put }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ symbol }}CollarLongPutPosition" tabindex="-1" aria-labelledby="add{{ symbol }}CollarLongPutPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ collar.long_put }}Label">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ symbol }}CollarLongPutPositionLabel">Add {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -761,14 +819,14 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ collar.long_put }}">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}CollarLongPutPosition">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ collar.long_put }}" tabindex="-1" aria-labelledby="remove{{ collar.long_put }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ symbol }}CollarLongPutPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}CollarLongPutPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ collar.long_put }}Label">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ symbol }}CollarLongPutPositionLabel">Remove {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -788,7 +846,8 @@
                                       </div>
                                     </div>
                                 </div>
-                            </td>
+                            </td>-->
+                            <td></td>
                         </tr>
                         <tr>
                             <td>{{ collar.short_call }}</td>
@@ -796,16 +855,17 @@
                             <td>{{ collar.short_call.average_price }}</td>
                             <td>{{ collar.short_call.total_contracts }}</td>
                             <td>{{ collar.short_call.total_cost }}</td>
+                            <!--
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ collar.short_call }}">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}CollarShortCallPosition">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ collar.short_call }}" tabindex="-1" aria-labelledby="add{{ collar.short_call }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ symbol }}CollarShortCallPosition" tabindex="-1" aria-labelledby="add{{ symbol }}CollarShortCallPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ collar.short_call }}Label">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ symbol }}CollarShortCallPositionLabel">Add {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -825,14 +885,14 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ collar.short_call }}">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}CollarShortCallPosition">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ collar.short_call }}" tabindex="-1" aria-labelledby="remove{{ collar.short_call }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ symbol }}CollarShortCallPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}CollarShortCallPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ collar.short_call }}Label">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ symbol }}CollarShortCallPositionLabel">Remove {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -852,7 +912,8 @@
                                       </div>
                                     </div>
                                 </div>
-                            </td>
+                            </td>-->
+                            <td></td>
                         </tr>
                         {% endfor %}
                     {% endif %}
@@ -861,7 +922,34 @@
                         <tr class="table-warning">
                             <th scope="col">VERTICAL SPREAD</th>
                             <th scope="col">{{ vertical_spread.types }} ({{ vertical_spread.credit_or_debit }})</th>
-                            <th scope="col" colspan="4"></th>
+                            <th scope="col" colspan="3"></th>
+                            <th scope="col">
+                                <button type="button" class="btn btn-danger btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#delete{{ vertical_spread.pk }}VS">
+                                    <i class="bi bi-x-square"></i>
+                                    Delete spread
+                                </button>
+
+                                <div class="modal fade" id="delete{{ vertical_spread.pk }}VS" tabindex="-1" aria-labelledby="delete{{ vertical_spread.pk }}VSLabel" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h5 class="modal-title" id="delete{{ vertical_spread.pk }}VSLabel">Delete spread?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <form method="post" action="{% url 'delete_spread' portfolio.id symbol %}">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                                <input type="hidden" name="spread_type" value="VERTICAL SPREAD">
+                                                <input type="hidden" name="pk" value="{{ vertical_spread.pk }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-outline-primary">Confirm</button>
+                                        </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </th>
                         </tr>
                         <tr>
                             <td>{{ vertical_spread.short_leg }}</td>
@@ -869,16 +957,17 @@
                             <td>{{ vertical_spread.short_leg.average_price }}</td>
                             <td>{{ vertical_spread.short_leg.total_contracts }}</td>
                             <td>{{ vertical_spread.short_leg.total_cost }}</td>
+                            <!--
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ vertical_spread.short_leg }}">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}VSShortLegPosition">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ vertical_spread.short_leg }}" tabindex="-1" aria-labelledby="add{{ vertical_spread.short_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ symbol }}VSShortLegPosition" tabindex="-1" aria-labelledby="add{{ symbol }}VSShortLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ vertical_spread.short_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ symbol }}VSShortLegPositionLabel">Add {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -898,14 +987,14 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ vertical_spread.short_leg }}">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}VSShortLegPosition">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ vertical_spread.short_leg }}" tabindex="-1" aria-labelledby="remove{{ vertical_spread.short_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ symbol }}VSShortLegPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}VSShortLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ vertical_spread.short_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ symbol }}VSShortLegPositionLabel">Remove {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -925,7 +1014,8 @@
                                       </div>
                                     </div>
                                 </div>
-                            </td>
+                            </td>-->
+                            <td></td>
                         </tr>
                         <tr>
                             <td>{{ vertical_spread.long_leg }}</td>
@@ -933,16 +1023,17 @@
                             <td>{{ vertical_spread.long_leg.average_price }}</td>
                             <td>{{ vertical_spread.long_leg.total_contracts }}</td>
                             <td>{{ vertical_spread.long_leg.total_cost }}</td>
+                            <!--
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ vertical_spread.long_leg }}">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}VSLongLegPosition">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ vertical_spread.long_leg }}" tabindex="-1" aria-labelledby="add{{ vertical_spread.long_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ symbol }}VSLongLegPosition" tabindex="-1" aria-labelledby="add{{ symbol }}VSLongLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ vertical_spread.long_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ symbol }}VSLongLegPositionLabel">Add {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -962,14 +1053,14 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ vertical_spread.long_leg }}">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}VSLongLegPosition">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ vertical_spread.long_leg }}" tabindex="-1" aria-labelledby="remove{{ vertical_spread.long_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ symbol }}VSLongLegPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}VSLongLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ vertical_spread.long_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ symbol }}VSLongLegPositionLabel">Remove {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -989,7 +1080,8 @@
                                       </div>
                                     </div>
                                 </div>
-                            </td>
+                            </td>-->
+                            <td></td>
                         </tr>
                         {% endfor %}
                     {% endif %}
@@ -998,7 +1090,34 @@
                         <tr class="table-warning">
                             <th scope="col">BUTTERFLY SPREAD</th>
                             <th scope="col">{{ butterfly_spread.types }}</th>
-                            <th scope="col" colspan="4"></th>
+                            <th scope="col" colspan="3"></th>
+                            <th scope="col">
+                                <button type="button" class="btn btn-danger btn-sm ms-5" data-bs-toggle="modal" data-bs-target="#delete{{ butterfly_spread.pk }}BS">
+                                    <i class="bi bi-x-square"></i>
+                                    Delete spread
+                                </button>
+
+                                <div class="modal fade" id="delete{{ butterfly_spread.pk }}BS" tabindex="-1" aria-labelledby="delete{{ butterfly_spread.pk }}BSLabel" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h5 class="modal-title" id="delete{{ butterfly_spread.pk }}BSLabel">Delete spread?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <form method="post" action="{% url 'delete_spread' portfolio.id symbol %}">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                                <input type="hidden" name="spread_type" value="BUTTERFLY SPREAD">
+                                                <input type="hidden" name="pk" value="{{ butterfly_spread.pk }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-outline-primary">Confirm</button>
+                                        </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </th>
                         </tr>
                         <tr>
                             <td>{{ butterfly_spread.bull_spread.long_leg }}</td>
@@ -1006,16 +1125,17 @@
                             <td>{{ butterfly_spread.bull_spread.long_leg.average_price }}</td>
                             <td>{{ butterfly_spread.bull_spread.long_leg.total_contracts }}</td>
                             <td>{{ butterfly_spread.bull_spread.long_leg.total_cost }}</td>
+                            <!--
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ butterfly_spread.bull_spread.long_leg }}">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}BSBullLongLegPosition">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ butterfly_spread.bull_spread.long_leg }}" tabindex="-1" aria-labelledby="add{{ butterfly_spread.bull_spread.long_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ symbol }}BSBullLongLegPosition" tabindex="-1" aria-labelledby="add{{ symbol }}BSBullLongLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ butterfly_spread.bull_spread.long_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ symbol }}BSBullLongLegPositionLabel">Add {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -1035,14 +1155,14 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ butterfly_spread.bull_spread.long_leg }}">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}BSBullLongLegPosition">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ butterfly_spread.bull_spread.long_leg }}" tabindex="-1" aria-labelledby="remove{{ butterfly_spread.bull_spread.long_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ symbol }}BSBullLongLegPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}BSBullLongLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ butterfly_spread.bull_spread.long_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ symbol }}BSBullLongLegPositionLabel">Remove {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -1062,7 +1182,8 @@
                                       </div>
                                     </div>
                                 </div>
-                            </td>
+                            </td>-->
+                            <td></td>
                         </tr>
                         <tr>
                             <td>{{ butterfly_spread.bull_spread.short_leg }}</td>
@@ -1070,16 +1191,17 @@
                             <td>{{ butterfly_spread.bull_spread.short_leg.average_price }}</td>
                             <td>{{ butterfly_spread.bull_spread.short_leg.total_contracts }}</td>
                             <td>{{ butterfly_spread.bull_spread.short_leg.total_cost }}</td>
+                            <!--
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ butterfly_spread.bull_spread.short_leg }}">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}BSBullShortLegPosition">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ butterfly_spread.bull_spread.short_leg }}" tabindex="-1" aria-labelledby="add{{ butterfly_spread.bull_spread.short_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ symbol }}BSBullShortLegPosition" tabindex="-1" aria-labelledby="add{{ symbol }}BSBullShortLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ butterfly_spread.bull_spread.short_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ symbol }}BSBullShortLegPositionLabel">Add {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -1099,14 +1221,14 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ butterfly_spread.bull_spread.short_leg }}">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}BSBullShortLegPosition">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ butterfly_spread.bull_spread.short_leg }}" tabindex="-1" aria-labelledby="remove{{ butterfly_spread.bull_spread.short_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ symbol }}BSBullShortLegPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}BSBullShortLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ butterfly_spread.bull_spread.short_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ symbol }}BSBullShortLegPositionLabel">Remove {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -1126,7 +1248,8 @@
                                       </div>
                                     </div>
                                 </div>
-                            </td>
+                            </td>-->
+                            <td></td>
                         </tr>
                         <tr>
                             <td>{{ butterfly_spread.bear_spread.short_leg }}</td>
@@ -1134,16 +1257,17 @@
                             <td>{{ butterfly_spread.bear_spread.short_leg.average_price }}</td>
                             <td>{{ butterfly_spread.bear_spread.short_leg.total_contracts }}</td>
                             <td>{{ butterfly_spread.bear_spread.short_leg.total_cost }}</td>
+                            <!--
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ butterfly_spread.bear_spread.short_leg }}">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}BSBearShortLegPosition">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ butterfly_spread.bear_spread.short_leg }}" tabindex="-1" aria-labelledby="add{{ butterfly_spread.bear_spread.short_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ symbol }}BSBearShortLegPosition" tabindex="-1" aria-labelledby="add{{ symbol }}BSBearShortLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ butterfly_spread.bear_spread.short_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ symbol }}BSBearShortLegPositionLabel">Add {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -1163,14 +1287,14 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ butterfly_spread.bear_spread.short_leg }}">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}BSBearShortLegPosition">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ butterfly_spread.bear_spread.short_leg }}" tabindex="-1" aria-labelledby="remove{{ butterfly_spread.bear_spread.short_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ symbol }}BSBearShortLegPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}BSBearShortLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ butterfly_spread.bear_spread.short_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ symbol }}BSBearShortLegPositionLabel">Remove {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -1190,7 +1314,8 @@
                                       </div>
                                     </div>
                                 </div>
-                            </td>
+                            </td>-->
+                            <td></td>
                         </tr>
                         <tr>
                             <td>{{ butterfly_spread.bear_spread.long_leg }}</td>
@@ -1198,16 +1323,17 @@
                             <td>{{ butterfly_spread.bear_spread.long_leg.average_price }}</td>
                             <td>{{ butterfly_spread.bear_spread.long_leg.total_contracts }}</td>
                             <td>{{ butterfly_spread.bear_spread.long_leg.total_cost }}</td>
+                            <!--
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ butterfly_spread.bear_spread.long_leg }}">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#add{{ symbol }}BSBearLongLegPosition">
                                         <i class="bi bi-plus-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="add{{ butterfly_spread.bear_spread.long_leg }}" tabindex="-1" aria-labelledby="add{{ butterfly_spread.bear_spread.long_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="add{{ symbol }}BSBearLongLegPosition" tabindex="-1" aria-labelledby="add{{ symbol }}BSBearLongLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="add{{ butterfly_spread.bear_spread.long_leg }}Label">Add {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="add{{ symbol }}BSBearLongLegPositionLabel">Add {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -1227,14 +1353,14 @@
                                       </div>
                                     </div>
 
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ butterfly_spread.bear_spread.long_leg }}">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#remove{{ symbol }}BSBearLongLegPosition">
                                         <i class="bi bi-dash-lg"></i>
                                     </button>
-                                    <div class="modal fade" id="remove{{ butterfly_spread.bear_spread.long_leg }}" tabindex="-1" aria-labelledby="remove{{ butterfly_spread.bear_spread.long_leg }}Label" aria-hidden="true">
+                                    <div class="modal fade" id="remove{{ symbol }}BSBearLongLegPosition" tabindex="-1" aria-labelledby="remove{{ symbol }}BSBearLongLegPositionLabel" aria-hidden="true">
                                       <div class="modal-dialog">
                                         <div class="modal-content">
                                           <div class="modal-header">
-                                            <h5 class="modal-title" id="remove{{ butterfly_spread.bear_spread.long_leg }}Label">Remove {{ symbol }} option position</h5>
+                                            <h5 class="modal-title" id="remove{{ symbol }}BSBearLongLegPositionLabel">Remove {{ symbol }} option position</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                           </div>
                                           <div class="modal-body">
@@ -1254,7 +1380,8 @@
                                       </div>
                                     </div>
                                 </div>
-                            </td>
+                            </td>-->
+                            <td></td>
                         </tr>
                         {% endfor %}
                     {% endif %}
