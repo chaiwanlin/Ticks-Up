@@ -15,7 +15,7 @@ git pull https://github.com/chaiwanlin/TicksUp.git
 ````
 Then to checkout our latest milestone:
 ````
-git checkout ms3
+git checkout Orbital
 ````
 Next, you will have to install the requirements for the app to run.
 Make sure you are in the main directory.
