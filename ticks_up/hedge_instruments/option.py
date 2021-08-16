@@ -850,6 +850,7 @@ class Put(Option):
             raise LookupError("invalid date")
 
 class PutOption:
+    
     def __init__(self, ticker, underlying, data):
         now = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         self.ticker = ticker

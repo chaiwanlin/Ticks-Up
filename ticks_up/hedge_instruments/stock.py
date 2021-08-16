@@ -57,4 +57,4 @@ class Stock(Instrument):
             raise LookupError("invalid ticker :D")
 
         
-Stock("S68.SI")
+# Stock("S68.SI")
